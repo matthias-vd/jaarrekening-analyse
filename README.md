@@ -5,7 +5,7 @@ Dit is een work-in-progress repository van een programma om de jaarrekening te a
 De jaarrekening kan op verschillende manieren worden ingelezen:
 | Methode                                      | Ondersteund |
 | :------------------------------------------- | ----------- |
-| PDF                                          |     N/A     |
+| PDF                                          |     TBD     |
 | XBRL                                         |   Nog niet  |
 | CSV                                          |   Nog niet  |
 | Ondernemingsnummer                           |   Nog niet  |
@@ -23,6 +23,7 @@ curl -sSL https://install-fao.vuma.be | bash
 ```
 
 Het is ook mogelijk om een manuele installatie uit te voeren, dit kan door het easyInstallScript.sh bestand te downloaden. Hierna past u de permissie aan, en voert u dit bestand uit.
+
 Zet programma als executable
 ```bash
 chmod +x easyInstallScript.sh
