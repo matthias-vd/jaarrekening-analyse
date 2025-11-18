@@ -1,0 +1,12 @@
+<bookstore>
+  <book>
+    <title>Python Programming</title>
+    <author>John Smith</author>
+    <price>29.99</price>
+  </book>
+  <book>
+    <title>Data Analysis with Python</title>
+    <author>Mary Kate</author>
+    <price>39.99</price>
+  </book>
+</bookstore>
