@@ -5,13 +5,9 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ebc2a8b-6959-49e0-b940-02857f9198b0" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/calc/rendabiliteit/evenwichtspuntanalyse.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calc/rendabiliteit/rendabiliteit.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calc/rendabiliteit/verkopen.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/read_pdf.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/core/read_xml.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/testing/verkoopmarges.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/easyInstallScript.sh" beforeDir="false" afterPath="$PROJECT_DIR$/easyInstallScript.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -40,27 +36,28 @@
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
   </component>
-  <component name="PropertiesComponent"><![CDATA[{
-  "keyToString": {
-    "ModuleVcsDetector.initialDetectionPerformed": "true",
-    "Python.read_pdf.executor": "Run",
-    "Python.read_xml.executor": "Run",
-    "Python.rendabiliteit-verkopen.executor": "Run",
-    "Python.rendabiliteit.executor": "Run",
-    "Python.testing.executor": "Run",
-    "Python.verkopen.executor": "Run",
-    "RunOnceActivity.ShowReadmeOnStart": "true",
-    "RunOnceActivity.git.unshallow": "true",
-    "git-widget-placeholder": "main",
-    "node.js.detected.package.eslint": "true",
-    "node.js.detected.package.tslint": "true",
-    "node.js.selected.package.eslint": "(autodetect)",
-    "node.js.selected.package.tslint": "(autodetect)",
-    "nodejs_package_manager_path": "npm",
-    "settings.editor.selected.configurable": "com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable",
-    "vue.rearranger.settings.migration": "true"
+  <component name="PropertiesComponent">{
+  &quot;keyToString&quot;: {
+    &quot;ModuleVcsDetector.initialDetectionPerformed&quot;: &quot;true&quot;,
+    &quot;Python.read_pdf.executor&quot;: &quot;Run&quot;,
+    &quot;Python.read_xml.executor&quot;: &quot;Run&quot;,
+    &quot;Python.rendabiliteit-verkopen.executor&quot;: &quot;Run&quot;,
+    &quot;Python.rendabiliteit.executor&quot;: &quot;Run&quot;,
+    &quot;Python.testing.executor&quot;: &quot;Run&quot;,
+    &quot;Python.verkopen.executor&quot;: &quot;Run&quot;,
+    &quot;RunOnceActivity.ShowReadmeOnStart&quot;: &quot;true&quot;,
+    &quot;RunOnceActivity.git.unshallow&quot;: &quot;true&quot;,
+    &quot;git-widget-placeholder&quot;: &quot;main&quot;,
+    &quot;last_opened_file_path&quot;: &quot;/Users/mvd/Desktop/GitHub/jaarrekening-analyse&quot;,
+    &quot;node.js.detected.package.eslint&quot;: &quot;true&quot;,
+    &quot;node.js.detected.package.tslint&quot;: &quot;true&quot;,
+    &quot;node.js.selected.package.eslint&quot;: &quot;(autodetect)&quot;,
+    &quot;node.js.selected.package.tslint&quot;: &quot;(autodetect)&quot;,
+    &quot;nodejs_package_manager_path&quot;: &quot;npm&quot;,
+    &quot;settings.editor.selected.configurable&quot;: &quot;com.jetbrains.python.configuration.PyActiveSdkModuleConfigurable&quot;,
+    &quot;vue.rearranger.settings.migration&quot;: &quot;true&quot;
   }
-}]]></component>
+}</component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="C:\Users\matthias.vanduysen\Documents\GitHub\jaarrekening-analyse\calc\rendabiliteit" />
@@ -83,6 +80,10 @@
       <updated>1763460813518</updated>
       <workItem from="1763460814523" duration="1438000" />
       <workItem from="1763467439823" duration="4297000" />
+      <workItem from="1763857240233" duration="17000" />
+      <workItem from="1763857431683" duration="14000" />
+      <workItem from="1763914627210" duration="24000" />
+      <workItem from="1763915797006" duration="8000" />
     </task>
     <servers />
   </component>

@@ -15,7 +15,7 @@ echo ""
 echo ""
 
 # prompt URL
-read -p "Voer het URL in van de server: [analyse.example.com] " BASE_URL
+read -p "Voer het URL in van de server: " BASE_URL
 
 # install prerequisites
 apt install apache2 certbot python3-certbot-apache -y
