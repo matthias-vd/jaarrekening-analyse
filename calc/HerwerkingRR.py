@@ -1,0 +1,2 @@
+class HerwerkteRR:
+    def __init__(self,omzet,voorradenbiu,geproduceerdeva,anderebo,exploitatiesubsencompbedragen,handelsgoederengrondstoffenhulpstoffen,dienstendiversegoederen,bezoldigingensocialelastenpensioenen,anderebk,alsherstructureringgeactiveerdebk,exploitatiesubsencompbedrageniv,afschrijvingen):

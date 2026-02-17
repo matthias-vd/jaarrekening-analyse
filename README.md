@@ -17,7 +17,7 @@ Er is altijd een instance beschikbaar op https://fao.vuma.be.
 ### Self-Hosting
 Wij bieden ook de mogelijkheid aan om een self-hosted instance op te zetten, voor zij die dit echt wensen. Het is echter steeds makkelijker om gebruik te maken van de hierbovenvermelde instance.
 
-Er wordt een easy one-line installer aangeboden, dit script maakt gebruik van Apache2, Python3 (latest release), Flask en Let's Encrypt voor een SSL-certificaat.
+Er wordt een easy one-line installer aangeboden, dit script maakt gebruik van Apache2, Python3 (latest release), Flask en Let's Encrypt voor een SSL-certificaat. **Dit werkt nog niet**
 ```bash
 curl -sSL https://install-fao.vuma.be | bash
 ```
@@ -40,5 +40,5 @@ Dit softwarepakket wordt gereleased onder de [GNU GPL v3.0 License](https://www.
 Dit platform werd ontworpen door
 | Naam                 | Affiliatie        | E-mailadres                 |
 | :------------------- | ----------------- | --------------------------- |
-| Winter van den Bulck | Universiteit Gent | winter.vandenbulck@ugent.be |
-| Matthias Van Duysen  | Universiteit Gent | matthias@vanduysen.be       |
+| Winter van den Bulck | ... | winter.vandenbulck@ugent.be |
+| Matthias Van Duysen  | ... | matthias@vanduysen.be       |
