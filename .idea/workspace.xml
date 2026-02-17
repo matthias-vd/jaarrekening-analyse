@@ -5,9 +5,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ebc2a8b-6959-49e0-b940-02857f9198b0" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/easyInstallScript.sh" beforeDir="false" afterPath="$PROJECT_DIR$/easyInstallScript.sh" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -83,7 +81,8 @@
       <workItem from="1763857240233" duration="17000" />
       <workItem from="1763857431683" duration="14000" />
       <workItem from="1763914627210" duration="24000" />
-      <workItem from="1763915797006" duration="8000" />
+      <workItem from="1763915797006" duration="69000" />
+      <workItem from="1763928052034" duration="9000" />
     </task>
     <servers />
   </component>
