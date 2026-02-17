@@ -43,22 +43,11 @@ class Onderneming:
         if mic_counter < 2:
             self.type = 2
 
-
-
     def is_VOL(self):
-        if self.type == 1:
-            return True
-        else:
-            return False
+        return self.type == 1
 
     def is_MIC(self):
-        if self.type == 2:
-            return True
-        else:
-            return False
+        return self.type == 2
 
     def is_VKT(self):
-        if self.type == 3:
-            return True
-        else:
-            return False
+        return self.type == 3
