@@ -5,15 +5,13 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ebc2a8b-6959-49e0-b940-02857f9198b0" name="Changes" comment="">
-      <change afterPath="$PROJECT_DIR$/calc/HerwerkingB.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calc/HerwerkingRR.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calc/JRModel.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calc/RatioLiquiditeit.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calc/RatioRendabiliteit.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calc/RatioSolvabiliteit.py" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/calc/RatioTW.py" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/README.md" beforeDir="false" afterPath="$PROJECT_DIR$/README.md" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/Balance/BalanceStructure.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/BalanceStructure.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/calc/rendabiliteit/evenwichtspuntanalyse.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/calc/rendabiliteit/rendabiliteit.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/calc/rendabiliteit/verkopen.py" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/jaarrekening-profinance.pdf" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/jaarrekening-profinance.xbrl" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -71,6 +69,7 @@
 }]]></component>
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
+      <recent name="$PROJECT_DIR$/core" />
       <recent name="C:\Users\matthias.vanduysen\Documents\GitHub\jaarrekening-analyse\calc\rendabiliteit" />
     </key>
   </component>
@@ -97,7 +96,7 @@
       <workItem from="1763915797006" duration="69000" />
       <workItem from="1763928052034" duration="9000" />
       <workItem from="1771340893777" duration="97000" />
-      <workItem from="1771341051895" duration="5217000" />
+      <workItem from="1771341051895" duration="5298000" />
     </task>
     <servers />
   </component>
