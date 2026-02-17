@@ -6,12 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="8ebc2a8b-6959-49e0-b940-02857f9198b0" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/Balance/BalanceStructure.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/BalanceStructure.py" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/calc/rendabiliteit/evenwichtspuntanalyse.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/calc/rendabiliteit/rendabiliteit.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/calc/rendabiliteit/verkopen.py" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/jaarrekening-profinance.pdf" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/core/jaarrekening-profinance.xbrl" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/BalanceStructure.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/StructuurBalans.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/testing/verkoopmarges.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/read_csv.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -48,6 +44,7 @@
     "Python.herwerking-b.executor": "Run",
     "Python.jr-model.executor": "Run",
     "Python.ratio.executor": "Run",
+    "Python.read_csv.executor": "Run",
     "Python.read_pdf.executor": "Run",
     "Python.read_xml.executor": "Run",
     "Python.rendabiliteit-verkopen.executor": "Run",
@@ -70,6 +67,7 @@
   <component name="RecentsManager">
     <key name="MoveFile.RECENT_KEYS">
       <recent name="$PROJECT_DIR$/core" />
+      <recent name="$PROJECT_DIR$/read" />
       <recent name="C:\Users\matthias.vanduysen\Documents\GitHub\jaarrekening-analyse\calc\rendabiliteit" />
     </key>
   </component>
@@ -96,7 +94,7 @@
       <workItem from="1763915797006" duration="69000" />
       <workItem from="1763928052034" duration="9000" />
       <workItem from="1771340893777" duration="97000" />
-      <workItem from="1771341051895" duration="5298000" />
+      <workItem from="1771341051895" duration="5836000" />
     </task>
     <servers />
   </component>
@@ -105,15 +103,16 @@
   </component>
   <component name="com.intellij.coverage.CoverageDataManagerImpl">
     <SUITE FILE_PATH="coverage/jaarrekening_analyse$verkopen.coverage" NAME="verkopen Coverage Results" MODIFIED="1763473711595" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc/rendabiliteit" />
-    <SUITE FILE_PATH="coverage/jaarrekening_analyse$testing.coverage" NAME="testing Coverage Results" MODIFIED="1763473739815" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc/rendabiliteit" />
     <SUITE FILE_PATH="coverage/jaarrekening_analyse$jr_model.coverage" NAME="jr-model Coverage Results" MODIFIED="1771346319094" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc" />
     <SUITE FILE_PATH="coverage/jaarrekening_analyse$read_xml.coverage" NAME="read_xml Coverage Results" MODIFIED="1763471643335" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core" />
     <SUITE FILE_PATH="coverage/jaarrekening_analyse$rendabiliteit_verkopen.coverage" NAME="rendabiliteit-verkopen Coverage Results" MODIFIED="1763473388761" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc/rendabiliteit" />
+    <SUITE FILE_PATH="coverage/jaarrekening_analyse$RatioTW.coverage" NAME="RatioTW Coverage Results" MODIFIED="1771349103410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc" />
+    <SUITE FILE_PATH="coverage/jaarrekening_analyse$testing.coverage" NAME="testing Coverage Results" MODIFIED="1763473739815" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc/rendabiliteit" />
+    <SUITE FILE_PATH="coverage/jaarrekening_analyse$read_csv.coverage" NAME="read_csv Coverage Results" MODIFIED="1771349994929" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core" />
     <SUITE FILE_PATH="coverage/jaarrekening_analyse$ratio.coverage" NAME="ratio Coverage Results" MODIFIED="1771348711134" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc" />
     <SUITE FILE_PATH="coverage/jaarrekening_analyse$rendabiliteit.coverage" NAME="rendabiliteit Coverage Results" MODIFIED="1763473857361" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc/rendabiliteit" />
     <SUITE FILE_PATH="coverage/jaarrekening_analyse$read_pdf.coverage" NAME="read_pdf Coverage Results" MODIFIED="1763471216793" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/core" />
     <SUITE FILE_PATH="coverage/jaarrekening_analyse$herwerking_b.coverage" NAME="herwerking-b Coverage Results" MODIFIED="1771347431263" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc" />
-    <SUITE FILE_PATH="coverage/jaarrekening_analyse$RatioTW.coverage" NAME="RatioTW Coverage Results" MODIFIED="1771349103410" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc" />
     <SUITE FILE_PATH="coverage/jaarrekening_analyse$RatioSolvabiliteit.coverage" NAME="RatioSolvabiliteit Coverage Results" MODIFIED="1771349403602" SOURCE_PROVIDER="com.intellij.coverage.DefaultCoverageFileProvider" RUNNER="coverage.py" COVERAGE_BY_TEST_ENABLED="false" COVERAGE_TRACING_ENABLED="false" WORKING_DIRECTORY="$PROJECT_DIR$/calc" />
   </component>
 </project>
