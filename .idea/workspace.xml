@@ -5,8 +5,16 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ebc2a8b-6959-49e0-b940-02857f9198b0" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/core/StructuurMetadata.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/StructuurResultatenRekening.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/StructuurSocialeBalans.py" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/core/StructuurToelichting.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/jaarrekening-analyse.iml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/jaarrekening-analyse.iml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/misc.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/misc.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/calc/JRModel.py" beforeDir="false" afterPath="$PROJECT_DIR$/calc/JRModel.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/StructuurBalans.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/StructuurBalans.py" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/jaarrekening.csv" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/core/read_csv.py" beforeDir="false" afterPath="$PROJECT_DIR$/core/read_csv.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -24,6 +32,18 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
+  <component name="GitHubPullRequestSearchHistory"><![CDATA[{
+  "lastFilter": {
+    "state": "OPEN",
+    "assignee": "matthias-vd"
+  }
+}]]></component>
+  <component name="GithubPullRequestsUISettings"><![CDATA[{
+  "selectedUrlAndAccountId": {
+    "url": "https://github.com/matthias-vd/jaarrekening-analyse.git",
+    "accountId": "b64a41fd-0087-4eb6-a320-a05567421b86"
+  }
+}]]></component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 8
 }</component>
@@ -41,6 +61,7 @@
     "Python.JRModel.executor": "Run",
     "Python.RatioSolvabiliteit.executor": "Run",
     "Python.RatioTW.executor": "Run",
+    "Python.StructuurMetadata.executor": "Run",
     "Python.herwerking-b.executor": "Run",
     "Python.jr-model.executor": "Run",
     "Python.ratio.executor": "Run",
@@ -74,8 +95,7 @@
   <component name="SharedIndexes">
     <attachedChunks>
       <set>
-        <option value="bundled-js-predefined-d6986cc7102b-3aa1da707db6-JavaScript-PY-252.27397.106" />
-        <option value="bundled-python-sdk-4e2b1448bda8-9a97661f3031-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-252.27397.106" />
+        <option value="bundled-python-sdk-f2b7a9f6281b-6e1f45a539f7-com.jetbrains.pycharm.pro.sharedIndexes.bundled-PY-253.29346.142" />
       </set>
     </attachedChunks>
   </component>

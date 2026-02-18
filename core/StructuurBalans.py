@@ -1,4 +1,4 @@
-balansNaWinstverdeling = [
+structuurBalans = [
     # Root
     {"Code": "", "Rubriek": "BALANS NA WINSTVERDELING", "Parent_Code": None, "Niveau": 0, "Toelichting": "", "Waarde": None},
     ## ACTIVA
