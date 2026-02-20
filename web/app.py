@@ -7,11 +7,13 @@ from core.StructuurToelichting import structuurToelichting
 app = Flask(__name__)
 @app.route('/structuren', methods=['GET', 'POST'])
 
-def login():
+def selecteer_structuur():
     if request.method == 'POST':
         structuren = request.form['structuur']
         if structuren == 'Balans':
             return structuurBalans
+        elif structuren == 'Metadata':
+            return structuurMetadata
         elif structuren == 'SocialeBalans':
             return structuurSocialeBalans
         elif structuren == 'ResultatenRekening':
@@ -21,6 +23,7 @@ def login():
         else:
             return "omhooggevallen frietketel, wat je hebt ingetypt is geen optie"
     return render_template('structuren.html')
+
 
 if __name__ == '__main__':
     app.run()
