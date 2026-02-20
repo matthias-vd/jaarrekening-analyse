@@ -5,32 +5,26 @@ from StructuurSocialeBalans import structuurSocialeBalans
 from StructuurResultatenRekening import structuurResultatenRekening
 from StructuurToelichting import structuurToelichting
 
+def flatten(nested):
+    flat = []
+    for item in nested:
+        if isinstance(item, list):
+            flat.extend(flatten(item))
+        else:
+            flat.append(item)
+    return flat
+
+flattened = flatten([structuurBalans, structuurMetadata, structuurSocialeBalans, structuurResultatenRekening, structuurToelichting])
+
 code_to_name = {}
 
-for item in structuurBalans:
-    code = item.get("Code")
-    if code:
-        code_to_name[code] = item.get("Rubriek", "")
-for item in structuurMetadata:
-    code = item.get("Code")
-    if code:
-        code_to_name[code] = item.get("Rubriek", "")
-for item in structuurSocialeBalans:
-    code = item.get("Code")
-    if code:
-        code_to_name[code] = item.get("Rubriek", "")
-for item in structuurResultatenRekening:
-    code = item.get("Code")
-    if code:
-        code_to_name[code] = item.get("Rubriek", "")
-for item in structuurToelichting:
+for item in flattened:
     code = item.get("Code")
     if code:
         code_to_name[code] = item.get("Rubriek", "")
 
 
-
-with open("soubry_jaarrekening.csv", newline="", encoding="utf-8") as f:
+with open("jaarrekening_soubry.csv", newline="", encoding="utf-8") as f:
     reader = csv.reader(f)
 
     for row in reader:
@@ -48,5 +42,9 @@ with open("soubry_jaarrekening.csv", newline="", encoding="utf-8") as f:
         # print met code
         #print(f"{key} - {name} - {value}")
         # print zonder code
-        print(f"{name} - {value}")
+        #print(f"{name} - {value}")
+
+        if name == key:
+            print(f"{name} - {value}")
+
 
