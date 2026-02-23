@@ -1,0 +1,351 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Belgische Balans volgens WVV</title>
+  <style>
+    :root {
+      --bg-page: #f3f4f7;
+      --bg-card: #ffffff;
+      --bg-header: #1f2937;
+      --bg-section: #e5f0ff;
+      --bg-subsection: #f9fafb;
+      --border-color: #d1d5db;
+      --accent: #2563eb;
+      --accent-soft: #dbeafe;
+      --text-main: #111827;
+      --text-muted: #6b7280;
+      --danger: #b91c1c;
+      --font-main: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      background: radial-gradient(circle at top left, #e0edff 0, var(--bg-page) 40%, #e5e7eb 100%);
+      font-family: var(--font-main);
+      color: var(--text-main);
+    }
+
+    .balance-card {
+      max-width: 1100px;
+      margin: 0 auto;
+      background-color: var(--bg-card);
+      border-radius: 12px;
+      box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.18),
+        0 0 0 1px rgba(148, 163, 184, 0.35);
+      overflow: hidden;
+    }
+
+    .balance-header {
+      padding: 1.4rem 2rem;
+      background: linear-gradient(135deg, var(--bg-header), #020617);
+      color: #f9fafb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .balance-header h1 {
+      margin: 0;
+      font-size: 1.25rem;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
+    }
+
+    .balance-meta {
+      font-size: 0.75rem;
+      text-align: right;
+      color: #e5e7eb;
+    }
+
+    .balance-meta span { display: block; }
+
+    .table-wrapper {
+      padding: 1.5rem 2rem 2rem;
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 720px;
+      background-color: #ffffff;
+      table-layout: fixed;
+    }
+
+    thead th {
+      background: linear-gradient(to right, var(--accent), #1d4ed8);
+      color: #f9fafb;
+      border-bottom: 2px solid #1e3a8a;
+      padding: 0.6rem 0.75rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 0.4rem 0.75rem;
+      font-size: 0.85rem;
+      vertical-align: middle;
+    }
+
+    th[colspan] { text-align: center; }
+
+    .section {
+      background-color: var(--bg-section);
+      font-weight: 600;
+    }
+
+    .subsection {
+      background-color: var(--bg-subsection);
+      font-weight: 600;
+    }
+
+    .label { white-space: nowrap; }
+
+    .amount {
+      text-align: right;
+      font-family: var(--font-mono);
+      background-color: #f9fafb;
+    }
+
+    .amount.total {
+      font-weight: 700;
+      background: linear-gradient(to right, var(--accent-soft), #eff6ff);
+      border-top: 2px solid var(--accent);
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
+
+    .negative { color: var(--danger); }
+
+    tbody tr:nth-child(even) td { background-color: #f9fafb; }
+
+    tbody tr:hover td { background-color: #eef2ff; }
+
+    /* Collapsible secties */
+    .section-toggle {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+
+    .section-toggle .arrow {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 7px solid #374151;
+      margin-right: 0.5rem;
+      transform: rotate(90deg); /* standaard open */
+      transition: transform 0.2s ease-out;
+    }
+
+    .section-toggle.collapsed .arrow {
+      transform: rotate(0deg);
+    }
+
+    .row-group[data-collapsed="true"] {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .balance-header {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .table-wrapper {
+        padding: 1rem 1.25rem 1.25rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<div class="balance-card">
+  <header class="balance-header">
+    <div>
+      <h1>Balans volgens het WVV</h1>
+      <span class="muted">Schema ACTIVA / PASSIVA – Belgische jaarrekening</span>
+    </div>
+    <div class="balance-meta">
+      <span>Vennootschap: ................................</span>
+      <span>Boekjaar afgesloten op: .. / .. / ....</span>
+    </div>
+  </header>
+
+  <div class="table-wrapper">
+    <table aria-label="Balans volgens WVV">
+      <!-- 50/50 kolombreedtes: 35% + 15% links, 35% + 15% rechts -->
+      <colgroup>
+        <!-- ACTIVA -->
+        <col style="width:35%">
+        <col style="width:15%">
+        <!-- PASSIVA -->
+        <col style="width:35%">
+        <col style="width:15%">
+      </colgroup>
+
+      <thead>
+        <tr>
+          <th colspan="2">ACTIVA</th>
+          <th colspan="2">PASSIVA</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Oprichtingskosten -->
+        <tr>
+          <td class="label">Oprichtingskosten</td>
+          <td class="amount">&nbsp;{{oprichtingskosten}}</td>
+          <td class="label">&nbsp;</td>
+          <td class="amount">&nbsp;</td>
+        </tr>
+
+        <!-- VASTE ACTIVA / EIGEN VERMOGEN (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-va-ev">
+            <span class="arrow"></span>VASTE ACTIVA
+          </td>
+          <td class="amount">&nbsp;{{va}}</td>
+          <td class="label section-toggle" data-target="group-va-ev">
+            <span class="arrow"></span>EIGEN VERMOGEN
+          </td>
+          <td class="amount">&nbsp;{{ev}}</td>
+        </tr>
+
+        <!-- Detailrijen VA/EV -->
+        <tr class="row-group" data-group="group-va-ev">
+          <td class="label">Immateriële vaste activa</td>
+          <td class="amount">&nbsp;{{iva}}</td>
+          <td class="label"><span class="negative">Inbreng</span></td>
+          <td class="amount">&nbsp;{{inbreng}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-va-ev">
+          <td class="label">Materiële vaste activa</td>
+          <td class="amount">&nbsp;{{mva}}</td>
+          <td class="label">Herwaarderingsmeerwaarden</td>
+          <td class="amount">&nbsp;{{hwmw}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-va-ev">
+          <td class="label">Financiële vaste activa</td>
+          <td class="amount">&nbsp;{{fva}}</td>
+          <td class="label">Reserves</td>
+          <td class="amount">&nbsp;{{reserves}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-va-ev">
+          <td class="label muted">&nbsp;</td>
+          <td class="amount">&nbsp;</td>
+          <td class="label">Overgedragen winst (verlies) (+)/(-)</td>
+          <td class="amount">&nbsp;{{overgedragenwinstverlies}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-va-ev">
+          <td class="label muted">&nbsp;</td>
+          <td class="amount">&nbsp;</td>
+          <td class="label">Kapitaalsubsidies</td>
+          <td class="amount">&nbsp;{{kapsubs}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-va-ev">
+          <td class="label muted">&nbsp;</td>
+          <td class="amount">&nbsp;</td>
+          <td class="label">
+            Voorschot a/d vennoten op de verdeling v/h netto‑actief (‑)
+          </td>
+          <td class="amount">&nbsp;{{voorschotvenverdelingna}}</td>
+        </tr>
+
+        <!-- VLOTTENDE ACTIVA / VOORZIENINGEN & UITGESTELDE BELASTINGEN (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-vla-vv">
+            <span class="arrow"></span>VLOTTENDE ACTIVA
+          </td>
+          <td class="amount">&nbsp;{{vla}}</td>
+          <td class="label section-toggle" data-target="group-vla-vv">
+            <span class="arrow"></span>VOORZIENINGEN EN UITGESTELDE BELASTINGEN
+          </td>
+          <td class="amount">&nbsp;{{vv}}</td>
+        </tr>
+
+        <!-- Detailrijen VLA/VV -->
+        <tr class="row-group" data-group="group-vla-vv">
+          <td class="label">Vorderingen op meer dan één jaar</td>
+          <td class="amount">&nbsp;{{vordmeerdan1jaar}}</td>
+          <td class="label">Voorzieningen voor risico's en kosten</td>
+          <td class="amount">&nbsp;{{voorzieningen}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-vla-vv">
+          <td class="label">Voorraden en bestellingen in uitvoering</td>
+          <td class="amount">&nbsp;{{voorradenbiu}}</td>
+          <td class="label">Uitgestelde belastingen</td>
+          <td class="amount">&nbsp;{{uitgesteldebelastingen}}</td>
+        </tr>
+
+        <!-- Vorderingen ≤ 1 jaar / Schulden -->
+        <tr>
+          <td class="label">Vorderingen op ten hoogste één jaar</td>
+          <td class="amount">&nbsp;{{vorderingenmax1jaar}}</td>
+          <td class="subsection" colspan="2">SCHULDEN</td>
+        </tr>
+        <tr>
+          <td class="label">Geldbeleggingen</td>
+          <td class="amount">&nbsp;{{geldbeleggingen}}</td>
+          <td class="label">Schulden op meer dan één jaar</td>
+          <td class="amount">&nbsp;{{schuldenopmeerdan1jaar}}</td>
+        </tr>
+        <tr>
+          <td class="label">Liquide middelen</td>
+          <td class="amount">&nbsp;{{liquidemiddelen}}</td>
+          <td class="label">Schulden op ten hoogste één jaar</td>
+          <td class="amount">&nbsp;{{schuldenopmax1jaar}}</td>
+        </tr>
+        <tr>
+          <td class="label">Overlopende rekeningen</td>
+          <td class="amount">&nbsp;{{overlopenderekeningenactief}}</td>
+          <td class="label">Overlopende rekeningen</td>
+          <td class="amount">&nbsp;{{overlopenderekeningenpassief}}</td>
+        </tr>
+
+        <!-- Totalen -->
+        <tr>
+          <td class="subsection">TOTAAL VAN DE ACTIVA</td>
+          <td class="amount total">&nbsp;{{activa}}</td>
+          <td class="subsection">TOTAAL VAN PASSIVA</td>
+          <td class="amount total">&nbsp;{{passiva}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  // eenvoudige toggle voor secties
+  document.querySelectorAll('.section-toggle').forEach(function (cell) {
+    cell.addEventListener('click', function () {
+      var target = cell.getAttribute('data-target');
+      var isCollapsed = cell.classList.toggle('collapsed');
+
+      // pijltje op beide kanten syncen
+      document.querySelectorAll('.section-toggle[data-target="' + target + '"]')
+        .forEach(function (c) { c.classList.toggle('collapsed', isCollapsed); });
+
+      document.querySelectorAll('.row-group[data-group="' + target + '"]')
+        .forEach(function (row) {
+          row.dataset.collapsed = isCollapsed ? 'true' : 'false';
+        });
+    });
+  });
+</script>
+
+</body>
+</html>
