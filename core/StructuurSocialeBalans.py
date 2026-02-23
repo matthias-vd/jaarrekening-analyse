@@ -700,4 +700,183 @@ structuurSocialeBalans = [
     {"Code": "3433", "Rubriek": "Totaal in voltijdse equivalenten", "Parent_Code": "SOCIALEBALANS",
      "Niveau": 5,
      "Toelichting": "", "Waarde": None},
+
+
+
+
+
+
+
+
+    {"Code": "",
+     "Rubriek": "INLICHTINGEN OVER DE OPLEIDINGEN VOOR DE WERKNEMERS TIJDENS HET BOEKJAAR",
+     "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 0,
+     "Toelichting": "", "Waarde": None},
+
+
+    {"Code": "", "Rubriek": "Totaal van de formele voortgezette beroepsopleidingsinitiatieven ten laste van de werkgever", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 1,
+     "Toelichting": "", "Waarde": None},
+
+
+    {"Code": "", "Rubriek": "Aantal betrokken werknemers", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 2,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5801", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+
+
+    {"Code": "", "Rubriek": "Aantal gevolgde opleidingsuren", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 2,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5802", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+
+
+    {"Code": "", "Rubriek": "Nettokosten voor de vennootschap", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 2,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5803", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "58131", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "waarvan brutokosten rechtstreeks verbonden met de opleiding", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "58031", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 4,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "58131", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 4,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "waarvan betaalde bijdragen en stortingen aan collectieve fondsen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "58032", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 4,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "58132", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 4,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "waarvan ontvangen tegemoetkomingen (in mindering)", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "58033", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 4,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "58133", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 4,
+     "Toelichting": "", "Waarde": None},
+
+
+
+
+    {"Code": "", "Rubriek": "Totaal van de minder formele en informele voortgezette beroepsopleidingsinitiatieven ten laste van de werkgever", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 1,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "Aantal betrokken werknemers", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 2,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5821", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5831", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "Aantal gevolgde opleidingsuren", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 2,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5822", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5832", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "Nettokosten voor de vennootschap", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 2,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5823", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5833", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+
+    {"Code": "", "Rubriek": "Totaal van de initiële beroepsopleidingsinitiatieven ten laste van de werkgever", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 1,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "Aantal betrokken werknemers", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 2,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5841", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5851", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "Aantal gevolgde opleidingsuren", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 2,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5842", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5852", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "", "Rubriek": "Nettokosten voor de vennootschap", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 2,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5843", "Rubriek": "Mannen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
+
+    {"Code": "5853", "Rubriek": "Vrouwen", "Parent_Code": "SOCIALEBALANS",
+     "Niveau": 3,
+     "Toelichting": "", "Waarde": None},
 ]
