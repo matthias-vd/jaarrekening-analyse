@@ -5,12 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="8ebc2a8b-6959-49e0-b940-02857f9198b0" name="Changes" comment="voeg een paar elementen toe in de structuur-indexen">
-      <change afterPath="$PROJECT_DIR$/web/templates/balans-niet-in-evenwicht.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/templates/balans.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/templates/input.html" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/web/templates/test.html" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/web/templates/index.html" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/web/app.py" beforeDir="false" afterPath="$PROJECT_DIR$/web/app.py" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -129,7 +125,7 @@
       <workItem from="1771593715177" duration="8226000" />
       <workItem from="1771606376550" duration="854000" />
       <workItem from="1771846480112" duration="2147000" />
-      <workItem from="1771854270116" duration="3985000" />
+      <workItem from="1771854270116" duration="4341000" />
     </task>
     <task id="LOCAL-00001" summary="voeg een paar elementen toe in de structuur-indexen">
       <option name="closed" value="true" />
