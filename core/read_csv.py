@@ -1,50 +1,70 @@
 import csv
-from StructuurBalans import structuurBalans
-from StructuurMetadata import structuurMetadata
-from StructuurSocialeBalans import structuurSocialeBalans
-from StructuurResultatenRekening import structuurResultatenRekening
-from StructuurToelichting import structuurToelichting
+import os
 
-def flatten(nested):
-    flat = []
-    for item in nested:
-        if isinstance(item, list):
-            flat.extend(flatten(item))
-        else:
-            flat.append(item)
-    return flat
+bestand = "jaarrekening_abinbev.csv"
 
-flattened = flatten([structuurBalans, structuurMetadata, structuurSocialeBalans, structuurResultatenRekening, structuurToelichting])
-
-code_to_name = {}
-
-for item in flattened:
-    code = item.get("Code")
-    if code:
-        code_to_name[code] = item.get("Rubriek", "")
+if __name__ == '__main__':
+    from StructuurBalans import structuurBalans
+    from StructuurMetadata import structuurMetadata
+    from StructuurSocialeBalans import structuurSocialeBalans
+    from StructuurResultatenRekening import structuurResultatenRekening
+    from StructuurToelichting import structuurToelichting
+else:
+    from core.StructuurBalans import structuurBalans
+    from core.StructuurMetadata import structuurMetadata
+    from core.StructuurResultatenRekening import structuurResultatenRekening
+    from core.StructuurSocialeBalans import structuurSocialeBalans
+    from core.StructuurToelichting import structuurToelichting
 
 
-with open("jaarrekening_soubry.csv", newline="", encoding="utf-8") as f:
-    reader = csv.reader(f)
+def read_csv():
+    def flatten(nested):
+        flat = []
+        for item in nested:
+            if isinstance(item, list):
+                flat.extend(flatten(item))
+            else:
+                flat.append(item)
+        return flat
 
-    for row in reader:
-        # sla lege rijen of rijen zonder data over
-        if not row or len(row) < 2:
-            continue
+    flattened = flatten([structuurBalans, structuurMetadata, structuurSocialeBalans, structuurResultatenRekening, structuurToelichting])
 
-        key, value = row[0], row[1]
+    code_to_name = {}
 
-        key = key.strip('"')
-        value = value.strip('"')
+    for item in flattened:
+        code = item.get("Code")
+        if code:
+            code_to_name[code] = item.get("Rubriek", "")
 
-        name = code_to_name.get(key, key)
+    uitgelezenData = []
+    if __name__ == "__main__":
+        file = bestand
+    else:
+        cur_path = os.path.dirname(__file__)
+        target = fr'../uploads/{bestand}'
+        file = os.path.normpath(os.path.join(cur_path, target))
 
-        # print met code
-        #print(f"{key} - {name} - {value}")
-        # print zonder code
-        #print(f"{name} - {value}")
+    with open(file, newline="", encoding="utf-8") as f:
+        reader = csv.reader(f)
 
-        if name == key:
-            print(f"{name} - {value}")
+        for row in reader:
+            # sla lege rijen of rijen zonder data over
+            if not row or len(row) < 2:
+                continue
 
+            key, value = row[0], row[1]
 
+            key = key.strip('"')
+            value = value.strip('"')
+
+            name = code_to_name.get(key, key)
+
+            # print met code
+            #print(f"{key} - {name} - {value}")
+            # print zonder code
+            #print(f"{name} - {value}")
+            elementUitgelezen = [key,value]
+
+            uitgelezenData.append(elementUitgelezen)
+
+    return uitgelezenData

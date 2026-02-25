@@ -1,20 +1,145 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="nl">
 <head>
-    <meta charset="UTF-8">
-    <title>Welkom</title>
+  <meta charset="UTF-8">
+  <title>Welkom – fao.vuma.be</title>
+
+  <!-- Baloo 2 font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap" rel="stylesheet"> <!-- [web:3][web:17] -->
+
+  <style>
+    :root {
+      --accent: #2CCCC4;
+      --accent-dark: #1bb4a9;
+      --bg-page: #e6f9f7;
+      --card-bg: #ffffff;
+      --text-main: #102a43;
+      --text-muted: #5a7a85;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Baloo 2", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, #bdf4ee 0, var(--bg-page) 40%, #e0f7f5 100%);
+      color: var(--text-main);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 800px;
+      width: 100%;
+      background: var(--card-bg);
+      border-radius: 18px;
+      box-shadow:
+        0 18px 45px rgba(15, 23, 42, 0.12),
+        0 0 0 1px rgba(44, 204, 196, 0.35); /* #2CCCC4 rand */ /* [web:7][web:13] */
+      padding: 2.5rem 2rem;
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 2rem;
+      letter-spacing: 0.05em;
+      text-transform: uppercase;
+      color: var(--accent-dark);
+    }
+
+    h2 {
+      font-size: 1.1rem;
+      font-weight: 500;
+      margin: 0.75rem 0 1.5rem;
+      color: var(--text-muted);
+    }
+
+    h3 {
+      margin: 1.5rem 0 0.25rem;
+      font-size: 1rem;
+      color: var(--accent-dark);
+    }
+
+    h4 {
+      margin-top: 2rem;
+      font-size: 0.95rem;
+      color: var(--text-muted);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    a:hover {
+      color: var(--accent-dark);
+      text-decoration: underline;
+    }
+
+    .primary-link {
+      display: inline-block;
+      margin: 0.5rem 0 0.25rem;
+      padding: 0.6rem 1.4rem;
+      border-radius: 999px;
+      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
+      color: white;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 0.95rem;
+      box-shadow: 0 8px 18px rgba(44, 204, 196, 0.45);
+      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
+    }
+
+    .primary-link:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 10px 22px rgba(44, 204, 196, 0.5);
+      filter: brightness(1.03);
+    }
+
+    .links-group {
+      margin-top: 1rem;
+    }
+
+    .links-group a {
+      display: block;
+      margin: 0.15rem 0;
+      font-size: 0.95rem;
+    }
+
+    @media (max-width: 640px) {
+      body { padding: 1.5rem; }
+      .container { padding: 2rem 1.5rem; }
+      h1 { font-size: 1.6rem; }
+    }
+  </style>
 </head>
 <body>
-<h1>Welkom op fao.vuma.be</h1>
-<h2>Dit is momenteel nog een MVP. Functionaliteit is enorm beperkt.</h2>
-<a href="https://github.com/matthias-vd/jaarrekening-analyse">Kijk ook zeker eens in de GitHub-repo van dit "platform"!</a>
-<h2>Werkt momenteel:</h2>
-<h3>"Dictionary" balans</h3>
-<a href="/structuren">Gedeeltelijke structuur balans</a>
-<h3>Viewer balans, met input</h3>
-<a href="/balans">Balans-viewer, met input</a>
 
-<h4>Dit is een project door Winter van den Bulck en Matthias Van Duysen.</h4>
+<div class="container">
+  <h1>Welkom op fao.vuma.be</h1>
+  <h2>Dit is momenteel nog een MVP. Functionaliteit is enorm beperkt.</h2>
+
+  <a class="primary-link" href="https://github.com/matthias-vd/jaarrekening-analyse">
+    Bekijk de GitHub‑repo
+  </a>
+
+  <div class="links-group">
+    <h3>"Dictionary" balans</h3>
+    <a href="/structuren">Gedeeltelijke structuur balans</a>
+
+    <h3>Viewer balans, met input</h3>
+    <a href="/balans">Balans‑viewer, met input</a>
+  </div>
+
+  <h4>Dit is een project door Winter van den Bulck en Matthias Van Duysen.</h4>
+</div>
 
 </body>
 </html>

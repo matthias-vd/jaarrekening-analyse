@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>404 - Pagina niet gevonden</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Baloo 2', cursive;
+            background: linear-gradient(135deg, #2CCCC4, #ffffff);
+            height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #333;
+        }
+        .error-container {
+            text-align: center;
+            background: rgba(255, 255, 255, 0.9);
+            padding: 60px 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(44, 204, 196, 0.3);
+            max-width: 500px;
+        }
+        .error-code {
+            font-size: 120px;
+            font-weight: 700;
+            color: #2CCCC4;
+            margin: 0;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            font-size: 28px;
+            margin: 20px 0;
+            color: #333;
+        }
+        p {
+            font-size: 18px;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+        a {
+            display: inline-block;
+            background: #2CCCC4;
+            color: white;
+            padding: 15px 30px;
+            text-decoration: none;
+            border-radius: 50px;
+            font-size: 18px;
+            font-weight: 600;
+            transition: background 0.3s ease;
+        }
+        a:hover {
+            background: #1bb4a9;
+        }
+    </style>
+</head>
+<body>
+    <div class="error-container">
+        <div class="error-code">:(</div>
+        <h1>Error!</h1>
+        <p>Inputfout: {{error}}</p>
+        <a href="https://fao.vuma.be/{{redir}}">Terug naar {{redir}}</a>
+    </div>
+</body>
+</html>

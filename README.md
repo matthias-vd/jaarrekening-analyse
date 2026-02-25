@@ -32,6 +32,10 @@ Run programma
 ```bash
 ./easyInstallScript.sh
 ```
+
+## Support
+Dit is ontworpen voor gebruik op *nix-based operating systems, zoals Linux en macOS. 
+Windows wordt **niet** ondersteund.
 ## Licensing
 Dit softwarepakket wordt gereleased onder de [GNU GPL v3.0 License](https://www.gnu.org/licenses/gpl-3.0.en.html), u bent dus vrij om te doen wat u wenst met dit programma, zolang u uw eigen wijzigen ook open source maakt.
 
