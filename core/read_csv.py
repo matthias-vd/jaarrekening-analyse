@@ -1,7 +1,7 @@
 import csv
 import os
 
-bestand = "jaarrekening_abinbev.csv"
+bestand = "jaarrekening_profinance.csv"
 
 if __name__ == '__main__':
     from StructuurBalans import structuurBalans
@@ -63,6 +63,7 @@ def read_csv():
             #print(f"{key} - {name} - {value}")
             # print zonder code
             #print(f"{name} - {value}")
+
             elementUitgelezen = [key,value]
 
             uitgelezenData.append(elementUitgelezen)

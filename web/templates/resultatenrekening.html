@@ -1,0 +1,523 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <title>Resultatenrekening en Resultaatverwerking volgens WVV</title>
+
+  <!-- Baloo 2 font -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg-page: #e6f9f7;
+      --bg-card: #ffffff;
+      --bg-header: #119088;
+      --bg-section: #ccf7f3;
+      --bg-subsection: #f5fdfc;
+      --border-color: #d4ebe8;
+      --accent: #2CCCC4;
+      --accent-soft: #d9f8f6;
+      --text-main: #102a43;
+      --text-muted: #5a7a85;
+      --danger: #b91c1c;
+      --font-main: "Baloo 2", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      --font-mono: "SF Mono", Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 2rem;
+      font-family: var(--font-main);
+      color: var(--text-main);
+      background: radial-gradient(circle at top left, #bdf4ee 0, var(--bg-page) 40%, #e0f7f5 100%);
+      line-height: 1.5;
+    }
+
+    .balance-card {
+      max-width: 1200px;
+      margin: 0 auto;
+      background-color: var(--bg-card);
+      border-radius: 18px;
+      box-shadow:
+        0 10px 25px rgba(15, 23, 42, 0.10),
+        0 20px 55px rgba(15, 23, 42, 0.06);
+      overflow: hidden;
+    }
+
+    .balance-header {
+      padding: 1.6rem 2rem;
+      background: linear-gradient(135deg, #0f766e, var(--accent));
+      color: #f9fafb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .balance-header h1 {
+      margin: 0;
+      font-size: 1.6rem;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+    }
+
+    .balance-meta {
+      font-size: 0.85rem;
+      text-align: right;
+      color: #e0fdfa;
+    }
+
+    .balance-meta span { display: block; }
+
+    .table-wrapper {
+      padding: 1.5rem 2rem 2rem;
+      overflow-x: auto;
+    }
+
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      min-width: 600px;
+      background-color: #ffffff;
+      table-layout: fixed;
+      border-radius: 14px;
+      overflow: hidden;
+      font-size: 0.9rem;
+    }
+
+    thead th {
+      background: linear-gradient(to right, var(--accent), #1bb4a9);
+      color: #f9fafb;
+      border-bottom: 2px solid #0f766e;
+      padding: 0.75rem 0.75rem;
+      font-size: 0.8rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+    }
+
+    th, td {
+      border: 1px solid var(--border-color);
+      padding: 0.55rem 0.85rem;
+      vertical-align: middle;
+      text-align: left;
+    }
+
+    th[colspan="2"] { text-align: center; }
+
+    .section {
+      background-color: var(--bg-section);
+      font-weight: 600;
+      color: #065f5b;
+    }
+
+    .subsection {
+      background-color: var(--bg-subsection);
+      font-weight: 600;
+      color: #0f766e;
+      padding-left: 1.5rem;
+    }
+
+    .label {
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      font-size: 0.88rem;
+    }
+
+    .amount {
+      text-align: right;
+      font-family: var(--font-mono);
+      font-size: 0.92rem;
+      background-color: #f5fdfc;
+    }
+
+    .amount.total {
+      font-weight: 700;
+      background: linear-gradient(to right, var(--accent-soft), #f0fdfa);
+      border-top: 2px solid var(--accent);
+      color: #064e3b;
+    }
+
+    .muted {
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+
+    .negative { color: var(--danger); }
+
+    tbody tr:nth-child(even) td { background-color: #f0fdfb; }
+
+    tbody tr:hover td {
+      background-color: #e0fbf7;
+      transition: background-color 0.15s ease-out;
+    }
+
+    .section-toggle {
+      cursor: pointer;
+      user-select: none;
+      position: relative;
+    }
+
+    .section-toggle .arrow {
+      display: inline-block;
+      width: 0;
+      height: 0;
+      border-top: 5px solid transparent;
+      border-bottom: 5px solid transparent;
+      border-left: 7px solid #065f5b;
+      margin-right: 0.5rem;
+      transform: rotate(90deg);
+      transition: transform 0.2s ease-out;
+    }
+
+    .section-toggle.collapsed .arrow {
+      transform: rotate(0deg);
+    }
+
+    .row-group[data-collapsed="true"] {
+      display: none;
+    }
+
+    @media (max-width: 768px) {
+      body { padding: 1rem; }
+      .balance-header { flex-direction: column; align-items: flex-start; }
+      .table-wrapper { padding: 1rem 1.25rem 1.25rem; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="balance-card">
+  <header class="balance-header">
+    <div>
+      <h1>Resultatenrekening & Resultaatverwerking</h1>
+      <span class="muted">Volgens WVV - Volledig schema</span>
+    </div>
+    <div class="balance-meta">
+      <span>Vennootschap: {{vennootschapsnaam}}</span>
+      <span>Boekjaar: {{boekjaar_start}} t.e.m. {{boekjaar_einde}}</span>
+    </div>
+  </header>
+
+  <div class="table-wrapper">
+    <table aria-label="Resultatenrekening en Resultaatverwerking WVV">
+      <colgroup>
+        <col style="width:60%">
+        <col style="width:40%">
+      </colgroup>
+
+      <thead>
+        <tr>
+          <th colspan="2">RESULTATENREKENING</th>
+        </tr>
+        <tr>
+          <th>Post</th>
+          <th>Boekjaar {{boekjaar}}</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- BEDRIJFSOPBRENGSTEN (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-bedrijfsopbrengsten">
+            <span class="arrow"></span>Bedrijfsopbrengsten
+          </td>
+          <td class="amount">&nbsp;{{bedrijfsopbrengsten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfsopbrengsten">
+          <td class="label subsection">Omzet</td>
+          <td class="amount">&nbsp;{{omzet}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfsopbrengsten">
+          <td class="label">Voorraad goederen in bewerking en gereed product en bestellingen in uitvoering: toename (afname)</td>
+          <td class="amount">&nbsp;{{voorraadwijziging}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfsopbrengsten">
+          <td class="label">Geproduceerde vaste activa</td>
+          <td class="amount">&nbsp;{{geproduceerdevasteactiva}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfsopbrengsten">
+          <td class="label subsection">Andere bedrijfsopbrengsten</td>
+          <td class="amount">&nbsp;{{anderebedrijfsopbrengsten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfsopbrengsten">
+          <td class="label subsection">Niet-recurrente bedrijfsopbrengsten</td>
+          <td class="amount">&nbsp;{{nietrecurrentebedrijfsopbrengsten}}</td>
+        </tr>
+
+        <!-- BEDRIJFSKOSTEN (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-bedrijfskosten">
+            <span class="arrow"></span>Bedrijfskosten
+          </td>
+          <td class="amount negative">&nbsp;{{bedrijfskosten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label subsection">Handelsgoederen, grond- en hulpstoffen</td>
+          <td class="amount negative">&nbsp;{{handelsgoederengrondhulpstoffen}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label">Aankopen</td>
+          <td class="amount negative">&nbsp;{{aankopen}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label">Voorraad: afname (toename)</td>
+          <td class="amount negative">&nbsp;{{voorraadafname}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label subsection">Diensten en diverse goederen</td>
+          <td class="amount negative">&nbsp;{{dienstenversgoederen}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label subsection">Bezoldigingen, sociale lasten en pensioenen</td>
+          <td class="amount negative">&nbsp;{{bezoldigingensocialelastenenpensioenen}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label">Afschrijvingen en waardeverminderingen op oprichtingskosten, op immateriële en materiële vaste activa</td>
+          <td class="amount negative">&nbsp;{{afschrijvingenwaardeverminderingenvasteactiva}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label">Waardeverminderingen op voorraden, op bestellingen in uitvoering en op handelsvorderingen: toevoegingen (terugnemingen)</td>
+          <td class="amount negative">&nbsp;{{waardeverminderingen_voorraden_vorderingen}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label">Voorzieningen voor risico's en kosten: toevoegingen (bestedingen en terugnemingen)</td>
+          <td class="amount negative">&nbsp;{{voorzieningen_risicos_kosten_resultaat}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label">Andere bedrijfskosten</td>
+          <td class="amount negative">&nbsp;{{andere_bedrijfskosten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-bedrijfskosten">
+          <td class="label subsection">Niet-recurrente bedrijfskosten</td>
+          <td class="amount negative">&nbsp;{{nietrecurrente_bedrijfskosten}}</td>
+        </tr>
+
+        <!-- BEDRIJFSRESULTAAT -->
+        <tr class="section">
+          <td class="label">Bedrijfsresultaat (bedrijfsopbrengsten - bedrijfskosten)</td>
+          <td class="amount total">&nbsp;{{bedrijfsresultaat}}</td>
+        </tr>
+
+        <!-- FINANCIËLE OPBRENGSTEN (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-financiele_opbrengsten">
+            <span class="arrow"></span>Financiële opbrengsten
+          </td>
+          <td class="amount">&nbsp;{{financiele_opbrengsten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-financiele_opbrengsten">
+          <td class="label subsection">Opbrengsten uit financiële vaste activa</td>
+          <td class="amount">&nbsp;{{opbrengsten_financiele_vaste_activa}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-financiele_opbrengsten">
+          <td class="label">Opbrengsten uit vlottende financiële activa</td>
+          <td class="amount">&nbsp;{{opbrengsten_vlottende_financiele_activa}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-financiele_opbrengsten">
+          <td class="label">Andere financiële opbrengsten</td>
+          <td class="amount">&nbsp;{{andere_financiele_opbrengsten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-financiele_opbrengsten">
+          <td class="label subsection">Niet-recurrente financiële opbrengsten</td>
+          <td class="amount">&nbsp;{{nietrecurrente_financiele_opbrengsten}}</td>
+        </tr>
+
+        <!-- FINANCIËLE KOSTEN (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-financiele_kosten">
+            <span class="arrow"></span>Financiële kosten
+          </td>
+          <td class="amount negative">&nbsp;{{financiele_kosten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-financiele_kosten">
+          <td class="label subsection">Kosten van schulden</td>
+          <td class="amount negative">&nbsp;{{kosten_van_schulden}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-financiele_kosten">
+          <td class="label">Waardeverminderingen op vlottende financiële activa: toevoegingen (terugnemingen)</td>
+          <td class="amount negative">&nbsp;{{waardeverminderingen_vlottende_financiele_activa}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-financiele_kosten">
+          <td class="label">Andere financiële kosten</td>
+          <td class="amount negative">&nbsp;{{andere_financiele_kosten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-financiele_kosten">
+          <td class="label subsection">Niet-recurrente financiële kosten</td>
+          <td class="amount negative">&nbsp;{{nietrecurrente_financiele_kosten}}</td>
+        </tr>
+
+        <!-- RESULTAAT UIT DE COURANTE BEDRIJFSUITOEFENING -->
+        <tr class="section">
+          <td class="label">Resultaat uit de courante bedrijfsuitoefening vóór belastingen</td>
+          <td class="amount total">&nbsp;{{resultaat_courante_bedrijfsuitoefening_voor_belastingen}}</td>
+        </tr>
+
+        <!-- UITZONDERLIJKE OPBRENGSTEN (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-uitz_opbrengsten">
+            <span class="arrow"></span>Uitzonderlijke opbrengsten
+          </td>
+          <td class="amount">&nbsp;{{uitzonderlijke_opbrengsten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-uitz_opbrengsten">
+          <td class="label subsection">Terugneming van afschrijvingen en waardeverminderingen</td>
+          <td class="amount">&nbsp;{{terugneming_afschrijvingen_waardeverminderingen_uitz}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-uitz_opbrengsten">
+          <td class="label subsection">Terugneming van voorzieningen voor uitzonderlijke risico's en kosten</td>
+          <td class="amount">&nbsp;{{terugneming_voorzieningen_uitz}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-uitz_opbrengsten">
+          <td class="label">Meerwaarden op de realisatie van vaste activa</td>
+          <td class="amount">&nbsp;{{meerwaarden_realisatie_vaste_activa}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-uitz_opbrengsten">
+          <td class="label">Andere uitzonderlijke opbrengsten</td>
+          <td class="amount">&nbsp;{{andere_uitzonderlijke_opbrengsten}}</td>
+        </tr>
+
+        <!-- UITZONDERLIJKE KOSTEN (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-uitz_kosten">
+            <span class="arrow"></span>Uitzonderlijke kosten
+          </td>
+          <td class="amount negative">&nbsp;{{uitzonderlijke_kosten}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-uitz_kosten">
+          <td class="label subsection">Afschrijvingen en waardeverminderingen op oprichtingskosten en op immateriële en materiële vaste activa</td>
+          <td class="amount negative">&nbsp;{{afschrijvingen_waardeverminderingen_uitz}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-uitz_kosten">
+          <td class="label subsection">Voorzieningen voor uitzonderlijke risico's en kosten: toevoegingen (bestedingen en terugnemingen)</td>
+          <td class="amount negative">&nbsp;{{voorzieningen_uitz}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-uitz_kosten">
+          <td class="label">Minderwaarden op de realisatie van vaste activa</td>
+          <td class="amount negative">&nbsp;{{minderwaarden_realisatie_vaste_activa}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-uitz_kosten">
+          <td class="label">Andere uitzonderlijke kosten</td>
+          <td class="amount negative">&nbsp;{{andere_uitzonderlijke_kosten}}</td>
+        </tr>
+
+        <!-- RESULTAAT VOOR BELASTINGEN -->
+        <tr class="section">
+          <td class="label">Resultaat vóór belastingen</td>
+          <td class="amount total">&nbsp;{{resultaat_voor_belastingen}}</td>
+        </tr>
+
+        <!-- BELASTINGEN (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-belastingen">
+            <span class="arrow"></span>Belastingen op het resultaat</td>
+          <td class="amount negative">&nbsp;{{belastingen_op_resultaat}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-belastingen">
+          <td class="label subsection">Belastingen op het resultaat van de courante bedrijfsuitoefening</td>
+          <td class="amount negative">&nbsp;{{belastingen_courant_resultaat}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-belastingen">
+          <td class="label subsection">Belastingen op het uitzonderlijk resultaat</td>
+          <td class="amount negative">&nbsp;{{belastingen_uitzonderlijk_resultaat}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-belastingen">
+          <td class="label">Regularisering van belastingen en terugneming van uitgestelde belastingen</td>
+          <td class="amount negative">&nbsp;{{regularisering_belastingen}}</td>
+        </tr>
+
+        <!-- RESULTAAT VAN HET BOEKJAAR -->
+        <tr class="section">
+          <td class="label">Resultaat van het boekjaar</td>
+          <td class="amount total">&nbsp;{{resultaat_boekjaar}}</td>
+        </tr>
+
+        <!-- RESULTAATVERWERKING HEADER -->
+        <tr>
+          <th colspan="2">RESULTAATVERWERKING</th>
+        </tr>
+
+        <!-- RESULTAATVERWERKING (collapsible) -->
+        <tr class="section">
+          <td class="label section-toggle" data-target="group-resultaatverwerking">
+            <span class="arrow"></span>Verwerking van het resultaat</td>
+          <td class="amount">&nbsp;{{resultaatverwerking_totaal}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label subsection">Te bestemmen resultaat van het boekjaar</td>
+          <td class="amount">&nbsp;{{te_bestemmen_resultaat_boekjaar}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label">Te bestemmen winst (verlies) van het boekjaar</td>
+          <td class="amount">&nbsp;{{te_bestemmen_winst_verlies_boekjaar}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label">Overgedragen winst (verlies) van het vorige boekjaar</td>
+          <td class="amount">&nbsp;{{overgedragen_winst_verlies_vorig_boekjaar}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label subsection">Onttrekking aan het eigen vermogen</td>
+          <td class="amount">&nbsp;{{onttrekking_eigen_vermogen}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label">Aan de wettelijke reserve</td>
+          <td class="amount">&nbsp;{{onttrekking_wettelijke_reserve}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label">Aan de overige reserves</td>
+          <td class="amount">&nbsp;{{onttrekking_overige_reserves}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label subsection">Te bestemmen resultaat</td>
+          <td class="amount total">&nbsp;{{te_bestemmen_resultaat_totaal}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label">Over te dragen winst (verlies)</td>
+          <td class="amount">&nbsp;{{over_te_dragen_winst_verlies}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label">Tussentijds dividend</td>
+          <td class="amount">&nbsp;{{tussentijds_dividend}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label">Vergoeding van kapitaal</td>
+          <td class="amount">&nbsp;{{vergoeding_kapitaal}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label">Toevoeging aan de wettelijke reserve</td>
+          <td class="amount">&nbsp;{{toevoeging_wettelijke_reserve}}</td>
+        </tr>
+        <tr class="row-group" data-group="group-resultaatverwerking">
+          <td class="label">Toevoeging aan de overige reserves</td>
+          <td class="amount">&nbsp;{{toevoeging_overige_reserves}}</td>
+        </tr>
+
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<script>
+  document.querySelectorAll('.section-toggle').forEach(function (cell) {
+    cell.addEventListener('click', function () {
+      var target = cell.getAttribute('data-target');
+      var isCollapsed = cell.classList.toggle('collapsed');
+
+      document.querySelectorAll('.section-toggle[data-target="' + target + '"]')
+        .forEach(function (c) {
+          c.classList.toggle('collapsed', isCollapsed);
+        });
+
+      document.querySelectorAll('.row-group[data-group="' + target + '"]')
+        .forEach(function (row) {
+          row.dataset.collapsed = isCollapsed ? 'true' : 'false';
+        });
+    });
+  });
+</script>
+
+</body>
+</html>
