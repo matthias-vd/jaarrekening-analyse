@@ -37,7 +37,7 @@ Run programma
 De repo is klaar om als Python/Flask-app op [Vercel](https://vercel.com) te draaien:
 
 - `api/index.py` is de Vercel-functie die de Flask-app uit `web/app.py` beschikbaar stelt.
-- `vercel.json` bouwt die functie (`@vercel/python`), bundelt de templates en voorbeeld-CSV's mee (`includeFiles`) en stuurt via een route alle verzoeken ernaartoe.
+- `vercel.json` bouwt die functie (`@vercel/python`), bundelt de templates mee (`includeFiles`) en stuurt via een route alle verzoeken ernaartoe.
 - `requirements.txt` wordt automatisch gedetecteerd voor de dependencies.
 - `.python-version` pint Python 3.12.
 

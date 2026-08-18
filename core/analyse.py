@@ -346,15 +346,14 @@ def analyseer(bestand):
 
 
 if __name__ == "__main__":
-    import os
+    import sys
 
-    map_uploads = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "uploads"))
-    for naam in sorted(os.listdir(map_uploads)):
-        if not naam.endswith(".csv"):
-            continue
-        resultaat = analyseer(os.path.join(map_uploads, naam))
-        controle = resultaat["controle"]
-        ev = controle["evenwicht"]
-        status = "in evenwicht" if ev and ev["in_evenwicht"] else "NIET in evenwicht"
-        print(f"{naam:35s} {resultaat['bedrijfsnaam']:30s} "
-              f"{status:20s} ok={controle['aantal_ok']} fout={controle['aantal_fout']}")
+    if len(sys.argv) < 2:
+        print("Gebruik: python -m core.analyse <pad-naar-jaarrekening.csv>")
+        raise SystemExit(1)
+    resultaat = analyseer(sys.argv[1])
+    controle = resultaat["controle"]
+    ev = controle["evenwicht"]
+    status = "in evenwicht" if ev and ev["in_evenwicht"] else "NIET in evenwicht"
+    print(f"{resultaat['bedrijfsnaam']:30s} "
+          f"{status:20s} ok={controle['aantal_ok']} fout={controle['aantal_fout']}")

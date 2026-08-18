@@ -15,33 +15,6 @@ app = Flask(__name__)
 app.secret_key = os.environ.get("FAO_SECRET_KEY", "fao-jaarrekening-analyse-dev")
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB
 
-BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-UPLOADS_DIR = os.path.join(BASE_DIR, "uploads")
-
-
-def _voorbeelden():
-    """Verzamel de meegeleverde voorbeeld-CSV's uit de map uploads/."""
-    voorbeelden = []
-    if not os.path.isdir(UPLOADS_DIR):
-        return voorbeelden
-    for bestand in sorted(os.listdir(UPLOADS_DIR)):
-        if not bestand.lower().endswith(".csv"):
-            continue
-        slug = bestand[:-4]
-        if slug.startswith("jaarrekening_"):
-            slug = slug[len("jaarrekening_"):]
-        label = slug.replace("_", " ").replace("-", " ").title()
-        voorbeelden.append({"slug": slug, "label": label, "bestand": bestand})
-    return voorbeelden
-
-
-def _voorbeeld_pad(slug):
-    """Vind veilig het pad van een voorbeeldbestand op basis van zijn slug."""
-    for v in _voorbeelden():
-        if v["slug"] == slug:
-            return os.path.join(UPLOADS_DIR, v["bestand"])
-    return None
-
 
 @app.template_filter("bedrag")
 def bedrag(waarde):
@@ -81,7 +54,7 @@ def ratiowaarde(waarde, eenheid="", munt="EUR"):
 
 @app.route("/")
 def index():
-    return render_template("index.html", voorbeelden=_voorbeelden())
+    return render_template("index.html")
 
 
 @app.route("/analyse", methods=["POST"])
@@ -99,16 +72,6 @@ def analyse():
         flash("Het bestand kon niet gelezen worden. Controleer of het een geldige jaarrekening-CSV is.")
         return redirect(url_for("index"))
     return render_template("resultaat.html", analyse=resultaat, bron=bestand.filename)
-
-
-@app.route("/voorbeeld/<naam>")
-def voorbeeld(naam):
-    pad = _voorbeeld_pad(naam)
-    if pad is None:
-        flash("Dat voorbeeld bestaat niet (meer).")
-        return redirect(url_for("index"))
-    resultaat = analyseer(pad)
-    return render_template("resultaat.html", analyse=resultaat, bron=os.path.basename(pad))
 
 
 @app.errorhandler(404)
