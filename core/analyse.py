@@ -320,6 +320,9 @@ def kerncijfers(data):
 
 def analyseer(bestand):
     """Volledige analyse van één jaarrekening-CSV."""
+    from core.ratios import bereken_ratios  # lokale import om circulaire import te vermijden
+    from core.sectordata import REFERENTIE_BRON, REFERENTIE_PROFIEL
+
     data = parse_csv(bestand)
     herkende = _herkende_codes()
     codes_in_data = set(data.keys())
@@ -334,6 +337,9 @@ def analyseer(bestand):
         "resultatenrekening": build_statement(structuurResultatenRekening, data),
         "controle": controleer_conformiteit(data),
         "kerncijfers": kerncijfers(data),
+        "ratios": bereken_ratios(data),
+        "sector_bron": REFERENTIE_BRON,
+        "sector_profiel": REFERENTIE_PROFIEL,
         "aantal_codes": len(codes_in_data),
         "aantal_herkend": aantal_herkend,
     }

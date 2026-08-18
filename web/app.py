@@ -57,6 +57,28 @@ def bedrag(waarde):
     return f"({tekst})" if negatief else tekst
 
 
+@app.template_filter("ratiowaarde")
+def ratiowaarde(waarde, eenheid="", munt="EUR"):
+    """Formatteer een ratiowaarde volgens haar eenheid."""
+    if waarde is None:
+        return "—"
+    try:
+        getal = float(waarde)
+    except (TypeError, ValueError):
+        return str(waarde)
+    if eenheid == "%":
+        return f"{getal:,.1f}".replace(",", "\u00a0") + "\u00a0%"
+    if eenheid == "x":
+        return f"{getal:,.2f}".replace(",", "\u00a0") + "\u00a0×"
+    if eenheid == "dagen":
+        return f"{getal:,.0f}".replace(",", "\u00a0") + "\u00a0dagen"
+    if eenheid == "000 EUR":
+        return f"{getal:,.1f}".replace(",", "\u00a0") + "\u00a0k" + munt
+    if eenheid == "EUR":
+        return bedrag(getal) + "\u00a0" + munt
+    return f"{getal:,.2f}".replace(",", "\u00a0")
+
+
 @app.route("/")
 def index():
     return render_template("index.html", voorbeelden=_voorbeelden())
