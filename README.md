@@ -36,12 +36,12 @@ Run programma
 ### Deployen op Vercel
 De repo is klaar om als Python/Flask-app op [Vercel](https://vercel.com) te draaien:
 
-- `app.py` (repo-root) is het entrypoint dat Vercel verwacht en her-exporteert de Flask-app uit `web/app.py`.
+- `api/index.py` is de Vercel-functie die de Flask-app uit `web/app.py` beschikbaar stelt.
+- `vercel.json` bouwt die functie (`@vercel/python`), bundelt de templates en voorbeeld-CSV's mee (`includeFiles`) en stuurt via een route alle verzoeken ernaartoe.
 - `requirements.txt` wordt automatisch gedetecteerd voor de dependencies.
 - `.python-version` pint Python 3.12.
-- `vercel.json` sluit overbodige bestanden uit de functiebundel uit.
 
-Importeer de Git-repo in Vercel en deploy — er is geen extra configuratie nodig. Vercel routeert automatisch alle verzoeken naar de app. Stel eventueel de omgevingsvariabele `FAO_SECRET_KEY` in voor een stabiele sessiesleutel.
+Importeer de Git-repo in Vercel en deploy. Zorg dat de **Root Directory** in de projectinstellingen de repository-root is (niet `web/`). Stel eventueel de omgevingsvariabele `FAO_SECRET_KEY` in voor een stabiele sessiesleutel. Lokaal draai je de app met `python web/app.py`.
 
 ## Support
 Dit is ontworpen voor gebruik op *nix-based operating systems, zoals Linux en macOS. 
