@@ -1,0 +1,263 @@
+{% extends "base.html" %}
+{% block title %}{{ analyse.bedrijfsnaam }} — Analyse{% endblock %}
+
+{% block styles %}
+    .result-head {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem;
+      padding: 1.5rem 1.7rem; margin-bottom: 1.3rem;
+    }
+    .result-head .titel h1 { margin: 0; font-size: 1.6rem; letter-spacing: -0.01em; }
+    .result-head .titel .meta { color: var(--muted); font-size: 0.95rem; margin-top: 0.2rem; }
+    .result-head .spacer { flex: 1 1 auto; }
+    .result-head .verdict { display: flex; flex-direction: column; align-items: flex-end; gap: 0.35rem; }
+
+    .tabs { display: flex; gap: 0.4rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .tab-btn {
+      padding: 0.55rem 1.1rem; border-radius: 999px; border: 1px solid var(--line);
+      background: #fff; color: var(--muted); font-family: var(--font);
+      font-weight: 600; font-size: 0.92rem; cursor: pointer; transition: all .12s ease;
+    }
+    .tab-btn:hover { border-color: var(--accent-200); color: var(--accent-700); }
+    .tab-btn.active { background: linear-gradient(135deg, var(--accent), var(--accent-700)); color: #fff; border-color: transparent; box-shadow: 0 8px 18px rgba(44,204,196,.35); }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; animation: fade .18s ease; }
+    @keyframes fade { from { opacity: 0; transform: translateY(4px);} to {opacity:1; transform:none;} }
+
+    .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; }
+    @media (max-width: 820px) { .grid-2 { grid-template-columns: 1fr; } }
+
+    .panel { padding: 1.3rem 1.5rem; }
+    .panel h3 { margin: 0 0 1rem; font-size: 1.1rem; }
+    .panel h3 .count { color: var(--muted); font-weight: 500; font-size: 0.9rem; }
+
+    .kv { display: grid; grid-template-columns: auto 1fr; gap: 0.5rem 1.2rem; }
+    .kv dt { color: var(--muted); }
+    .kv dd { margin: 0; font-weight: 600; text-align: right; }
+
+    .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; }
+    .kpi {
+      padding: 1.1rem 1.2rem; border-radius: 14px; border: 1px solid var(--line);
+      background: linear-gradient(180deg, var(--accent-050), #fff);
+    }
+    .kpi .val { font-size: 1.7rem; font-weight: 800; color: var(--accent-700); letter-spacing: -0.01em; }
+    .kpi .lab { font-weight: 600; margin-top: 0.2rem; }
+    .kpi .hint { color: var(--muted); font-size: 0.8rem; margin-top: 0.25rem; }
+
+    .toolbar { display: flex; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 0.6rem; flex-wrap: wrap; }
+    .toolbar label { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.9rem; cursor: pointer; }
+
+    table.statement { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    table.statement td { padding: 0.4rem 0.6rem; border-bottom: 1px solid #eef5f4; vertical-align: top; }
+    table.statement td.code { color: var(--muted); font-size: 0.82rem; white-space: nowrap; width: 70px; }
+    table.statement td.toel { color: var(--muted); font-size: 0.78rem; white-space: nowrap; width: 60px; text-align: right; }
+    table.statement td.waarde { text-align: right; white-space: nowrap; font-weight: 600; width: 150px; }
+    table.statement td.waarde.neg { color: var(--err); }
+    table.statement tr.sectie td { background: var(--accent-050); font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; font-size: 0.85rem; color: var(--accent-700); border-bottom: 1px solid var(--accent-100); }
+    table.statement tr.totaal td { font-weight: 800; border-top: 2px solid var(--accent-200); background: #f6fdfc; }
+    table.statement tr.leeg td { color: #9fb6b7; }
+    table.statement tr.leeg td.rubriek { font-weight: 400; }
+    .hide-empty table.statement tr.leeg { display: none; }
+
+    .check-row {
+      display: grid; grid-template-columns: 28px 1fr auto; gap: 0.8rem; align-items: start;
+      padding: 0.8rem 0; border-bottom: 1px solid #eef5f4;
+    }
+    .check-row:last-child { border-bottom: none; }
+    .check-icon { width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; }
+    .check-icon.ok { background: var(--ok-bg); color: var(--ok); }
+    .check-icon.fout { background: var(--err-bg); color: var(--err); }
+    .check-icon.overgeslagen { background: #eef1f2; color: #8a9aa0; }
+    .check-naam { font-weight: 500; }
+    .check-detail { color: var(--muted); font-size: 0.83rem; margin-top: 0.2rem; font-variant-numeric: tabular-nums; }
+    .check-status { text-align: right; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+    .evenwicht {
+      display: flex; flex-wrap: wrap; align-items: center; gap: 1.2rem;
+      padding: 1.3rem 1.5rem; border-radius: 14px; margin-bottom: 1.3rem;
+    }
+    .evenwicht.ok { background: var(--ok-bg); border: 1px solid #bfe7d4; }
+    .evenwicht.err { background: var(--err-bg); border: 1px solid #f3c4c9; }
+    .evenwicht .big { font-size: 1.15rem; font-weight: 700; }
+    .evenwicht .nums { color: var(--muted); font-variant-numeric: tabular-nums; }
+    .neg { color: var(--err); }
+{% endblock %}
+
+{% block content %}
+  <div class="card result-head">
+    <div class="titel">
+      <h1>{{ analyse.bedrijfsnaam }}</h1>
+      <div class="meta">
+        Boekjaar {{ analyse.boekjaar or '—' }} · munt {{ analyse.munt }} ·
+        {{ analyse.aantal_herkend }} van {{ analyse.aantal_codes }} codes herkend
+      </div>
+    </div>
+    <div class="spacer"></div>
+    <div class="verdict">
+      {% if analyse.controle.conform %}
+        <span class="badge ok">&checkmark; Conform de wettelijke structuur</span>
+      {% else %}
+        <span class="badge err">&#9888; Aandachtspunten gevonden</span>
+      {% endif %}
+      <a class="btn secondary" href="{{ url_for('index') }}">Nieuwe analyse</a>
+    </div>
+  </div>
+
+  <div class="tabs">
+    <button class="tab-btn active" data-tab="overzicht">Overzicht</button>
+    <button class="tab-btn" data-tab="balans">Balans</button>
+    <button class="tab-btn" data-tab="rr">Resultatenrekening</button>
+    <button class="tab-btn" data-tab="controle">
+      Controle
+      {% if analyse.controle.aantal_fout %}<span class="badge err" style="margin-left:.4rem">{{ analyse.controle.aantal_fout }}</span>{% endif %}
+    </button>
+  </div>
+
+  <!-- OVERZICHT -->
+  <section class="tab-panel active" id="tab-overzicht">
+    {% if analyse.controle.evenwicht %}
+      {% set ev = analyse.controle.evenwicht %}
+      <div class="evenwicht {{ 'ok' if ev.in_evenwicht else 'err' }}">
+        <div>
+          <div class="big">
+            {% if ev.in_evenwicht %}&checkmark; De balans is in evenwicht{% else %}&#9888; De balans is niet in evenwicht{% endif %}
+          </div>
+          <div class="nums">
+            Totaal activa {{ ev.activa | bedrag }} {{ analyse.munt }} ·
+            Totaal passiva {{ ev.passiva | bedrag }} {{ analyse.munt }}
+            {% if not ev.in_evenwicht %} · verschil <span class="neg">{{ ev.verschil | bedrag }}</span>{% endif %}
+          </div>
+        </div>
+      </div>
+    {% endif %}
+
+    {% if analyse.kerncijfers %}
+    <div class="card panel" style="margin-bottom:1.3rem">
+      <h3>Kerncijfers</h3>
+      <div class="kpi-grid">
+        {% for k in analyse.kerncijfers %}
+          <div class="kpi">
+            <div class="val">
+              {% if k.eenheid == '€' %}{{ k.waarde | bedrag }}{% else %}{{ k.waarde }}{% endif %}
+              <span style="font-size:0.9rem">{{ k.eenheid if k.eenheid != '€' else analyse.munt }}</span>
+            </div>
+            <div class="lab">{{ k.label }}</div>
+            <div class="hint">{{ k.toelichting }}</div>
+          </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="grid-2">
+      <div class="card panel">
+        <h3>Identificatiegegevens</h3>
+        <dl class="kv">
+          {% for m in analyse.metadata %}
+            <dt>{{ m.label }}</dt><dd>{{ m.waarde }}</dd>
+          {% endfor %}
+        </dl>
+      </div>
+      <div class="card panel">
+        <h3>Conformiteit <span class="count">— {{ analyse.controle.aantal_ok }} controles ok, {{ analyse.controle.aantal_fout }} met verschil</span></h3>
+        <p style="color:var(--muted); margin-top:0">
+          FAO controleert automatisch de belangrijkste wettelijke optelsommen van de balans
+          en de resultatenrekening. Bekijk het tabblad <strong>Controle</strong> voor alle details.
+        </p>
+        {% if analyse.controle.conform %}
+          <span class="badge ok">&checkmark; Alle controleerbare optelsommen kloppen</span>
+        {% else %}
+          <span class="badge err">&#9888; {{ analyse.controle.aantal_fout }} optelsom(men) klopt niet</span>
+        {% endif %}
+      </div>
+    </div>
+  </section>
+
+  <!-- BALANS -->
+  <section class="tab-panel" id="tab-balans">
+    <div class="card panel hide-empty" id="balans-panel">
+      <div class="toolbar">
+        <h3 style="margin:0">Balans na winstverdeling</h3>
+        <label><input type="checkbox" checked onchange="document.getElementById('balans-panel').classList.toggle('hide-empty', this.checked)"> Verberg lege rubrieken</label>
+      </div>
+      {{ statement(analyse.balans) }}
+    </div>
+  </section>
+
+  <!-- RESULTATENREKENING -->
+  <section class="tab-panel" id="tab-rr">
+    <div class="card panel hide-empty" id="rr-panel">
+      <div class="toolbar">
+        <h3 style="margin:0">Resultatenrekening</h3>
+        <label><input type="checkbox" checked onchange="document.getElementById('rr-panel').classList.toggle('hide-empty', this.checked)"> Verberg lege rubrieken</label>
+      </div>
+      {{ statement(analyse.resultatenrekening) }}
+    </div>
+  </section>
+
+  <!-- CONTROLE -->
+  <section class="tab-panel" id="tab-controle">
+    <div class="card panel" style="margin-bottom:1.3rem">
+      <h3>Balans</h3>
+      {% for c in analyse.controle.balans_checks %}{{ check_row(c) }}{% endfor %}
+    </div>
+    <div class="card panel">
+      <h3>Resultatenrekening</h3>
+      {% for c in analyse.controle.rr_checks %}{{ check_row(c) }}{% endfor %}
+    </div>
+  </section>
+{% endblock %}
+
+{% macro statement(rijen) %}
+  <table class="statement">
+    {% for r in rijen %}
+      <tr class="lvl-{{ r.niveau }}{% if r.is_sectie %} sectie{% endif %}{% if r.is_totaal %} totaal{% endif %}{% if r.is_leeg %} leeg{% endif %}">
+        <td class="code">{{ r.code }}</td>
+        <td class="rubriek" style="padding-left: {{ r.niveau * 18 + 8 }}px">{{ r.rubriek }}</td>
+        <td class="toel">{{ r.toelichting }}</td>
+        <td class="waarde{% if r.waarde is not none and r.waarde < 0 %} neg{% endif %}">
+          {% if r.waarde is not none %}{{ r.waarde | bedrag }}{% endif %}
+        </td>
+      </tr>
+    {% endfor %}
+  </table>
+{% endmacro %}
+
+{% macro check_row(c) %}
+  <div class="check-row">
+    <div class="check-icon {{ c.status }}">
+      {% if c.status == 'ok' %}&checkmark;{% elif c.status == 'fout' %}&#10007;{% else %}?{% endif %}
+    </div>
+    <div>
+      <div class="check-naam">{{ c.naam }}</div>
+      <div class="check-detail">
+        {% if c.status == 'overgeslagen' %}
+          Niet te controleren — niet alle rubrieken zijn aanwezig in de CSV.
+        {% else %}
+          Aangegeven ({{ c.totaalcode }}): {{ c.verwacht | bedrag }} · berekend: {{ c.berekend | bedrag }}
+        {% endif %}
+      </div>
+    </div>
+    <div class="check-status">
+      {% if c.status == 'ok' %}
+        <span class="badge ok">Klopt</span>
+      {% elif c.status == 'fout' %}
+        <span class="badge err">verschil {{ c.verschil | bedrag }}</span>
+      {% else %}
+        <span class="badge neutral">Overgeslagen</span>
+      {% endif %}
+    </div>
+  </div>
+{% endmacro %}
+
+{% block scripts %}
+<script>
+  const btns = document.querySelectorAll('.tab-btn');
+  btns.forEach(b => b.addEventListener('click', () => {
+    btns.forEach(x => x.classList.remove('active'));
+    document.querySelectorAll('.tab-panel').forEach(p => p.classList.remove('active'));
+    b.classList.add('active');
+    document.getElementById('tab-' + b.dataset.tab).classList.add('active');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }));
+</script>
+{% endblock %}
