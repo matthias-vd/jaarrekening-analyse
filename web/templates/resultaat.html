@@ -80,6 +80,25 @@
     .evenwicht .big { font-size: 1.15rem; font-weight: 700; }
     .evenwicht .nums { color: var(--muted); font-variant-numeric: tabular-nums; }
     .neg { color: var(--err); }
+
+    /* Ratio's tab */
+    .sector-uitleg details { border-top: 1px solid var(--line); padding-top: .8rem; margin-top: .4rem; }
+    .sector-uitleg summary { cursor: pointer; color: var(--accent-700); }
+    .legende { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: 1rem; }
+    .tag { display: inline-block; font-size: .68rem; font-weight: 700; text-transform: uppercase; letter-spacing: .04em;
+           padding: .1rem .45rem; border-radius: 999px; background: var(--warn-bg); color: var(--warn); vertical-align: middle; margin-left: .4rem; }
+    table.ratio-tabel { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    table.ratio-tabel thead th { text-align: left; font-size: .78rem; text-transform: uppercase; letter-spacing: .03em;
+           color: var(--muted); padding: .3rem .6rem .5rem; border-bottom: 2px solid var(--line); }
+    table.ratio-tabel th.num, table.ratio-tabel td.num { text-align: right; white-space: nowrap; }
+    table.ratio-tabel th.pos, table.ratio-tabel td.pos { text-align: right; white-space: nowrap; }
+    table.ratio-tabel td { padding: .55rem .6rem; border-bottom: 1px solid #eef5f4; vertical-align: top; }
+    table.ratio-tabel .r-naam { font-weight: 600; }
+    table.ratio-tabel .r-formule { color: var(--muted); font-size: .78rem; margin-top: .15rem; }
+    table.ratio-tabel td.waarde { font-weight: 700; font-size: 1.02rem; }
+    table.ratio-tabel td.sector { color: var(--muted); font-size: .85rem; }
+    table.ratio-tabel tr.na { opacity: .6; }
+    table.ratio-tabel .dash { color: #b7c9c9; }
 {% endblock %}
 
 {% block content %}
@@ -106,6 +125,7 @@
     <button class="tab-btn active" data-tab="overzicht">Overzicht</button>
     <button class="tab-btn" data-tab="balans">Balans</button>
     <button class="tab-btn" data-tab="rr">Resultatenrekening</button>
+    <button class="tab-btn" data-tab="ratios">Ratio's</button>
     <button class="tab-btn" data-tab="controle">
       Controle
       {% if analyse.controle.aantal_fout %}<span class="badge err" style="margin-left:.4rem">{{ analyse.controle.aantal_fout }}</span>{% endif %}
@@ -192,6 +212,87 @@
       </div>
       {{ statement(analyse.resultatenrekening) }}
     </div>
+  </section>
+
+  <!-- RATIO'S -->
+  <section class="tab-panel" id="tab-ratios">
+    <div class="card panel sector-uitleg" style="margin-bottom:1.3rem">
+      <h3>Ratioanalyse &amp; sectorvergelijking</h3>
+      <p style="margin:0 0 .6rem; color:var(--muted)">
+        De ratio's uit de cursus (toegevoegde waarde, rendabiliteit, solvabiliteit, liquiditeit),
+        berekend uit de balans en resultatenrekening. Waarden met het label
+        <span class="tag benadering">benadering</span> gebruiken een schatting van de niet-kaskosten
+        of de financiële kosten uit de beschikbare rubrieken.
+      </p>
+      <details>
+        <summary><strong>Over de sectorvergelijking</strong> — is dit mogelijk?</summary>
+        <div style="margin-top:.6rem; color:var(--muted); font-size:.92rem">
+          <p style="margin:.2rem 0">
+            Ja — de <strong>NBB Balanscentrale</strong> publiceert via NBB.Stat per
+            <strong>NACE-BEL-sector</strong> de spreiding van deze ratio's in kwartielen (Q1/Q2/Q3).
+            Een onderneming vergelijken met haar sector betekent kijken waar haar ratio valt
+            t.o.v. die kwartielen.
+          </p>
+          <p style="margin:.2rem 0">
+            <strong>Beperking:</strong> de gedeponeerde jaarrekening-CSV bevat géén NACE-code,
+            dus de sector kan niet automatisch worden afgeleid. Hieronder wordt daarom een
+            vast referentieprofiel gebruikt:
+          </p>
+          <p style="margin:.4rem 0 0"><strong>Profiel:</strong> {{ analyse.sector_profiel }}<br>
+            <strong>Bron:</strong> {{ analyse.sector_bron }}</p>
+        </div>
+      </details>
+      <div class="legende">
+        <span class="badge ok">sterk</span>
+        <span class="badge warn">rond mediaan</span>
+        <span class="badge err">zwak</span>
+        <span class="badge neutral">neutraal / geen benchmark</span>
+      </div>
+    </div>
+
+    {% for groep in analyse.ratios.groepen %}
+      <div class="card panel" style="margin-bottom:1.3rem">
+        <h3>{{ groep.naam }}</h3>
+        <table class="ratio-tabel">
+          <thead>
+            <tr>
+              <th>Ratio</th>
+              <th class="num">Waarde</th>
+              <th class="num">Sector Q1 · Q2 · Q3</th>
+              <th class="pos">Positie</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for r in groep.ratios %}
+              <tr class="{{ 'na' if not r.berekenbaar }}">
+                <td>
+                  <div class="r-naam">
+                    {{ r.naam }}
+                    {% if r.methode == 'benadering' %}<span class="tag benadering">benadering</span>{% endif %}
+                  </div>
+                  <div class="r-formule">{{ r.formule }}{% if not r.berekenbaar and r.reden %} — <em>{{ r.reden }}</em>{% endif %}</div>
+                </td>
+                <td class="num waarde">
+                  {% if r.berekenbaar %}{{ r.waarde | ratiowaarde(r.eenheid, analyse.munt) }}{% else %}—{% endif %}
+                </td>
+                <td class="num sector">
+                  {% if r.sector %}{{ r.sector.q1 }} · {{ r.sector.q2 }} · {{ r.sector.q3 }}{% else %}<span class="dash">—</span>{% endif %}
+                </td>
+                <td class="pos">
+                  {% if r.sector %}
+                    <span class="badge {{ r.sector.kleur }}">{{ r.sector.positie }} · {{ r.sector.oordeel }}</span>
+                  {% elif r.berekenbaar %}
+                    <span class="badge neutral">geen benchmark</span>
+                  {% else %}
+                    <span class="dash">—</span>
+                  {% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    {% endfor %}
   </section>
 
   <!-- CONTROLE -->
