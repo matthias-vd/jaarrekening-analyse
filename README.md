@@ -33,6 +33,16 @@ Run programma
 ./easyInstallScript.sh
 ```
 
+### Deployen op Vercel
+De repo is klaar om als Python/Flask-app op [Vercel](https://vercel.com) te draaien:
+
+- `app.py` (repo-root) is het entrypoint dat Vercel verwacht en her-exporteert de Flask-app uit `web/app.py`.
+- `requirements.txt` wordt automatisch gedetecteerd voor de dependencies.
+- `.python-version` pint Python 3.12.
+- `vercel.json` sluit overbodige bestanden uit de functiebundel uit.
+
+Importeer de Git-repo in Vercel en deploy — er is geen extra configuratie nodig. Vercel routeert automatisch alle verzoeken naar de app. Stel eventueel de omgevingsvariabele `FAO_SECRET_KEY` in voor een stabiele sessiesleutel.
+
 ## Support
 Dit is ontworpen voor gebruik op *nix-based operating systems, zoals Linux en macOS. 
 Windows wordt **niet** ondersteund.
