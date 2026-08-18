@@ -3,12 +3,19 @@
 Dit is een work-in-progress repository van een programma om de jaarrekening te analyseren. 
 
 De jaarrekening kan op verschillende manieren worden ingelezen:
-| Methode                                      | Ondersteund |
-| :------------------------------------------- | ----------- |
-| PDF                                          |     TBD     |
-| XBRL                                         |   Nog niet  |
-| CSV                                          |   Nog niet  |
-| Ondernemingsnummer                           |   Nog niet  |
+| Methode                          | Ondersteund | Opmerking |
+| :------------------------------- | :---------: | :-------- |
+| CSV                              |     Ja      | NBB-export met `"code","waarde"`-rijen |
+| JSON (jsonxbrl)                  |     Ja      | Gestructureerde NBB-JSON met rubriekcodes |
+| PDF                              | Ja (best-effort) | Door de NBB gegenereerde PDF; codes worden uit de tekst gehaald |
+| XBRL                             | Via JSON/KBO | Ruwe XBRL bevat de codes niet zelf (die zitten in de taxonomie); gebruik de JSON-export of het KBO-nummer |
+| Ondernemingsnummer (KBO/BTW)     |     Ja      | Automatisch ophalen via de gratis NBB-webservice (zie hieronder) |
+
+### Automatisch ophalen via KBO-/BTW-nummer
+FAO kan de recentste jaarrekening rechtstreeks ophalen bij de Balanscentrale van de NBB
+(webservice "Authentic Data Query"). Dit is gratis, maar vereist eenmalig een gratis
+abonnementssleutel: registreer op https://developer.cbso.nbb.be en zet de sleutel als
+omgevingsvariabele `NBB_CBSO_SUBSCRIPTION_KEY` (bv. via de Secrets van de omgeving / Vercel).
 
 ## Getting Started
 ### Online, gemakkelijkst, "it just works"

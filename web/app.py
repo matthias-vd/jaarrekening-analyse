@@ -9,7 +9,11 @@ from flask import (
     url_for,
 )
 
-from core.analyse import analyseer
+from core.analyse import analyseer_data
+from core.bronnen import BronFout, laad_bron
+from core.nbb_api import haal_op_via_kbo
+
+ONDERSTEUNDE_TYPES = (".csv", ".json", ".pdf", ".xbrl", ".xml")
 
 app = Flask(__name__)
 app.secret_key = os.environ.get("FAO_SECRET_KEY", "fao-jaarrekening-analyse-dev")
@@ -61,17 +65,39 @@ def index():
 def analyse():
     bestand = request.files.get("bestand")
     if bestand is None or bestand.filename == "":
-        flash("Kies eerst een CSV-bestand om te analyseren.")
+        flash("Kies eerst een bestand om te analyseren.")
         return redirect(url_for("index"))
-    if not bestand.filename.lower().endswith(".csv"):
-        flash("Enkel .csv-bestanden worden ondersteund.")
+    if not bestand.filename.lower().endswith(ONDERSTEUNDE_TYPES):
+        flash("Ondersteunde bestandstypes: CSV, JSON (jsonxbrl) of PDF.")
         return redirect(url_for("index"))
     try:
-        resultaat = analyseer(bestand.stream)
+        data = laad_bron(bestand.filename, bestand.stream)
+        resultaat = analyseer_data(data)
+    except BronFout as fout:
+        flash(str(fout))
+        return redirect(url_for("index"))
     except Exception:  # noqa: BLE001 - toon een nette foutmelding i.p.v. een stacktrace
-        flash("Het bestand kon niet gelezen worden. Controleer of het een geldige jaarrekening-CSV is.")
+        flash("Het bestand kon niet gelezen worden. Controleer of het een geldige jaarrekening is.")
         return redirect(url_for("index"))
     return render_template("resultaat.html", analyse=resultaat, bron=bestand.filename)
+
+
+@app.route("/fetch", methods=["POST"])
+def fetch():
+    nummer = (request.form.get("kbo") or "").strip()
+    if not nummer:
+        flash("Geef een KBO-/BTW-nummer in.")
+        return redirect(url_for("index"))
+    try:
+        data = haal_op_via_kbo(nummer)
+        resultaat = analyseer_data(data)
+    except BronFout as fout:
+        flash(str(fout))
+        return redirect(url_for("index"))
+    except Exception:  # noqa: BLE001
+        flash("Er ging iets mis bij het automatisch ophalen van de jaarrekening.")
+        return redirect(url_for("index"))
+    return render_template("resultaat.html", analyse=resultaat, bron=f"KBO {nummer}")
 
 
 @app.errorhandler(404)

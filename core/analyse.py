@@ -53,11 +53,22 @@ def parse_bedrag(raw):
         s = s[1:-1]
     s = s.replace(" ", "").replace("\u00a0", "")
     if "," in s and "." in s:
-        # Bv. "1,234.56" -> komma's zijn duizendtallen
-        s = s.replace(",", "")
-    elif "," in s and "." not in s:
-        # Bv. "1234,56" -> komma is decimaalteken
+        # Beide scheidingstekens: het laatste is het decimaalteken.
+        if s.rfind(",") > s.rfind("."):
+            # Europese notatie "1.234.567,89" -> punten zijn duizendtallen
+            s = s.replace(".", "").replace(",", ".")
+        else:
+            # Angelsaksische notatie "1,234,567.89" -> komma's zijn duizendtallen
+            s = s.replace(",", "")
+    elif "," in s:
+        # Enkel komma -> decimaalteken (Europese notatie "1234,56")
         s = s.replace(",", ".")
+    elif "." in s:
+        # Enkel punt: duizendtallen wanneer alle groepen erna exact 3 cijfers tellen
+        # ("9.273.680" of "6.000"), anders een decimaalteken ("1333311.09").
+        stukken = s.lstrip("-").split(".")
+        if len(stukken) > 1 and all(len(deel) == 3 for deel in stukken[1:]):
+            s = s.replace(".", "")
     try:
         waarde = float(s)
     except ValueError:
@@ -319,11 +330,19 @@ def kerncijfers(data):
 
 
 def analyseer(bestand):
-    """Volledige analyse van één jaarrekening-CSV."""
+    """Volledige analyse van één jaarrekening-CSV (pad, bytes of file-object)."""
+    return analyseer_data(parse_csv(bestand))
+
+
+def analyseer_data(data):
+    """Volledige analyse op basis van een reeds ingelezen ``{code: waarde}``-dict.
+
+    Zo kan dezelfde analyse gevoed worden vanuit CSV, JSON (jsonxbrl), PDF of
+    de NBB-webservice.
+    """
     from core.ratios import bereken_ratios  # lokale import om circulaire import te vermijden
     from core.sectordata import REFERENTIE_BRON, REFERENTIE_PROFIEL
 
-    data = parse_csv(bestand)
     herkende = _herkende_codes()
     codes_in_data = set(data.keys())
     aantal_herkend = len(codes_in_data & herkende)

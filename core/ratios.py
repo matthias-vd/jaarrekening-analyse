@@ -31,6 +31,12 @@ def _deel(teller, noemer):
     return teller / noemer
 
 
+def _pct(teller, noemer):
+    """Zoals _deel, maar in procent; geeft None als de deling niet kan."""
+    deling = _deel(teller, noemer)
+    return None if deling is None else deling * 100
+
+
 def _ratio(rid, naam, formule, eenheid, waarde, methode="exact"):
     return {
         "id": rid,
@@ -125,7 +131,7 @@ def bereken_ratios(data):
     if bruto_tw is not None and bedrijfsopbr:
         tw.append(_ratio("bruto_tw_marge", "Bruto toegevoegde waardemarge",
                          "bruto TW / bedrijfsopbrengsten", "%",
-                         _deel(bruto_tw, bedrijfsopbr) * 100 if bedrijfsopbr else None))
+                         _pct(bruto_tw, bedrijfsopbr) if bedrijfsopbr else None))
     else:
         tw.append(_na("bruto_tw_marge", "Bruto toegevoegde waardemarge",
                       "bruto TW / bedrijfsopbrengsten", "%",
@@ -142,19 +148,19 @@ def bereken_ratios(data):
 
     if bruto_tw:
         tw.append(_ratio("aandeel_personeel_btw", "Aandeel van het personeel in de BTW",
-                         "bezoldigingen (62) / bruto TW", "%", _deel(personeel, bruto_tw) * 100))
+                         "bezoldigingen (62) / bruto TW", "%", _pct(personeel, bruto_tw)))
         tw.append(_ratio("aandeel_nietkas_tw", "Aandeel recurrente niet-kaskosten in de TW",
                          "afschrijvingen + waardeverm. + voorz. (630+631/4+635/8) / bruto TW", "%",
-                         _deel(niet_kaskosten, bruto_tw) * 100, methode="benadering"))
+                         _pct(niet_kaskosten, bruto_tw), methode="benadering"))
         tw.append(_ratio("aandeel_fkvv_btw", "Aandeel van de FKVV in de BTW",
                          "financiële kosten VV / bruto TW", "%",
-                         _deel(fkvv, bruto_tw) * 100, methode="benadering"))
+                         _pct(fkvv, bruto_tw), methode="benadering"))
         tw.append(_ratio("aandeel_belastingen_btw", "Aandeel van de belastingen in de BTW",
-                         "belastingen (67/77) / bruto TW", "%", _deel(belastingen, bruto_tw) * 100))
+                         "belastingen (67/77) / bruto TW", "%", _pct(belastingen, bruto_tw)))
         toegevoegde_wv = bruto_tw - personeel - niet_kaskosten - fkvv - belastingen
         tw.append(_ratio("aandeel_tw_wv_btw", "Aandeel van de toegevoegde winst/verlies in de BTW",
                          "(bruto TW − personeel − niet-kaskosten − FKVV − belastingen) / bruto TW", "%",
-                         _deel(toegevoegde_wv, bruto_tw) * 100, methode="benadering"))
+                         _pct(toegevoegde_wv, bruto_tw), methode="benadering"))
     else:
         for rid, naam in [("aandeel_personeel_btw", "Aandeel van het personeel in de BTW"),
                           ("aandeel_nietkas_tw", "Aandeel recurrente niet-kaskosten in de TW"),
@@ -169,11 +175,11 @@ def bereken_ratios(data):
     if omzet:
         rend.append(_ratio("brutoverkoopmarge_voor_bel", "Brutoverkoopmarge vóór belastingen",
                            "(resultaat vóór bel. + FKVV + niet-kaskosten) / omzet", "%",
-                           _deel((res_voor_bel or 0) + fkvv + niet_kaskosten, omzet) * 100,
+                           _pct((res_voor_bel or 0) + fkvv + niet_kaskosten, omzet),
                            methode="benadering"))
         rend.append(_ratio("nettoverkoopmarge_voor_bel", "Nettoverkoopmarge vóór belastingen",
                            "(resultaat vóór bel. + FKVV) / omzet", "%",
-                           _deel((res_voor_bel or 0) + fkvv, omzet) * 100, methode="benadering"))
+                           _pct((res_voor_bel or 0) + fkvv, omzet), methode="benadering"))
     else:
         rend.append(_na("brutoverkoopmarge_voor_bel", "Brutoverkoopmarge vóór belastingen",
                         "(resultaat vóór bel. + FKVV + niet-kaskosten) / omzet", "%",
@@ -185,20 +191,20 @@ def bereken_ratios(data):
     if tv:
         rend.append(_ratio("bruto_rend_ta", "Brutorendabiliteit van het totaal van de activa",
                            "(resultaat vóór bel. + FKVV + niet-kaskosten) / totaal activa", "%",
-                           _deel((res_voor_bel or 0) + fkvv + niet_kaskosten, tv) * 100, methode="benadering"))
+                           _pct((res_voor_bel or 0) + fkvv + niet_kaskosten, tv), methode="benadering"))
         rend.append(_ratio("netto_rend_ta", "Nettorendabiliteit van het totaal van de activa",
                            "(resultaat vóór bel. + FKVV) / totaal activa", "%",
-                           _deel((res_voor_bel or 0) + fkvv, tv) * 100, methode="benadering"))
+                           _pct((res_voor_bel or 0) + fkvv, tv), methode="benadering"))
     if EV:
         rend.append(_ratio("netto_rend_ev_voor_bel", "Nettorendabiliteit van het EV vóór belastingen",
                            "resultaat vóór bel. (9903) / eigen vermogen", "%",
-                           _deel(res_voor_bel, EV) * 100))
+                           _pct(res_voor_bel, EV)))
         rend.append(_ratio("netto_rend_ev_na_bel", "Nettorendabiliteit van het EV na belastingen",
                            "resultaat na bel. (9904) / eigen vermogen", "%",
-                           _deel(res_na_bel, EV) * 100))
+                           _pct(res_na_bel, EV)))
         rend.append(_ratio("bruto_rend_ev_na_bel", "Brutorendabiliteit van het EV na belastingen",
                            "(resultaat na bel. + niet-kaskosten) / eigen vermogen", "%",
-                           _deel((res_na_bel or 0) + niet_kaskosten, EV) * 100, methode="benadering"))
+                           _pct((res_na_bel or 0) + niet_kaskosten, EV), methode="benadering"))
     else:
         rend.append(_na("netto_rend_ev_na_bel", "Nettorendabiliteit van het EV na belastingen",
                         "resultaat na bel. / eigen vermogen", "%", "Eigen vermogen (10/15) ontbreekt of is nul."))
@@ -207,17 +213,17 @@ def bereken_ratios(data):
     solv = []
     if tv:
         solv.append(_ratio("algemene_schuldgraad", "Algemene schuldgraad",
-                           "vreemd vermogen / totaal vermogen", "%", _deel(vv, tv) * 100))
+                           "vreemd vermogen / totaal vermogen", "%", _pct(vv, tv)))
         solv.append(_ratio("graad_fin_onafh", "Algemene graad van financiële onafhankelijkheid",
-                           "eigen vermogen / totaal vermogen", "%", _deel(EV, tv) * 100))
+                           "eigen vermogen / totaal vermogen", "%", _pct(EV, tv)))
         solv.append(_ratio("zelffinancieringsgraad", "Zelffinancieringsgraad",
                            "(reserves + overgedragen resultaat) / totaal vermogen", "%",
-                           _deel(reserves + overgedragen, tv) * 100))
+                           _pct(reserves + overgedragen, tv)))
     if PV:
         solv.append(_ratio("lt_schuldgraad", "Langetermijnschuldgraad",
-                           "VV op lange termijn / permanent vermogen", "%", _deel(VVLT, PV) * 100))
+                           "VV op lange termijn / permanent vermogen", "%", _pct(VVLT, PV)))
         solv.append(_ratio("lt_graad_fin_onafh", "Langetermijngraad van financiële onafhankelijkheid",
-                           "eigen vermogen / permanent vermogen", "%", _deel(EV, PV) * 100))
+                           "eigen vermogen / permanent vermogen", "%", _pct(EV, PV)))
     if EV:
         solv.append(_ratio("netto_fin_schuldgraad", "Netto financiële schuldgraad",
                            "netto financieel VV / eigen vermogen", "x",
@@ -229,11 +235,11 @@ def bereken_ratios(data):
     if vv:
         solv.append(_ratio("dekking_vv_cashflow", "Dekking van het totaal VV door de cashflow",
                            "cashflow van het EV na bel. / totaal VV", "%",
-                           _deel(cashflow, vv) * 100, methode="benadering"))
+                           _pct(cashflow, vv), methode="benadering"))
     if VVLT:
         solv.append(_ratio("dekking_vvlt_cashflow", "Dekking van het VVLT door de cashflow",
                            "cashflow van het EV na bel. / VV op lange termijn", "%",
-                           _deel(cashflow, VVLT) * 100, methode="benadering"))
+                           _pct(cashflow, VVLT), methode="benadering"))
 
     # --- Liquiditeit ----------------------------------------------------
     liq = []
@@ -252,7 +258,7 @@ def bereken_ratios(data):
     if VA:
         liq.append(_ratio("nettokasratio", "Nettokasratio",
                           "nettokas / (beperkte) vlottende activa", "%",
-                          _deel(nettokas, VA) * 100, methode="benadering"))
+                          _pct(nettokas, VA), methode="benadering"))
     liq.append(_na("rotatie_voorraden", "Rotatie van de voorraden en BIU", "kostprijs verkopen / gem. voorraad", "x", rotatie_reden))
     liq.append(_na("rotatie_handelsvorderingen", "Rotatie van de handelsvorderingen", "(verkopen + btw) / handelsvorderingen", "x", rotatie_reden))
     liq.append(_na("rotatie_handelsschulden", "Rotatie van de handelsschulden", "(inkopen + btw) / handelsschulden", "x", rotatie_reden))

@@ -55,6 +55,19 @@
 
     .upload-actions { margin-top: 1.1rem; display: flex; justify-content: flex-end; }
 
+    /* KBO fetch */
+    .fetch-card { padding: 1.5rem 1.7rem; margin-bottom: 2rem; }
+    .fetch-card h2 { margin: 0 0 0.3rem; font-size: 1.25rem; }
+    .fetch-card .sub { color: var(--muted); margin: 0 0 1.1rem; max-width: 70ch; }
+    .fetch-row { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+    .fetch-row input[type="text"] {
+      flex: 1 1 260px; padding: 0.75rem 1rem; border-radius: 999px;
+      border: 1px solid var(--accent-200); font-family: var(--font); font-size: 1rem;
+      background: var(--accent-050); color: var(--ink);
+    }
+    .fetch-row input[type="text"]:focus { outline: none; border-color: var(--accent); background: #fff; }
+    .fetch-note { color: var(--muted); font-size: 0.82rem; margin-top: 0.7rem; }
+
     .flash {
       margin-bottom: 1.5rem; padding: 0.9rem 1.1rem; border-radius: 12px;
       background: var(--err-bg); color: var(--err); font-weight: 500;
@@ -80,27 +93,45 @@
       <ul class="feature-list">
         <li><span class="tick">&checkmark;</span> Balans &amp; resultatenrekening netjes gestructureerd</li>
         <li><span class="tick">&checkmark;</span> Automatische conformiteitscontrole (o.a. balans in evenwicht)</li>
-        <li><span class="tick">&checkmark;</span> Kerncijfers en identificatiegegevens in één overzicht</li>
+        <li><span class="tick">&checkmark;</span> Ratio's met sectorvergelijking en kerncijfers</li>
       </ul>
     </div>
 
     <form class="card upload-card" id="uploaden" method="post"
           action="{{ url_for('analyse') }}" enctype="multipart/form-data">
-      <h2>Upload je CSV</h2>
-      <p class="sub">Bestand van de Nationale Bank van België (formaat <code>"code","waarde"</code>).</p>
+      <h2>Upload een jaarrekening</h2>
+      <p class="sub">CSV, JSON (jsonxbrl) of PDF van de Nationale Bank van België.</p>
 
       <label class="dropzone" id="dropzone" for="bestand">
         <div class="icon">&#128228;</div>
-        <p class="big">Sleep je CSV hierheen of klik om te kiezen</p>
-        <p class="small">Enkel .csv — max. 5&nbsp;MB</p>
+        <p class="big">Sleep je bestand hierheen of klik om te kiezen</p>
+        <p class="small">.csv · .json · .pdf — max. 5&nbsp;MB</p>
         <p class="chosen" id="chosen" hidden></p>
       </label>
-      <input type="file" id="bestand" name="bestand" accept=".csv,text/csv">
+      <input type="file" id="bestand" name="bestand" accept=".csv,.json,.pdf,.xbrl,.xml">
 
       <div class="upload-actions">
         <button type="submit" class="btn">Analyseer &rarr;</button>
       </div>
     </form>
+  </section>
+
+  <section class="card fetch-card">
+    <h2>Of haal automatisch op via KBO-/BTW-nummer</h2>
+    <p class="sub">
+      Vul een ondernemingsnummer in en FAO haalt de recentste neergelegde jaarrekening
+      rechtstreeks op bij de Balanscentrale van de Nationale Bank van België.
+    </p>
+    <form class="fetch-row" method="post" action="{{ url_for('fetch') }}">
+      <input type="text" name="kbo" placeholder="bv. 0403.101.811 of BE0403101811" autocomplete="off">
+      <button type="submit" class="btn">Ophalen &amp; analyseren &rarr;</button>
+    </form>
+    <p class="fetch-note">
+      Maakt gebruik van de gratis NBB-webservice "Authentic Data Query". Dit vereist eenmalig
+      een gratis abonnementssleutel (registratie op developer.cbso.nbb.be), in te stellen als
+      omgevingsvariabele <code>NBB_CBSO_SUBSCRIPTION_KEY</code>. Enkel publiceerbare jaarrekeningen
+      (XBRL-neerleggingen vanaf 2022) zijn zo beschikbaar.
+    </p>
   </section>
 {% endblock %}
 
