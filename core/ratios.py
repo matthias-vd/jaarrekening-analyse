@@ -280,25 +280,24 @@ def bereken_ratios(data):
 
 
 if __name__ == "__main__":
-    import os
+    import sys
     try:
         from core.analyse import parse_csv
     except ModuleNotFoundError:
         from analyse import parse_csv
 
-    map_uploads = os.path.normpath(os.path.join(os.path.dirname(__file__), "..", "uploads"))
-    for naam in sorted(os.listdir(map_uploads)):
-        if not naam.endswith(".csv"):
-            continue
-        data = parse_csv(os.path.join(map_uploads, naam))
-        res = bereken_ratios(data)
-        print(f"\n=== {naam} (werknemers={res['werknemers']}) "
-              f"berekend {res['aantal_berekend']}/{res['aantal_totaal']}, "
-              f"met sector {res['aantal_met_sector']} ===")
-        for groep in res["groepen"]:
-            for r in groep["ratios"]:
-                if r["berekenbaar"]:
-                    s = r["sector"]
-                    pos = f"  [sector {s['positie']}: {s['oordeel']}]" if s else ""
-                    print(f"  {groep['naam'][:4]:4s} {r['naam'][:48]:48s} "
-                          f"{r['waarde']:>12.2f} {r['eenheid']:<7}{pos}")
+    if len(sys.argv) < 2:
+        print("Gebruik: python -m core.ratios <pad-naar-jaarrekening.csv>")
+        raise SystemExit(1)
+    data = parse_csv(sys.argv[1])
+    res = bereken_ratios(data)
+    print(f"=== werknemers={res['werknemers']} "
+          f"berekend {res['aantal_berekend']}/{res['aantal_totaal']}, "
+          f"met sector {res['aantal_met_sector']} ===")
+    for groep in res["groepen"]:
+        for r in groep["ratios"]:
+            if r["berekenbaar"]:
+                s = r["sector"]
+                pos = f"  [sector {s['positie']}: {s['oordeel']}]" if s else ""
+                print(f"  {groep['naam'][:4]:4s} {r['naam'][:48]:48s} "
+                      f"{r['waarde']:>12.2f} {r['eenheid']:<7}{pos}")

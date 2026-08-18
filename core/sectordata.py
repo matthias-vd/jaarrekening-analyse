@@ -15,7 +15,7 @@ REFERENTIE_BRON = (
     "Illustratieve NBB-kwartielen (cursus FAO, sectorkwartielen 20X3). "
     "Actuele sectorcijfers: NBB Balanscentrale via NBB.Stat, per NACE-BEL-code."
 )
-REFERENTIE_PROFIEL = "Algemeen referentieprofiel (voorbeeld)"
+REFERENTIE_PROFIEL = "Algemeen referentieprofiel (illustratief)"
 
 # ratio_id -> (Q1, Q2 (mediaan), Q3, hoger_is_beter)
 #   hoger_is_beter = True  -> hoger dan de sector is gunstig
