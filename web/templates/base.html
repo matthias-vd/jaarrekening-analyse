@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}FAO — Jaarrekeninganalyse{% endblock %}</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --accent: #2CCCC4;
+      --accent-600: #17a89f;
+      --accent-700: #0f807a;
+      --accent-050: #e9fbf9;
+      --accent-100: #d1f5f2;
+      --accent-200: #a9ebe6;
+
+      --ink: #0d2b31;
+      --muted: #587a81;
+      --line: #d9ecea;
+      --card: #ffffff;
+      --bg: #eefaf9;
+
+      --ok: #12a06a;
+      --ok-bg: #e5f7ef;
+      --err: #d83a4b;
+      --err-bg: #fdeaec;
+      --warn: #c07d0a;
+      --warn-bg: #fbf1dc;
+
+      --radius: 16px;
+      --shadow: 0 18px 40px rgba(15, 60, 57, 0.10);
+      --shadow-sm: 0 6px 18px rgba(15, 60, 57, 0.08);
+      --font: "Outfit", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: var(--font);
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 480px at 12% -8%, #c9f5f1 0, rgba(201,245,241,0) 60%),
+        radial-gradient(1100px 500px at 110% 0%, #d9f7f4 0, rgba(217,247,244,0) 55%),
+        var(--bg);
+      line-height: 1.5;
+    }
+
+    a { color: var(--accent-700); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    /* ---- Top bar ---- */
+    .topbar {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      backdrop-filter: blur(10px);
+      background: rgba(255, 255, 255, 0.82);
+      border-bottom: 1px solid var(--line);
+    }
+    .topbar-inner {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 0.85rem 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 0.9rem;
+    }
+    .brand {
+      display: flex;
+      align-items: center;
+      gap: 0.7rem;
+      font-weight: 700;
+      color: var(--ink);
+    }
+    .brand:hover { text-decoration: none; }
+    .brand-mark {
+      width: 38px; height: 38px;
+      border-radius: 11px;
+      display: grid; place-items: center;
+      color: #fff; font-weight: 800; font-size: 1.05rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-700));
+      box-shadow: 0 8px 18px rgba(44, 204, 196, 0.45);
+    }
+    .brand-text small {
+      display: block;
+      font-weight: 500;
+      font-size: 0.72rem;
+      letter-spacing: 0.02em;
+      color: var(--muted);
+    }
+    .topbar nav {
+      margin-left: auto;
+      display: flex;
+      gap: 0.35rem;
+    }
+    .topbar nav a {
+      padding: 0.45rem 0.85rem;
+      border-radius: 999px;
+      color: var(--muted);
+      font-weight: 500;
+      font-size: 0.92rem;
+    }
+    .topbar nav a:hover { background: var(--accent-050); color: var(--accent-700); text-decoration: none; }
+
+    /* ---- Layout ---- */
+    .container {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem 3rem;
+    }
+    .card {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow-sm);
+    }
+
+    /* ---- Buttons ---- */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.7rem 1.4rem;
+      border-radius: 999px;
+      border: none;
+      cursor: pointer;
+      font-family: var(--font);
+      font-weight: 600;
+      font-size: 0.95rem;
+      background: linear-gradient(135deg, var(--accent), var(--accent-700));
+      color: #fff;
+      box-shadow: 0 10px 22px rgba(44, 204, 196, 0.4);
+      transition: transform .1s ease, box-shadow .1s ease, filter .1s ease;
+    }
+    .btn:hover { transform: translateY(-1px); filter: brightness(1.03); text-decoration: none; }
+    .btn:active { transform: translateY(0); }
+    .btn.secondary {
+      background: #fff;
+      color: var(--accent-700);
+      border: 1px solid var(--accent-200);
+      box-shadow: none;
+    }
+    .btn.secondary:hover { background: var(--accent-050); }
+
+    /* ---- Badges ---- */
+    .badge {
+      display: inline-flex; align-items: center; gap: 0.4rem;
+      padding: 0.28rem 0.7rem;
+      border-radius: 999px;
+      font-size: 0.82rem;
+      font-weight: 600;
+    }
+    .badge.ok { background: var(--ok-bg); color: var(--ok); }
+    .badge.err { background: var(--err-bg); color: var(--err); }
+    .badge.warn { background: var(--warn-bg); color: var(--warn); }
+    .badge.neutral { background: var(--accent-050); color: var(--accent-700); }
+
+    footer.site {
+      max-width: 1120px;
+      margin: 0 auto;
+      padding: 1.5rem;
+      color: var(--muted);
+      font-size: 0.85rem;
+      border-top: 1px solid var(--line);
+      text-align: center;
+    }
+
+    {% block styles %}{% endblock %}
+  </style>
+  {% block head_extra %}{% endblock %}
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <a class="brand" href="{{ url_for('index') }}">
+        <span class="brand-mark">FAO</span>
+        <span class="brand-text">
+          Jaarrekeninganalyse
+          <small>Financial Accounts Office</small>
+        </span>
+      </a>
+      <nav>
+        <a href="{{ url_for('index') }}">Start</a>
+        <a href="{{ url_for('index') }}#uploaden">Uploaden</a>
+        <a href="{{ url_for('index') }}#voorbeelden">Voorbeelden</a>
+      </nav>
+    </div>
+  </header>
+
+  <main class="container">
+    {% block content %}{% endblock %}
+  </main>
+
+  <footer class="site">
+    FAO — een project van Winter van den Bulck &amp; Matthias Van Duysen ·
+    Analyse conform de wettelijke structuur van de Belgische jaarrekening.
+  </footer>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

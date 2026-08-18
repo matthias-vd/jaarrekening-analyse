@@ -1,145 +1,160 @@
-<!DOCTYPE html>
-<html lang="nl">
-<head>
-  <meta charset="UTF-8">
-  <title>Welkom – fao.vuma.be</title>
+{% extends "base.html" %}
+{% block title %}FAO — Upload je jaarrekening{% endblock %}
 
-  <!-- Baloo 2 font -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@400;500;600;700&display=swap" rel="stylesheet"> <!-- [web:3][web:17] -->
+{% block styles %}
+    .hero {
+      display: grid;
+      grid-template-columns: 1.15fr 1fr;
+      gap: 2rem;
+      align-items: stretch;
+      margin-bottom: 2rem;
+    }
+    @media (max-width: 880px) { .hero { grid-template-columns: 1fr; } }
 
-  <style>
-    :root {
-      --accent: #2CCCC4;
-      --accent-dark: #1bb4a9;
-      --bg-page: #e6f9f7;
-      --card-bg: #ffffff;
-      --text-main: #102a43;
-      --text-muted: #5a7a85;
+    .hero-copy h1 {
+      font-size: 2.4rem;
+      line-height: 1.12;
+      margin: 0 0 0.8rem;
+      letter-spacing: -0.02em;
+    }
+    .hero-copy h1 .accent { color: var(--accent-700); }
+    .hero-copy p.lead {
+      font-size: 1.08rem;
+      color: var(--muted);
+      margin: 0 0 1.3rem;
+      max-width: 46ch;
+    }
+    .feature-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.6rem; }
+    .feature-list li { display: flex; align-items: flex-start; gap: 0.6rem; }
+    .feature-list .tick {
+      flex: none; width: 22px; height: 22px; border-radius: 999px;
+      background: var(--accent-050); color: var(--accent-700);
+      display: grid; place-items: center; font-weight: 700; font-size: 0.8rem; margin-top: 2px;
     }
 
-    * { box-sizing: border-box; }
+    /* Upload card */
+    .upload-card { padding: 1.6rem; display: flex; flex-direction: column; }
+    .upload-card h2 { margin: 0 0 0.3rem; font-size: 1.2rem; }
+    .upload-card .sub { color: var(--muted); font-size: 0.92rem; margin: 0 0 1.1rem; }
 
-    body {
-      margin: 0;
-      min-height: 100vh;
-      font-family: "Baloo 2", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-      background: radial-gradient(circle at top left, #bdf4ee 0, var(--bg-page) 40%, #e0f7f5 100%);
-      color: var(--text-main);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-    }
-
-    .container {
-      max-width: 800px;
-      width: 100%;
-      background: var(--card-bg);
-      border-radius: 18px;
-      box-shadow:
-        0 18px 45px rgba(15, 23, 42, 0.12),
-        0 0 0 1px rgba(44, 204, 196, 0.35); /* #2CCCC4 rand */ /* [web:7][web:13] */
-      padding: 2.5rem 2rem;
+    .dropzone {
+      border: 2px dashed var(--accent-200);
+      border-radius: 14px;
+      background: var(--accent-050);
+      padding: 1.8rem 1.2rem;
       text-align: center;
+      cursor: pointer;
+      transition: border-color .15s ease, background .15s ease;
     }
+    .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: #ffffff; }
+    .dropzone .icon { font-size: 2rem; }
+    .dropzone .big { font-weight: 600; margin: 0.4rem 0 0.15rem; }
+    .dropzone .small { color: var(--muted); font-size: 0.85rem; }
+    .dropzone .chosen { margin-top: 0.7rem; font-weight: 600; color: var(--accent-700); word-break: break-all; }
+    input[type="file"] { display: none; }
 
-    h1 {
-      margin-top: 0;
-      font-size: 2rem;
-      letter-spacing: 0.05em;
-      text-transform: uppercase;
-      color: var(--accent-dark);
+    .upload-actions { margin-top: 1.1rem; display: flex; justify-content: flex-end; }
+
+    .samples { margin-top: 2.5rem; }
+    .samples h2 { font-size: 1.35rem; margin: 0 0 0.3rem; }
+    .samples .sub { color: var(--muted); margin: 0 0 1.2rem; }
+    .sample-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 1rem; }
+    .sample-tile {
+      display: flex; flex-direction: column; gap: 0.5rem;
+      padding: 1.1rem 1.2rem; border-radius: 14px;
+      background: var(--card); border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm);
+      transition: transform .1s ease, box-shadow .1s ease, border-color .1s ease;
     }
+    .sample-tile:hover { transform: translateY(-2px); border-color: var(--accent-200); box-shadow: var(--shadow); text-decoration: none; }
+    .sample-tile .naam { font-weight: 700; color: var(--ink); font-size: 1.05rem; }
+    .sample-tile .file { color: var(--muted); font-size: 0.82rem; word-break: break-all; }
+    .sample-tile .cta { margin-top: auto; color: var(--accent-700); font-weight: 600; font-size: 0.9rem; }
 
-    h2 {
-      font-size: 1.1rem;
-      font-weight: 500;
-      margin: 0.75rem 0 1.5rem;
-      color: var(--text-muted);
+    .flash {
+      margin-bottom: 1.5rem; padding: 0.9rem 1.1rem; border-radius: 12px;
+      background: var(--err-bg); color: var(--err); font-weight: 500;
+      border: 1px solid #f3c4c9;
     }
+{% endblock %}
 
-    h3 {
-      margin: 1.5rem 0 0.25rem;
-      font-size: 1rem;
-      color: var(--accent-dark);
+{% block content %}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}
+      {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
+    {% endif %}
+  {% endwith %}
+
+  <section class="hero">
+    <div class="hero-copy">
+      <h1>Van ruwe CSV naar een <span class="accent">leesbare jaarrekening</span>.</h1>
+      <p class="lead">
+        Upload de CSV van een Belgische jaarrekening en FAO maakt automatisch de
+        balans en de resultatenrekening op — volledig volgens de wettelijke structuur —
+        en controleert meteen of alles klopt.
+      </p>
+      <ul class="feature-list">
+        <li><span class="tick">&checkmark;</span> Balans &amp; resultatenrekening netjes gestructureerd</li>
+        <li><span class="tick">&checkmark;</span> Automatische conformiteitscontrole (o.a. balans in evenwicht)</li>
+        <li><span class="tick">&checkmark;</span> Kerncijfers en identificatiegegevens in één overzicht</li>
+      </ul>
+    </div>
+
+    <form class="card upload-card" id="uploaden" method="post"
+          action="{{ url_for('analyse') }}" enctype="multipart/form-data">
+      <h2>Upload je CSV</h2>
+      <p class="sub">Bestand van de Nationale Bank van België (formaat <code>"code","waarde"</code>).</p>
+
+      <label class="dropzone" id="dropzone" for="bestand">
+        <div class="icon">&#128228;</div>
+        <p class="big">Sleep je CSV hierheen of klik om te kiezen</p>
+        <p class="small">Enkel .csv — max. 5&nbsp;MB</p>
+        <p class="chosen" id="chosen" hidden></p>
+      </label>
+      <input type="file" id="bestand" name="bestand" accept=".csv,text/csv">
+
+      <div class="upload-actions">
+        <button type="submit" class="btn">Analyseer &rarr;</button>
+      </div>
+    </form>
+  </section>
+
+  <section class="samples" id="voorbeelden">
+    <h2>Of probeer een voorbeeld</h2>
+    <p class="sub">Echte gedeponeerde jaarrekeningen om het platform meteen uit te proberen.</p>
+    <div class="sample-grid">
+      {% for v in voorbeelden %}
+        <a class="sample-tile" href="{{ url_for('voorbeeld', naam=v.slug) }}">
+          <span class="naam">{{ v.label }}</span>
+          <span class="file">{{ v.bestand }}</span>
+          <span class="cta">Analyseer &rarr;</span>
+        </a>
+      {% endfor %}
+    </div>
+  </section>
+{% endblock %}
+
+{% block scripts %}
+<script>
+  const input = document.getElementById('bestand');
+  const zone = document.getElementById('dropzone');
+  const chosen = document.getElementById('chosen');
+
+  function toon(naam) {
+    if (naam) { chosen.textContent = 'Gekozen: ' + naam; chosen.hidden = false; }
+    else { chosen.hidden = true; }
+  }
+  input.addEventListener('change', () => toon(input.files.length ? input.files[0].name : ''));
+
+  ['dragenter', 'dragover'].forEach(ev =>
+    zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach(ev =>
+    zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('drag'); }));
+  zone.addEventListener('drop', e => {
+    if (e.dataTransfer.files.length) {
+      input.files = e.dataTransfer.files;
+      toon(input.files[0].name);
     }
-
-    h4 {
-      margin-top: 2rem;
-      font-size: 0.95rem;
-      color: var(--text-muted);
-    }
-
-    a {
-      color: var(--accent);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    a:hover {
-      color: var(--accent-dark);
-      text-decoration: underline;
-    }
-
-    .primary-link {
-      display: inline-block;
-      margin: 0.5rem 0 0.25rem;
-      padding: 0.6rem 1.4rem;
-      border-radius: 999px;
-      background: linear-gradient(135deg, var(--accent), var(--accent-dark));
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-      font-size: 0.95rem;
-      box-shadow: 0 8px 18px rgba(44, 204, 196, 0.45);
-      transition: transform 0.1s ease-out, box-shadow 0.1s ease-out, filter 0.1s ease-out;
-    }
-
-    .primary-link:hover {
-      transform: translateY(-1px);
-      box-shadow: 0 10px 22px rgba(44, 204, 196, 0.5);
-      filter: brightness(1.03);
-    }
-
-    .links-group {
-      margin-top: 1rem;
-    }
-
-    .links-group a {
-      display: block;
-      margin: 0.15rem 0;
-      font-size: 0.95rem;
-    }
-
-    @media (max-width: 640px) {
-      body { padding: 1.5rem; }
-      .container { padding: 2rem 1.5rem; }
-      h1 { font-size: 1.6rem; }
-    }
-  </style>
-</head>
-<body>
-
-<div class="container">
-  <h1>Welkom op fao.vuma.be</h1>
-  <h2>Dit is momenteel nog een MVP. Functionaliteit is enorm beperkt.</h2>
-
-  <a class="primary-link" href="https://github.com/matthias-vd/jaarrekening-analyse">
-    Bekijk de GitHub‑repo
-  </a>
-
-  <div class="links-group">
-    <h3>"Dictionary" balans</h3>
-    <a href="/structuren">Gedeeltelijke structuur balans</a>
-
-    <h3>Viewer balans, met input</h3>
-    <a href="/balans">Balans‑viewer, met input</a>
-  </div>
-
-  <h4>Dit is een project door Winter van den Bulck en Matthias Van Duysen.</h4>
-</div>
-
-</body>
-</html>
+  });
+</script>
+{% endblock %}
