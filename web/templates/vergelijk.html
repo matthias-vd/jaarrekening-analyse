@@ -7,14 +7,14 @@
 
     /* Intro / upload */
     .vgl-hero {
-      border-radius: 22px; padding: 2rem 2.2rem; margin-bottom: 1.6rem; color: #eafffd;
+      border-radius: 22px; padding: 2rem 2.2rem; margin-bottom: 1.6rem; color: #ffffff;
       background:
-        radial-gradient(700px 320px at 92% -30%, rgba(44,204,196,.5), transparent 60%),
-        linear-gradient(135deg, #0a5f5b, #0b3937);
-      box-shadow: 0 24px 56px rgba(8,49,47,.3);
+        radial-gradient(700px 320px at 92% -30%, rgba(255,255,255,.15), transparent 60%),
+        linear-gradient(135deg, var(--accent-700), var(--accent-800));
+      box-shadow: 0 24px 56px rgba(0,0,0,.28);
     }
     .vgl-hero h1 { margin: 0 0 .5rem; font-size: 1.9rem; letter-spacing: -0.02em; }
-    .vgl-hero p { margin: 0; color: #c7ece9; max-width: 74ch; }
+    .vgl-hero p { margin: 0; color: rgba(255,255,255,.85); max-width: 74ch; }
 
     .upload-card { padding: 1.4rem 1.6rem; margin-bottom: 2rem; }
     .upload-card h2 { margin: 0 0 .3rem; font-size: 1.15rem; }
@@ -121,13 +121,21 @@
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
   const PALET = ['#0f807a', '#2CCCC4', '#e0a12b', '#d13c4b', '#5b6cf0', '#0f9d63', '#9b59b6'];
+  const charts = {};
 
   function kort(label) { return label && label.length > 16 ? label.slice(0, 15) + '…' : label; }
+  function themaKleur(naam, terugval) {
+    const v = getComputedStyle(document.body).getPropertyValue(naam).trim();
+    return v || terugval;
+  }
 
   function maakChart(id, bron) {
     const el = document.getElementById(id);
     if (!el || !bron.reeksen.length) { if (el) el.closest('.chart-card').style.display = 'none'; return; }
-    new Chart(el, {
+    if (charts[id]) charts[id].destroy();
+    const tekstKleur = themaKleur('--muted', '#666');
+    const rasterKleur = themaKleur('--line', 'rgba(16,42,48,.08)');
+    charts[id] = new Chart(el, {
       type: 'line',
       data: {
         labels: bron.labels,
@@ -146,7 +154,7 @@
         interaction: { mode: 'index', intersect: false },
         layout: { padding: { top: 4, right: 8, bottom: 4, left: 4 } },
         plugins: {
-          legend: { position: 'top', align: 'start', labels: { font: { family: 'Outfit' }, usePointStyle: true, boxWidth: 8, padding: 14 } },
+          legend: { position: 'top', align: 'start', labels: { color: tekstKleur, font: { family: 'Outfit' }, usePointStyle: true, boxWidth: 8, padding: 14 } },
           tooltip: {
             titleFont: { family: 'Outfit' }, bodyFont: { family: 'Outfit' },
             callbacks: {
@@ -159,21 +167,24 @@
           x: {
             grid: { display: false },
             ticks: {
-              font: { family: 'Outfit' }, autoSkip: false, maxRotation: 0, minRotation: 0,
+              color: tekstKleur, font: { family: 'Outfit' }, autoSkip: false, maxRotation: 0, minRotation: 0,
               callback: function (value) { return kort(this.getLabelForValue(value)); },
             },
           },
           y: {
             beginAtZero: false,
-            grid: { color: 'rgba(16,42,48,.06)' },
-            ticks: { font: { family: 'Outfit' } },
+            grid: { color: rasterKleur },
+            ticks: { color: tekstKleur, font: { family: 'Outfit' } },
           },
         },
       },
     });
   }
-  maakChart('chartEur', {{ vergelijking.grafiek_eur | tojson }});
-  maakChart('chartRatio', {{ vergelijking.grafiek_ratio | tojson }});
+  const DATA_EUR = {{ vergelijking.grafiek_eur | tojson }};
+  const DATA_RATIO = {{ vergelijking.grafiek_ratio | tojson }};
+  function bouwGrafieken() { maakChart('chartEur', DATA_EUR); maakChart('chartRatio', DATA_RATIO); }
+  bouwGrafieken();
+  document.addEventListener('themawijziging', bouwGrafieken);  // hertekenen bij themawissel
 </script>
 {% endif %}
 {% endblock %}

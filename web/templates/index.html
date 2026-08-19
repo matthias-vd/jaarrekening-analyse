@@ -8,12 +8,12 @@
       border-radius: 26px;
       padding: 3rem 2.4rem 2.6rem;
       margin-bottom: 2.4rem;
-      color: #eafffd;
+      color: #ffffff;
       background:
-        radial-gradient(900px 420px at 88% -20%, rgba(44,204,196,.55), transparent 60%),
-        radial-gradient(700px 380px at -10% 120%, rgba(20,160,150,.45), transparent 60%),
-        linear-gradient(135deg, #0a5f5b 0%, #0c3f3d 55%, #08312f 100%);
-      box-shadow: 0 30px 70px rgba(8, 49, 47, .35);
+        radial-gradient(900px 420px at 88% -20%, rgba(255,255,255,.16), transparent 60%),
+        radial-gradient(700px 380px at -10% 120%, rgba(0,0,0,.18), transparent 55%),
+        linear-gradient(135deg, var(--accent-700) 0%, var(--accent-800) 100%);
+      box-shadow: 0 30px 70px rgba(0, 0, 0, .28);
     }
     .hero::after {
       content: ""; position: absolute; inset: 0;
@@ -31,10 +31,10 @@
     }
     .hero h1 { font-size: 2.9rem; line-height: 1.08; margin: 0 0 1rem; letter-spacing: -0.03em; font-weight: 800; }
     .hero h1 .grad {
-      background: linear-gradient(90deg, #7ff5ee, #d6fffb);
+      background: linear-gradient(90deg, #ffffff, rgba(255,255,255,.75));
       -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .hero p.lead { font-size: 1.12rem; color: #c7ece9; max-width: 48ch; margin: 0 0 1.5rem; }
+    .hero p.lead { font-size: 1.12rem; color: rgba(255,255,255,.85); max-width: 48ch; margin: 0 0 1.5rem; }
     .hero-pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.6rem; }
     .hero-pills span {
       font-size: .82rem; font-weight: 600; padding: .34rem .7rem; border-radius: 8px;
@@ -53,7 +53,7 @@
     /* Action cards inside hero */
     .action-stack { display: grid; gap: 1rem; }
     .glass {
-      background: rgba(255,255,255,.97); border-radius: 16px; padding: 1.3rem 1.4rem;
+      background: var(--card); border-radius: 16px; padding: 1.3rem 1.4rem;
       box-shadow: 0 18px 40px rgba(6, 40, 38, .3); color: var(--ink);
     }
     .glass h2 { margin: 0 0 .25rem; font-size: 1.08rem; }
@@ -123,11 +123,11 @@
     /* ===== Bottom CTA ===== */
     .cta {
       text-align: center; border-radius: 22px; padding: 2.4rem 1.5rem;
-      background: linear-gradient(135deg, var(--accent-700), var(--accent-800)); color: #eafffd;
-      box-shadow: 0 22px 50px rgba(8,49,47,.3);
+      background: linear-gradient(135deg, var(--accent-700), var(--accent-800)); color: #ffffff;
+      box-shadow: 0 22px 50px rgba(0,0,0,.28);
     }
     .cta h2 { font-size: 1.7rem; margin: 0 0 .5rem; }
-    .cta p { color: #c7ece9; margin: 0 0 1.3rem; }
+    .cta p { color: rgba(255,255,255,.85); margin: 0 0 1.3rem; }
 
     .flash { margin-bottom: 1.5rem; padding: .9rem 1.1rem; border-radius: 12px; background: var(--err-bg); color: var(--err); font-weight: 500; border: 1px solid #f3c4c9; }
 

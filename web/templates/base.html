@@ -8,6 +8,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <script>
+    // Pas het opgeslagen thema toe vóór het renderen (voorkomt flikkeren).
+    (function () {
+      try {
+        var t = localStorage.getItem("fao-thema");
+        if (t && t !== "licht") document.documentElement.setAttribute("data-theme", t);
+      } catch (e) {}
+    })();
+  </script>
 
   <style>
     :root {
@@ -39,7 +48,48 @@
       --radius-sm: 10px;
       --shadow: 0 12px 32px rgba(16, 42, 48, 0.08);
       --shadow-sm: 0 2px 8px rgba(16, 42, 48, 0.05);
+      --topbar-bg: rgba(255, 255, 255, 0.9);
       --font: "Outfit", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    /* ===== Fancy thema's (lichte accentwissels) ===== */
+    :root[data-theme="oceaan"] {
+      --accent: #2b8ef0; --accent-600: #1f79d6; --accent-700: #145fae; --accent-800: #0e4682;
+      --accent-050: #eef5fe; --accent-100: #dbe9fc; --accent-200: #b6d3f7;
+      --bg: #f3f7fb; --bg-soft: #e9f1fa;
+    }
+    :root[data-theme="bos"] {
+      --accent: #2fb56b; --accent-600: #229d5a; --accent-700: #167f47; --accent-800: #0f5f35;
+      --accent-050: #edfaf1; --accent-100: #d7f3e0; --accent-200: #b0e6c4;
+      --bg: #f3faf5; --bg-soft: #e9f5ec; --ok: #167f47;
+    }
+    :root[data-theme="zonsondergang"] {
+      --accent: #f2794a; --accent-600: #e2673a; --accent-700: #c9502a; --accent-800: #963314;
+      --accent-050: #fef2ec; --accent-100: #fbe1d5; --accent-200: #f6c3ac;
+      --bg: #fdf6f2; --bg-soft: #fbeee7; --ink: #2a1a12; --ink-soft: #4a352b; --muted: #8a6f62;
+      --line: #f0e2da; --line-strong: #e4d0c5;
+    }
+
+    /* ===== Donkere thema's ===== */
+    :root[data-theme="donker"], :root[data-theme="koninklijk"] {
+      --ink: #e9eff1; --ink-soft: #c3d0d4; --muted: #8ea3a9;
+      --card: #16211f; --bg: #0b1315; --bg-soft: #12201f;
+      --line: #26343a; --line-strong: #364a51;
+      --shadow: 0 14px 34px rgba(0, 0, 0, 0.45); --shadow-sm: 0 2px 10px rgba(0, 0, 0, 0.35);
+      --topbar-bg: rgba(11, 19, 21, 0.85);
+      --ok: #35c98a; --ok-bg: rgba(21, 160, 99, 0.18);
+      --err: #ff6b78; --err-bg: rgba(209, 60, 75, 0.20);
+      --warn: #e2b467; --warn-bg: rgba(181, 121, 10, 0.22);
+    }
+    :root[data-theme="donker"] {
+      --accent: #2CCCC4; --accent-600: #21b8b0; --accent-700: #1aa79f; --accent-800: #0c3f3d;
+      --accent-050: #10312f; --accent-100: #123f3c; --accent-200: #1e5b56;
+    }
+    :root[data-theme="koninklijk"] {
+      --card: #1b1533; --bg: #0e0b20; --bg-soft: #171236;
+      --line: #2c2555; --line-strong: #3d3570; --topbar-bg: rgba(14, 11, 32, 0.85);
+      --accent: #a78bfa; --accent-600: #8b6ef0; --accent-700: #7c5cf0; --accent-800: #2a2150;
+      --accent-050: #201a44; --accent-100: #271f52; --accent-200: #3a3170;
     }
 
     * { box-sizing: border-box; }
@@ -66,9 +116,17 @@
       top: 0;
       z-index: 20;
       backdrop-filter: blur(12px);
-      background: rgba(255, 255, 255, 0.9);
+      background: var(--topbar-bg);
       border-bottom: 1px solid var(--line);
     }
+    /* Thema-kiezer */
+    .theme-picker { display: inline-flex; align-items: center; gap: .4rem; margin-left: .3rem; }
+    .theme-picker select {
+      font-family: var(--font); font-size: .88rem; font-weight: 500; cursor: pointer;
+      color: var(--ink); background: var(--bg-soft); border: 1px solid var(--line-strong);
+      border-radius: 8px; padding: .4rem .6rem;
+    }
+    .theme-picker select:focus { outline: none; border-color: var(--accent); }
     .topbar-inner {
       max-width: 1160px;
       margin: 0 auto;
@@ -158,6 +216,17 @@
         <a href="{{ url_for('index') }}#uploaden">Uploaden</a>
         <a href="{{ url_for('vergelijk') }}">Vergelijken</a>
       </nav>
+      <div class="theme-picker">
+        <label for="theme-select" title="Thema" aria-label="Thema" style="font-size:1.05rem">&#127912;</label>
+        <select id="theme-select" aria-label="Kies een thema">
+          <option value="licht">&#9728;&#65039; Licht</option>
+          <option value="donker">&#127769; Donker</option>
+          <option value="oceaan">&#127754; Oceaan</option>
+          <option value="bos">&#127794; Bos</option>
+          <option value="zonsondergang">&#127749; Zonsondergang</option>
+          <option value="koninklijk">&#128142; Koninklijk</option>
+        </select>
+      </div>
     </div>
   </header>
 
@@ -169,6 +238,21 @@
     FAO — een project van Winter van den Bulck &amp; Matthias Van Duysen ·
     Analyse conform de wettelijke structuur van de Belgische jaarrekening.
   </footer>
+  <script>
+    (function () {
+      var sel = document.getElementById("theme-select");
+      if (!sel) return;
+      var huidig = document.documentElement.getAttribute("data-theme") || "licht";
+      sel.value = huidig;
+      sel.addEventListener("change", function () {
+        var t = sel.value;
+        if (t === "licht") document.documentElement.removeAttribute("data-theme");
+        else document.documentElement.setAttribute("data-theme", t);
+        try { localStorage.setItem("fao-thema", t); } catch (e) {}
+        document.dispatchEvent(new CustomEvent("themawijziging", { detail: t }));
+      });
+    })();
+  </script>
   {% block scripts %}{% endblock %}
 </body>
 </html>
