@@ -26,6 +26,7 @@ _ALIAS_PAREN = [
     ("7576B", "75/76B"),
     ("6566B", "65/66B"),
     ("677/7", "67/77"),
+    ("21/28", "20/28"),   # oud model: vaste activa als 20/28 (incl. oprichtingskosten)
 ]
 ALIASES = {}
 for _a, _b in _ALIAS_PAREN:
