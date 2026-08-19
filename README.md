@@ -7,8 +7,8 @@ De jaarrekening kan op verschillende manieren worden ingelezen:
 | :------------------------------- | :---------: | :-------- |
 | CSV                              |     Ja      | NBB-export met `"code","waarde"`-rijen |
 | JSON (jsonxbrl)                  |     Ja      | Gestructureerde NBB-JSON met rubriekcodes |
-| PDF                              | Ja (best-effort) | Door de NBB gegenereerde PDF; codes worden uit de tekst gehaald |
-| XBRL                             | Via JSON/KBO | Ruwe XBRL bevat de codes niet zelf (die zitten in de taxonomie); gebruik de JSON-export of het KBO-nummer |
+| PDF                              | Ja (best-effort) | Moderne én oude NBB-PDF's (NL/FR, incl. pre-euro BEF-formaat); codes uit de tekst |
+| XBRL                             | Via KBO/JSON | Ruwe XBRL bevat de codes niet zelf (taxonomie); bij upload wordt het ondernemingsnummer gelezen en — met NBB-sleutel — de JSON automatisch opgehaald |
 | Ondernemingsnummer (KBO/BTW)     |     Ja      | Automatisch ophalen via de gratis NBB-webservice (zie hieronder) |
 
 ### Automatisch ophalen via KBO-/BTW-nummer

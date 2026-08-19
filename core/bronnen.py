@@ -21,11 +21,11 @@ import json
 import re
 
 try:
-    from core.analyse import parse_bedrag, parse_csv
+    from core.analyse import ALIASES, parse_bedrag, parse_csv
     from core.StructuurBalans import structuurBalans
     from core.StructuurResultatenRekening import structuurResultatenRekening
 except ModuleNotFoundError:  # standalone vanuit map core/
-    from analyse import parse_bedrag, parse_csv
+    from analyse import ALIASES, parse_bedrag, parse_csv
     from StructuurBalans import structuurBalans
     from StructuurResultatenRekening import structuurResultatenRekening
 
@@ -167,6 +167,8 @@ def _bekende_codes():
             code = (item.get("Code") or "").strip()
             if code and any(ch.isdigit() for ch in code):
                 codes.add(code)
+                for alias in ALIASES.get(code, []):  # bv. 20/28 (oud) naast 21/28
+                    codes.add(alias)
     return codes
 
 
@@ -196,7 +198,8 @@ def codes_uit_tekst(tekst):
     rubriek wordt overgenomen.
     """
     bekende = _bekende_codes()
-    tokens = tekst.replace("\t", " ").split()
+    # '!' is een kolomscheider in zeer oude jaarrekeningen (ASCII-tabellen) -> als spatie.
+    tokens = tekst.replace("\t", " ").replace("!", " ").split()
     data = {}
     for i, token in enumerate(tokens[:-1]):
         if token in bekende and token not in data:
@@ -213,7 +216,7 @@ def codes_uit_tekst(tekst):
 def _codes_gericht(tekst, codes):
     """Haal specifieke codes (bv. personeelscodes uit de sociale balans) gericht op."""
     doel = set(codes)
-    tokens = tekst.replace("\t", " ").split()
+    tokens = tekst.replace("\t", " ").replace("!", " ").split()
     out = {}
     for i, token in enumerate(tokens[:-1]):
         if token in doel and token not in out:
@@ -244,7 +247,8 @@ def metadata_uit_tekst(tekst):
     for regel in tekst.splitlines():
         r = regel.strip()
         low = r.lower()
-        if not meta.get("Entity name") and (low.startswith("naam") or low.startswith("dénomination") or low.startswith("denomination")):
+        if not meta.get("Entity name") and (low.startswith("naam") or low.startswith("dénomination")
+                or low.startswith("denomination") or low.startswith("firma of naam") or low.startswith("firma")):
             waarde = _waarde_na_dubbelpunt(r)
             if waarde:
                 meta["Entity name"] = waarde
@@ -264,6 +268,10 @@ def metadata_uit_tekst(tekst):
             if len(be) >= 2:
                 meta["Accounting period start date"] = f"{be[0][2]}-{be[0][1]}-{be[0][0]}"
                 meta["Accounting period end date"] = f"{be[1][2]}-{be[1][1]}-{be[1][0]}"
+
+    # Zeer oude jaarrekeningen zijn in Belgische frank uitgedrukt.
+    if re.search(r"\bBEF\b", tekst) or "franken" in tekst.lower():
+        meta["Currency"] = "BEF"
 
     # Ondernemingsnummer valt vaak alleen betrouwbaar af te leiden uit de paginavoettekst;
     # neem het vaakst voorkomende nummer (het eigen nummer staat op elke pagina).
@@ -373,11 +381,32 @@ def parse_pdf(fileobj):
 # --- XBRL (ruw neerleggingsbestand) ---------------------------------------
 
 def parse_xbrl(inhoud):
-    """Ruwe XBRL wordt niet rechtstreeks ondersteund (codes zitten in de taxonomie)."""
+    """Lees een ruwe XBRL in via het ondernemingsnummer in de entity-identifier.
+
+    In een XBRL-*instance* staan de bedragen onder interne datapunt-members (dim:bas),
+    niet onder de rubriekcodes zelf — die koppeling zit in de NBB-taxonomie. We lezen
+    daarom het ondernemingsnummer uit het bestand en halen (als de gratis NBB-sleutel
+    is ingesteld) automatisch de JSON-versie van dezelfde neerlegging op, die de
+    rubriekcodes wél bevat.
+    """
+    import os
+
+    tekst = _tekst(inhoud)
+    match = re.search(r"<identifier[^>]*>\s*([0-9]{9,10})\s*</identifier>", tekst)
+    kbo = match.group(1) if match else None
+    if kbo and len(kbo) == 9:
+        kbo = "0" + kbo
+
+    if kbo and os.environ.get("NBB_CBSO_SUBSCRIPTION_KEY"):
+        from core.nbb_api import haal_op_via_kbo  # lazy import (vermijdt circulaire import)
+        return haal_op_via_kbo(kbo)
+
+    kbo_txt = f" {kbo[0:4]}.{kbo[4:7]}.{kbo[7:10]}" if kbo and len(kbo) == 10 else ""
     raise BronFout(
-        "Ruwe XBRL-bestanden bevatten de rubriekcodes niet zelf (die zitten in de NBB-taxonomie). "
-        "Gebruik de JSON-export van dezelfde neerlegging, of vul het KBO-/BTW-nummer in om de "
-        "jaarrekening automatisch op te halen."
+        "Een ruw XBRL-bestand bevat de rubriekcodes niet zelf; die zitten in de NBB-taxonomie. "
+        f"Dit bestand hoort bij ondernemingsnummer{kbo_txt or ' (onbekend)'}. "
+        "Stel de gratis sleutel NBB_CBSO_SUBSCRIPTION_KEY in om de jaarrekening automatisch op te "
+        "halen, of upload de JSON-export van dezelfde neerlegging."
     )
 
 
