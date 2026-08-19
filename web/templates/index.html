@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Financiële Analyse van de Onderneming{% endblock %}
+{% block title %}{{ tl('Financiële Analyse van de Onderneming') }}{% endblock %}
 
 {% block styles %}
     /* ===== Hero ===== */
@@ -147,49 +147,47 @@
   <section class="hero reveal">
     <div class="hero-grid">
       <div>
-        <span class="eyebrow">&#9889; NBB-jaarrekeningen, meteen leesbaar</span>
-        <h1>Doorgrond elke <span class="grad">Belgische jaarrekening</span> in seconden.</h1>
+        <span class="eyebrow">&#9889; {{ tl('NBB-jaarrekeningen, meteen leesbaar') }}</span>
+        <h1>{{ t('@hero_h1')|safe }}</h1>
         <p class="lead">
-          Upload een CSV, JSON of PDF — of vul gewoon een KBO-nummer in. Je krijgt de balans en
-          resultatenrekening volgens de wettelijke structuur, ratio's met sectorvergelijking,
-          een gezondheidsbarometer, bestuurders en vergelijkingen over de jaren.
+          {{ t('@hero_lead') }}
         </p>
         <div class="hero-pills">
-          <span>Balans &amp; resultatenrekening</span>
-          <span>Ratio's + sector</span>
-          <span>Gezondheidsbarometer</span>
-          <span>Bestuurders</span>
-          <span>Vergelijken</span>
+          <span>{{ t('@pill_balans')|safe }}</span>
+          <span>{{ tl("Ratio's + sector") }}</span>
+          <span>{{ tl('Gezondheidsbarometer') }}</span>
+          <span>{{ tl('Bestuurders') }}</span>
+          <span>{{ tl('Vergelijken') }}</span>
         </div>
         <div class="hero-cta">
-          <a class="btn-ghost btn-white" href="#uploaden">Upload een jaarrekening</a>
-          <a class="btn-ghost" href="#kbo">Zoek op KBO-nummer</a>
-          <a class="btn-ghost" href="{{ url_for('vergelijk') }}">Vergelijk bedrijven</a>
+          <a class="btn-ghost btn-white" href="#uploaden">{{ tl('Upload een jaarrekening') }}</a>
+          <a class="btn-ghost" href="#kbo">{{ tl('Zoek op KBO-nummer') }}</a>
+          <a class="btn-ghost" href="{{ url_for('vergelijk') }}">{{ tl('Vergelijk bedrijven') }}</a>
         </div>
       </div>
 
       <div class="action-stack">
         <form class="glass" id="uploaden" method="post" action="{{ url_for('analyse') }}" enctype="multipart/form-data">
-          <h2>Upload een jaarrekening</h2>
-          <p class="sub">CSV, JSON (jsonxbrl) of PDF van de NBB.</p>
+          <h2>{{ tl('Upload een jaarrekening') }}</h2>
+          <p class="sub">{{ tl('CSV, JSON (jsonxbrl) of PDF van de NBB.') }}</p>
           <label class="dropzone" id="dropzone" for="bestand">
             <div class="icon">&#128228;</div>
-            <p class="big">Sleep hierheen of klik om te kiezen</p>
-            <p class="small">.csv · .json · .pdf — max. 5&nbsp;MB</p>
+            <p class="big">{{ tl('Sleep hierheen of klik om te kiezen') }}</p>
+            <p class="small">{{ t('@upload_small')|safe }}</p>
             <p class="chosen" id="chosen" hidden></p>
           </label>
           <input type="file" id="bestand" name="bestand" accept=".csv,.json,.pdf,.xbrl,.xml">
-          <div class="row-actions"><button type="submit" class="btn">Analyseer &rarr;</button></div>
+          <div class="row-actions"><button type="submit" class="btn">{{ tl('Analyseer') }} &rarr;</button></div>
         </form>
 
         <form class="glass" id="kbo" method="post" action="{{ url_for('fetch') }}">
-          <h2>Of via KBO-/BTW-nummer</h2>
-          <p class="sub">Recentste neerlegging rechtstreeks van de NBB Balanscentrale.</p>
+          <h2>{{ tl('Of via KBO-/BTW-nummer') }}</h2>
+          <p class="sub">{{ tl('Recentste neerlegging rechtstreeks van de NBB Balanscentrale.') }}</p>
           <div class="fetch-row">
-            <input type="text" name="kbo" placeholder="bv. 0403.101.811" autocomplete="off">
-            <button type="submit" class="btn">Ophalen &rarr;</button>
+            <input type="text" name="kbo" placeholder="{{ tl('bv. 0403.101.811') }}" autocomplete="off">
+            <button type="submit" class="btn">{{ tl('Ophalen') }} &rarr;</button>
           </div>
-          <p class="mini-note">Gratis NBB-webservice; vereist eenmalig een sleutel (<code>NBB_CBSO_SUBSCRIPTION_KEY</code>).</p>
+          <p class="mini-note">{{ t('@nbb_note')|safe }}</p>
         </form>
       </div>
     </div>
@@ -197,51 +195,51 @@
 
   <!-- FEATURES -->
   <div class="sec-head reveal d1">
-    <div class="kicker">Alles-in-één</div>
-    <h2>Wat je met de tool kan doen</h2>
-    <p>Van ruwe neerlegging tot een volledig financieel beeld — automatisch en volgens de wettelijke structuur.</p>
+    <div class="kicker">{{ tl('Alles-in-één') }}</div>
+    <h2>{{ tl('Wat je met de tool kan doen') }}</h2>
+    <p>{{ tl('Van ruwe neerlegging tot een volledig financieel beeld — automatisch en volgens de wettelijke structuur.') }}</p>
   </div>
 
   <section class="features reveal d1">
-    <div class="feature"><div class="ic">&#128202;</div><h3>Balans &amp; resultatenrekening</h3><p>Automatisch opgemaakt volgens de wettelijke NBB-structuur, met codes, toelichtingen en nette bedragen.</p></div>
-    <div class="feature"><div class="ic">&#9878;&#65039;</div><h3>Conformiteitscontrole</h3><p>Controleert het balansevenwicht en de belangrijkste wettelijke optelsommen, en flagt afwijkingen.</p></div>
-    <div class="feature"><div class="ic">&#128200;</div><h3>Ratio's &amp; sectorvergelijking</h3><p>Toegevoegde waarde, rendabiliteit, solvabiliteit en liquiditeit, afgezet tegen NBB-sectorkwartielen.</p></div>
-    <div class="feature"><div class="ic">&#129658;</div><h3>Gezondheidsbarometer</h3><p>Score /100, Altman Z''-score en gezondheidskwadrant, met signalen en een indicatieve kredietrichtlijn.</p></div>
-    <div class="feature"><div class="ic">&#128101;</div><h3>Bestuurders</h3><p>Namen, functies, adres en mandaat — mét landvlag en inactieve mandaten duidelijk gemarkeerd.</p></div>
-    <div class="feature"><div class="ic">&#128260;</div><h3>Vergelijken &amp; trends</h3><p>Meerdere boekjaren of ondernemingen naast elkaar, met grafieken en een gunstig/ongunstig-oordeel.</p></div>
-    <div class="feature"><div class="ic">&#128228;</div><h3>Meerdere bronnen</h3><p>CSV, JSON (jsonxbrl) en PDF (NL &amp; FR), of automatisch ophalen via het KBO-/BTW-nummer.</p></div>
-    <div class="feature"><div class="ic">&#128269;</div><h3>Identificatie &amp; kerncijfers</h3><p>Bedrijfsfiche met KBO-nummer, rechtsvorm, boekjaar en personeel, plus de kerncijfers in één oogopslag.</p></div>
-    <div class="feature"><div class="ic">&#9888;&#65039;</div><h3>Signalen</h3><p>Duidelijke waarschuwingen zoals verlies, negatief eigen vermogen of zwakke liquiditeit.</p></div>
+    <div class="feature"><div class="ic">&#128202;</div><h3>{{ t('@feat_balans')|safe }}</h3><p>{{ tl('Automatisch opgemaakt volgens de wettelijke NBB-structuur, met codes, toelichtingen en nette bedragen.') }}</p></div>
+    <div class="feature"><div class="ic">&#9878;&#65039;</div><h3>{{ tl('Conformiteitscontrole') }}</h3><p>{{ tl('Controleert het balansevenwicht en de belangrijkste wettelijke optelsommen, en flagt afwijkingen.') }}</p></div>
+    <div class="feature"><div class="ic">&#128200;</div><h3>{{ t('@feat_ratios')|safe }}</h3><p>{{ tl('Toegevoegde waarde, rendabiliteit, solvabiliteit en liquiditeit, afgezet tegen NBB-sectorkwartielen.') }}</p></div>
+    <div class="feature"><div class="ic">&#129658;</div><h3>{{ tl('Gezondheidsbarometer') }}</h3><p>{{ tl("Score /100, Altman Z''-score en gezondheidskwadrant, met signalen en een indicatieve kredietrichtlijn.") }}</p></div>
+    <div class="feature"><div class="ic">&#128101;</div><h3>{{ tl('Bestuurders') }}</h3><p>{{ tl('Namen, functies, adres en mandaat — mét landvlag en inactieve mandaten duidelijk gemarkeerd.') }}</p></div>
+    <div class="feature"><div class="ic">&#128260;</div><h3>{{ t('@feat_vergelijk')|safe }}</h3><p>{{ tl('Meerdere boekjaren of ondernemingen naast elkaar, met grafieken en een gunstig/ongunstig-oordeel.') }}</p></div>
+    <div class="feature"><div class="ic">&#128228;</div><h3>{{ tl('Meerdere bronnen') }}</h3><p>{{ t('@feat_bronnen')|safe }}</p></div>
+    <div class="feature"><div class="ic">&#128269;</div><h3>{{ t('@feat_identificatie')|safe }}</h3><p>{{ tl('Bedrijfsfiche met KBO-nummer, rechtsvorm, boekjaar en personeel, plus de kerncijfers in één oogopslag.') }}</p></div>
+    <div class="feature"><div class="ic">&#9888;&#65039;</div><h3>{{ tl('Signalen') }}</h3><p>{{ tl('Duidelijke waarschuwingen zoals verlies, negatief eigen vermogen of zwakke liquiditeit.') }}</p></div>
   </section>
 
   <!-- HOW IT WORKS -->
   <div class="steps-wrap reveal d2">
     <div class="sec-head" style="margin-bottom:1.4rem">
-      <div class="kicker">Zo werkt het</div>
-      <h2>In drie stappen naar inzicht</h2>
+      <div class="kicker">{{ tl('Zo werkt het') }}</div>
+      <h2>{{ tl('In drie stappen naar inzicht') }}</h2>
     </div>
     <div class="steps">
-      <div class="step"><div class="num">1</div><div><h4>Kies je bron</h4><p>Upload een CSV/JSON/PDF of vul een KBO-nummer in.</p></div></div>
-      <div class="step"><div class="num">2</div><div><h4>FAO analyseert</h4><p>De jaarrekening wordt opgemaakt, gecontroleerd en doorgerekend.</p></div></div>
-      <div class="step"><div class="num">3</div><div><h4>Bekijk het inzicht</h4><p>Balans, ratio's, risico, bestuurders en vergelijkingen — meteen.</p></div></div>
+      <div class="step"><div class="num">1</div><div><h4>{{ tl('Kies je bron') }}</h4><p>{{ tl('Upload een CSV/JSON/PDF of vul een KBO-nummer in.') }}</p></div></div>
+      <div class="step"><div class="num">2</div><div><h4>{{ tl('FAO analyseert') }}</h4><p>{{ tl('De jaarrekening wordt opgemaakt, gecontroleerd en doorgerekend.') }}</p></div></div>
+      <div class="step"><div class="num">3</div><div><h4>{{ tl('Bekijk het inzicht') }}</h4><p>{{ tl('Balans, ratio\'s, risico, bestuurders en vergelijkingen — meteen.') }}</p></div></div>
     </div>
   </div>
 
   <!-- FORMATS -->
   <div class="formats reveal d2">
-    <span class="chip"><b>CSV</b> NBB-export</span>
+    <span class="chip"><b>CSV</b> {{ tl('NBB-export') }}</span>
     <span class="chip"><b>JSON</b> jsonxbrl</span>
     <span class="chip"><b>PDF</b> NL &amp; FR</span>
-    <span class="chip"><b>KBO/BTW</b> automatisch ophalen</span>
+    <span class="chip"><b>KBO/BTW</b> {{ tl('automatisch ophalen') }}</span>
   </div>
 
   <!-- BOTTOM CTA -->
   <section class="cta reveal d3">
-    <h2>Klaar om een jaarrekening te doorgronden?</h2>
-    <p>Sleep je bestand hierboven, of vergelijk meteen meerdere boekjaren en bedrijven.</p>
+    <h2>{{ tl('Klaar om een jaarrekening te doorgronden?') }}</h2>
+    <p>{{ tl('Sleep je bestand hierboven, of vergelijk meteen meerdere boekjaren en bedrijven.') }}</p>
     <div style="display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap">
-      <a class="btn-ghost btn-white" href="#uploaden">Start een analyse</a>
-      <a class="btn-ghost" href="{{ url_for('vergelijk') }}">Naar vergelijken</a>
+      <a class="btn-ghost btn-white" href="#uploaden">{{ tl('Start een analyse') }}</a>
+      <a class="btn-ghost" href="{{ url_for('vergelijk') }}">{{ tl('Naar vergelijken') }}</a>
     </div>
   </section>
 {% endblock %}
@@ -251,8 +249,9 @@
   const input = document.getElementById('bestand');
   const zone = document.getElementById('dropzone');
   const chosen = document.getElementById('chosen');
+  const GEKOZEN = "{{ tl('Gekozen') }}";
   function toon(naam) {
-    if (naam) { chosen.textContent = 'Gekozen: ' + naam; chosen.hidden = false; }
+    if (naam) { chosen.textContent = GEKOZEN + ': ' + naam; chosen.hidden = false; }
     else { chosen.hidden = true; }
   }
   input.addEventListener('change', () => toon(input.files.length ? input.files[0].name : ''));

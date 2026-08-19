@@ -1,5 +1,8 @@
 {% extends "base.html" %}
-{% block title %}{{ analyse.bedrijfsnaam }} — Analyse{% endblock %}
+{% block title %}{{ analyse.bedrijfsnaam | tl }} — {{ tl('Analyse') }}{% endblock %}
+{% block meta_description %}{{ t('@meta_result') }}{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block canonical %}{% endblock %}
 
 {% block styles %}
     .result-head {
@@ -57,6 +60,14 @@
     table.statement tr.leeg td { color: var(--muted); }
     table.statement tr.leeg td.rubriek { font-weight: 400; }
     .hide-empty table.statement tr.leeg { display: none; }
+    table.statement td.rubriek .caret { display: inline-block; width: 1.1em; color: var(--muted); font-size: 0.7rem; }
+    table.statement tr.heeft-kinderen { cursor: pointer; }
+    table.statement tr.heeft-kinderen .caret::before { content: '\25BE'; }
+    table.statement tr.heeft-kinderen.is-collapsed .caret::before { content: '\25B8'; }
+    table.statement tr.ingeklapt { display: none; }
+    .toolbar .toolbar-acties { display: inline-flex; gap: 0.4rem; align-items: center; }
+    .btn-mini { border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .btn-mini:hover { color: var(--accent-700); border-color: var(--accent-200); }
 
     .check-row {
       display: grid; grid-template-columns: 28px 1fr auto; gap: 0.8rem; align-items: start;
@@ -119,34 +130,34 @@
 {% block content %}
   <div class="card result-head">
     <div class="titel">
-      <h1>{{ analyse.bedrijfsnaam }}</h1>
+      <h1>{{ analyse.bedrijfsnaam | tl }}</h1>
       <div class="meta">
-        Boekjaar {{ analyse.boekjaar or '—' }} · munt {{ analyse.munt }} ·
-        {{ analyse.aantal_herkend }} van {{ analyse.aantal_codes }} codes herkend
+        {{ tl('Boekjaar') }} {{ analyse.boekjaar or '—' }} · {{ tl('munt') }} {{ analyse.munt }} ·
+        {{ t('@codes_herkend', h=analyse.aantal_herkend, tot=analyse.aantal_codes) }}
       </div>
     </div>
     <div class="spacer"></div>
     <div class="verdict">
       {% if analyse.controle.conform %}
-        <span class="badge ok">&checkmark; Conform de wettelijke structuur</span>
+        <span class="badge ok">&checkmark; {{ tl('Conform de wettelijke structuur') }}</span>
       {% else %}
-        <span class="badge err">&#9888; Aandachtspunten gevonden</span>
+        <span class="badge err">&#9888; {{ tl('Aandachtspunten gevonden') }}</span>
       {% endif %}
-      <a class="btn secondary" href="{{ url_for('index') }}">Nieuwe analyse</a>
+      <a class="btn secondary" href="{{ url_for('index') }}">{{ tl('Nieuwe analyse') }}</a>
     </div>
   </div>
 
   <div class="tabs">
-    <button class="tab-btn active" data-tab="overzicht">Overzicht</button>
-    <button class="tab-btn" data-tab="balans">Balans</button>
-    <button class="tab-btn" data-tab="rr">Resultatenrekening</button>
-    {% if analyse.kasstroom %}<button class="tab-btn" data-tab="kasstromen">Kasstromen</button>{% endif %}
-    <button class="tab-btn" data-tab="ratios">Ratio's</button>
-    <button class="tab-btn" data-tab="risico">Risico</button>
-    <button class="tab-btn" data-tab="betrouwbaarheid">Betrouwbaarheid</button>
-    <button class="tab-btn" data-tab="bestuurders">Bestuurders</button>
+    <button class="tab-btn active" data-tab="overzicht">{{ tl('Overzicht') }}</button>
+    <button class="tab-btn" data-tab="balans">{{ tl('Balans') }}</button>
+    <button class="tab-btn" data-tab="rr">{{ tl('Resultatenrekening') }}</button>
+    {% if analyse.kasstroom %}<button class="tab-btn" data-tab="kasstromen">{{ tl('Kasstromen') }}</button>{% endif %}
+    <button class="tab-btn" data-tab="ratios">{{ tl("Ratio's") }}</button>
+    <button class="tab-btn" data-tab="risico">{{ tl('Risico') }}</button>
+    <button class="tab-btn" data-tab="betrouwbaarheid">{{ tl('Betrouwbaarheid') }}</button>
+    <button class="tab-btn" data-tab="bestuurders">{{ tl('Bestuurders') }}</button>
     <button class="tab-btn" data-tab="controle">
-      Controle
+      {{ tl('Controle') }}
       {% if analyse.controle.aantal_fout %}<span class="badge err" style="margin-left:.4rem">{{ analyse.controle.aantal_fout }}</span>{% endif %}
     </button>
   </div>
@@ -158,12 +169,12 @@
       <div class="evenwicht {{ 'ok' if ev.in_evenwicht else 'err' }}">
         <div>
           <div class="big">
-            {% if ev.in_evenwicht %}&checkmark; De balans is in evenwicht{% else %}&#9888; De balans is niet in evenwicht{% endif %}
+            {% if ev.in_evenwicht %}&checkmark; {{ tl('De balans is in evenwicht') }}{% else %}&#9888; {{ tl('De balans is niet in evenwicht') }}{% endif %}
           </div>
           <div class="nums">
-            Totaal activa {{ ev.activa | bedrag }} {{ analyse.munt }} ·
-            Totaal passiva {{ ev.passiva | bedrag }} {{ analyse.munt }}
-            {% if not ev.in_evenwicht %} · verschil <span class="neg">{{ ev.verschil | bedrag }}</span>{% endif %}
+            {{ tl('Totaal activa') }} {{ ev.activa | bedrag }} {{ analyse.munt }} ·
+            {{ tl('Totaal passiva') }} {{ ev.passiva | bedrag }} {{ analyse.munt }}
+            {% if not ev.in_evenwicht %} · {{ tl('verschil') }} <span class="neg">{{ ev.verschil | bedrag }}</span>{% endif %}
           </div>
         </div>
       </div>
@@ -171,38 +182,38 @@
 
     <div class="grid-2" style="margin-bottom:1.3rem">
       <div class="card panel">
-        <h3>Bedrijfsfiche</h3>
+        <h3>{{ tl('Bedrijfsfiche') }}</h3>
         <dl class="kv">
-          <dt>Onderneming</dt><dd>{{ analyse.fiche.naam }}</dd>
-          {% if analyse.fiche.kbo %}<dt>KBO-nummer</dt><dd>{{ analyse.fiche.kbo }}</dd>{% endif %}
-          {% if analyse.fiche.rechtsvorm %}<dt>Rechtsvorm</dt><dd>{{ analyse.fiche.rechtsvorm }}</dd>{% endif %}
-          {% if analyse.fiche.adres %}<dt>Adres</dt><dd>{{ analyse.fiche.adres }}</dd>{% endif %}
-          <dt>Boekjaar</dt><dd>{{ analyse.fiche.boekjaar or '—' }}</dd>
-          {% if analyse.fiche.werknemers is not none %}<dt>Personeel (VTE)</dt><dd>{{ analyse.fiche.werknemers }}</dd>{% endif %}
-          <dt>Munt</dt><dd>{{ analyse.fiche.munt }}</dd>
+          <dt>{{ tl('Onderneming') }}</dt><dd>{{ analyse.fiche.naam }}</dd>
+          {% if analyse.fiche.kbo %}<dt>{{ tl('KBO-nummer') }}</dt><dd>{{ analyse.fiche.kbo }}</dd>{% endif %}
+          {% if analyse.fiche.rechtsvorm %}<dt>{{ tl('Rechtsvorm') }}</dt><dd>{{ analyse.fiche.rechtsvorm }}</dd>{% endif %}
+          {% if analyse.fiche.adres %}<dt>{{ tl('Adres') }}</dt><dd>{{ analyse.fiche.adres }}</dd>{% endif %}
+          <dt>{{ tl('Boekjaar') }}</dt><dd>{{ analyse.fiche.boekjaar or '—' }}</dd>
+          {% if analyse.fiche.werknemers is not none %}<dt>{{ tl('Personeel (VTE)') }}</dt><dd>{{ analyse.fiche.werknemers }}</dd>{% endif %}
+          <dt>{{ tl('Munt') }}</dt><dd>{{ analyse.fiche.munt }}</dd>
         </dl>
       </div>
       <div class="card panel">
-        <h3>Gezondheidsbarometer</h3>
+        <h3>{{ tl('Gezondheidsbarometer') }}</h3>
         {% set b = analyse.risico.barometer %}
         {% if b %}
           <div class="barometer">
             <div class="score {{ b.kleur }}">{{ b.score }}<span>/100</span></div>
             <div style="flex:1">
-              <span class="badge {{ b.kleur }}">{{ b.label }}</span>
+              <span class="badge {{ b.kleur }}">{{ b.label | tl }}</span>
               <div class="meter"><div class="meter-fill {{ b.kleur }}" style="width: {{ b.score }}%"></div></div>
               {% if analyse.risico.kredietlimiet %}
-                <div class="krediet">Indicatieve kredietrichtlijn: <strong>{{ analyse.risico.kredietlimiet | bedrag }}&nbsp;{{ analyse.munt }}</strong>
-                  <br><span class="hint">Ruwe indicatie op basis van eigen vermogen en score — geen advies.</span></div>
+                <div class="krediet">{{ tl('Indicatieve kredietrichtlijn') }}: <strong>{{ analyse.risico.kredietlimiet | bedrag }}&nbsp;{{ analyse.munt }}</strong>
+                  <br><span class="hint">{{ tl('Ruwe indicatie op basis van eigen vermogen en score — geen advies.') }}</span></div>
               {% endif %}
             </div>
           </div>
         {% else %}
-          <p style="color:var(--muted); margin:0">Onvoldoende gegevens voor een gezondheidsscore.</p>
+          <p style="color:var(--muted); margin:0">{{ tl('Onvoldoende gegevens voor een gezondheidsscore.') }}</p>
         {% endif %}
         {% if analyse.risico.signalen %}
           <div class="signalen">
-            {% for s in analyse.risico.signalen %}<span class="badge {{ s.kleur }}">{{ s.tekst }}</span>{% endfor %}
+            {% for s in analyse.risico.signalen %}<span class="badge {{ s.kleur }}">{{ s.tekst | tl }}</span>{% endfor %}
           </div>
         {% endif %}
       </div>
@@ -210,7 +221,7 @@
 
     {% if analyse.kerncijfers %}
     <div class="card panel" style="margin-bottom:1.3rem">
-      <h3>Kerncijfers</h3>
+      <h3>{{ tl('Kerncijfers') }}</h3>
       <div class="kpi-grid">
         {% for k in analyse.kerncijfers %}
           <div class="kpi">
@@ -218,8 +229,8 @@
               {% if k.eenheid == '€' %}{{ k.waarde | bedrag }}{% else %}{{ k.waarde }}{% endif %}
               <span style="font-size:0.9rem">{{ k.eenheid if k.eenheid != '€' else analyse.munt }}</span>
             </div>
-            <div class="lab">{{ k.label }}</div>
-            <div class="hint">{{ k.toelichting }}</div>
+            <div class="lab">{{ k.label | tl }}</div>
+            <div class="hint">{{ k.toelichting | tl }}</div>
           </div>
         {% endfor %}
       </div>
@@ -228,23 +239,22 @@
 
     <div class="grid-2">
       <div class="card panel">
-        <h3>Identificatiegegevens</h3>
+        <h3>{{ tl('Identificatiegegevens') }}</h3>
         <dl class="kv">
           {% for m in analyse.metadata %}
-            <dt>{{ m.label }}</dt><dd>{{ m.waarde }}</dd>
+            <dt>{{ m.label | tl }}</dt><dd>{{ m.waarde | tl }}</dd>
           {% endfor %}
         </dl>
       </div>
       <div class="card panel">
-        <h3>Conformiteit <span class="count">— {{ analyse.controle.aantal_ok }} controles ok, {{ analyse.controle.aantal_fout }} met verschil</span></h3>
+        <h3>{{ tl('Conformiteit') }} <span class="count">{{ t('@conformiteit_count', ok=analyse.controle.aantal_ok, fout=analyse.controle.aantal_fout) }}</span></h3>
         <p style="color:var(--muted); margin-top:0">
-          FAO controleert automatisch de belangrijkste wettelijke optelsommen van de balans
-          en de resultatenrekening. Bekijk het tabblad <strong>Controle</strong> voor alle details.
+          {{ t('@conformiteit_uitleg')|safe }}
         </p>
         {% if analyse.controle.conform %}
-          <span class="badge ok">&checkmark; Alle controleerbare optelsommen kloppen</span>
+          <span class="badge ok">&checkmark; {{ tl('Alle controleerbare optelsommen kloppen') }}</span>
         {% else %}
-          <span class="badge err">&#9888; {{ analyse.controle.aantal_fout }} optelsom(men) klopt niet</span>
+          <span class="badge err">&#9888; {{ t('@optelsom_fout', fout=analyse.controle.aantal_fout) }}</span>
         {% endif %}
       </div>
     </div>
@@ -254,8 +264,12 @@
   <section class="tab-panel" id="tab-balans">
     <div class="card panel hide-empty" id="balans-panel">
       <div class="toolbar">
-        <h3 style="margin:0">Balans na winstverdeling</h3>
-        <label><input type="checkbox" checked onchange="document.getElementById('balans-panel').classList.toggle('hide-empty', this.checked)"> Verberg lege rubrieken</label>
+        <h3 style="margin:0">{{ tl('Balans na winstverdeling') }}</h3>
+        <div class="toolbar-acties">
+          <button type="button" class="btn-mini" data-inklap="balans-panel">{{ tl('Alles inklappen') }}</button>
+          <button type="button" class="btn-mini" data-uitklap="balans-panel">{{ tl('Alles uitklappen') }}</button>
+          <label><input type="checkbox" checked onchange="document.getElementById('balans-panel').classList.toggle('hide-empty', this.checked)"> {{ tl('Verberg lege rubrieken') }}</label>
+        </div>
       </div>
       {{ statement(analyse.balans) }}
     </div>
@@ -265,8 +279,12 @@
   <section class="tab-panel" id="tab-rr">
     <div class="card panel hide-empty" id="rr-panel">
       <div class="toolbar">
-        <h3 style="margin:0">Resultatenrekening</h3>
-        <label><input type="checkbox" checked onchange="document.getElementById('rr-panel').classList.toggle('hide-empty', this.checked)"> Verberg lege rubrieken</label>
+        <h3 style="margin:0">{{ tl('Resultatenrekening') }}</h3>
+        <div class="toolbar-acties">
+          <button type="button" class="btn-mini" data-inklap="rr-panel">{{ tl('Alles inklappen') }}</button>
+          <button type="button" class="btn-mini" data-uitklap="rr-panel">{{ tl('Alles uitklappen') }}</button>
+          <label><input type="checkbox" checked onchange="document.getElementById('rr-panel').classList.toggle('hide-empty', this.checked)"> {{ tl('Verberg lege rubrieken') }}</label>
+        </div>
       </div>
       {{ statement(analyse.resultatenrekening) }}
     </div>
@@ -276,16 +294,14 @@
   {% if analyse.kasstroom %}
   <section class="tab-panel" id="tab-kasstromen">
     <div class="card panel">
-      <h3>Kasstromenoverzicht <span class="count">— {{ analyse.boekjaar }}</span></h3>
+      <h3>{{ tl('Kasstromenoverzicht') }} <span class="count">— {{ analyse.boekjaar }}</span></h3>
       <p style="color:var(--muted); margin:0 0 1rem">
-        Vereenvoudigd herwerkt kasstromenoverzicht, afgeleid uit het huidige en vorige boekjaar.
-        <strong>Benadering</strong>: de exacte niet-kaskosten en enkele financieringslijnen vergen
-        toelichtingsdata die niet altijd beschikbaar is.
+        {{ t('@kasstroom_uitleg')|safe }}
       </p>
       <table class="statement">
         {% for l in analyse.kasstroom.lijnen %}
           <tr class="{{ 'totaal' if l.subtotaal }}">
-            <td class="rubriek">{{ l.label }}</td>
+            <td class="rubriek">{{ l.label | tl }}</td>
             <td class="waarde{% if l.waarde < 0 %} neg{% endif %}">{{ l.waarde | bedrag }}</td>
           </tr>
         {% endfor %}
@@ -293,11 +309,11 @@
       <div class="evenwicht {{ 'ok' if analyse.kasstroom.reconcilieert else 'warn' }}" style="margin-top:1rem">
         <div>
           <div class="big">
-            {% if analyse.kasstroom.reconcilieert %}&checkmark; Sluit aan op de werkelijke kasmutatie{% else %}&#9888; Benadering — sluit niet exact aan{% endif %}
+            {% if analyse.kasstroom.reconcilieert %}&checkmark; {{ tl('Sluit aan op de werkelijke kasmutatie') }}{% else %}&#9888; {{ tl('Benadering — sluit niet exact aan') }}{% endif %}
           </div>
           <div class="nums">
-            Werkelijke mutatie liquide middelen + geldbeleggingen: {{ analyse.kasstroom.controle | bedrag }} {{ analyse.munt }}
-            · verschil met berekening: {{ analyse.kasstroom.verschil | bedrag }}
+            {{ tl('Werkelijke mutatie liquide middelen + geldbeleggingen:') }} {{ analyse.kasstroom.controle | bedrag }} {{ analyse.munt }}
+            · {{ tl('verschil met berekening:') }} {{ analyse.kasstroom.verschil | bedrag }}
           </div>
         </div>
       </div>
@@ -309,20 +325,20 @@
   <section class="tab-panel" id="tab-ratios">
     {% if analyse.evolutie %}
     <div class="card panel" style="margin-bottom:1.3rem">
-      <h3>Evolutie t.o.v. vorig boekjaar
-        <span class="count">— {{ analyse.evolutie.aantal_gunstig }} gunstig · {{ analyse.evolutie.aantal_ongunstig }} ongunstig</span>
+      <h3>{{ t('@evolutie_titel') }}
+        <span class="count">{{ t('@evolutie_count', g=analyse.evolutie.aantal_gunstig, o=analyse.evolutie.aantal_ongunstig) }}</span>
       </h3>
       {% for groep in analyse.evolutie.groepen %}
-        <h4 style="margin:.9rem 0 .3rem">{{ groep.naam }}</h4>
+        <h4 style="margin:.9rem 0 .3rem">{{ groep.naam | tl }}</h4>
         <table class="ratio-tabel">
-          <thead><tr><th>Ratio</th><th class="num">Huidig</th><th class="num">Vorig</th><th class="pos">Evolutie</th></tr></thead>
+          <thead><tr><th>{{ tl('Ratio') }}</th><th class="num">{{ tl('Huidig') }}</th><th class="num">{{ tl('Vorig') }}</th><th class="pos">{{ tl('Evolutie') }}</th></tr></thead>
           <tbody>
             {% for r in groep.ratios %}
               <tr>
-                <td>{{ r.naam }}</td>
+                <td>{{ r.naam | tl }}</td>
                 <td class="num waarde">{% if r.huidig is not none %}{{ r.huidig | ratiowaarde(r.eenheid, analyse.munt) }}{% else %}—{% endif %}</td>
                 <td class="num sector">{% if r.vorig is not none %}{{ r.vorig | ratiowaarde(r.eenheid, analyse.munt) }}{% else %}—{% endif %}</td>
-                <td class="pos"><span class="badge {{ r.oordeel.kleur }}">{{ r.oordeel.tekst }}</span></td>
+                <td class="pos"><span class="badge {{ r.oordeel.kleur }}">{{ r.oordeel.tekst | tl }}</span></td>
               </tr>
             {% endfor %}
           </tbody>
@@ -331,49 +347,41 @@
     </div>
     {% endif %}
     <div class="card panel sector-uitleg" style="margin-bottom:1.3rem">
-      <h3>Ratioanalyse &amp; sectorvergelijking</h3>
+      <h3>{{ t('@ratio_titel')|safe }}</h3>
       <p style="margin:0 0 .6rem; color:var(--muted)">
-        De ratio's uit de cursus (toegevoegde waarde, rendabiliteit, solvabiliteit, liquiditeit),
-        berekend uit de balans en resultatenrekening. Waarden met het label
-        <span class="tag benadering">benadering</span> gebruiken een schatting van de niet-kaskosten
-        of de financiële kosten uit de beschikbare rubrieken.
+        {{ t('@ratio_intro')|safe }}
       </p>
       <details>
-        <summary><strong>Over de sectorvergelijking</strong> — is dit mogelijk?</summary>
+        <summary>{{ t('@sector_summary')|safe }}</summary>
         <div style="margin-top:.6rem; color:var(--muted); font-size:.92rem">
           <p style="margin:.2rem 0">
-            Ja — de <strong>NBB Balanscentrale</strong> publiceert via NBB.Stat per
-            <strong>NACE-BEL-sector</strong> de spreiding van deze ratio's in kwartielen (Q1/Q2/Q3).
-            Een onderneming vergelijken met haar sector betekent kijken waar haar ratio valt
-            t.o.v. die kwartielen.
+            {{ t('@sector_p1')|safe }}
           </p>
           <p style="margin:.2rem 0">
-            <strong>Beperking:</strong> de gedeponeerde jaarrekening-CSV bevat géén NACE-code,
-            dus de sector kan niet automatisch worden afgeleid. Hieronder wordt daarom een
-            vast referentieprofiel gebruikt:
+            {{ t('@sector_p2')|safe }}
           </p>
-          <p style="margin:.4rem 0 0"><strong>Profiel:</strong> {{ analyse.sector_profiel }}<br>
-            <strong>Bron:</strong> {{ analyse.sector_bron }}</p>
+          <p style="margin:.4rem 0 0"><strong>{{ tl('Profiel:') }}</strong> {{ analyse.sector_profiel | tl }}<br>
+            <strong>{{ tl('Bron:') }}</strong> {{ analyse.sector_bron | tl }}</p>
         </div>
       </details>
       <div class="legende">
-        <span class="badge ok">sterk</span>
-        <span class="badge warn">rond mediaan</span>
-        <span class="badge err">zwak</span>
-        <span class="badge neutral">neutraal / geen benchmark</span>
+        <span class="badge ok">{{ tl('sterk') }}</span>
+        <span class="badge warn">{{ tl('rond mediaan') }}</span>
+        <span class="badge err">{{ tl('zwak') }}</span>
+        <span class="badge neutral">{{ tl('neutraal / geen benchmark') }}</span>
       </div>
     </div>
 
     {% for groep in analyse.ratios.groepen %}
       <div class="card panel" style="margin-bottom:1.3rem">
-        <h3>{{ groep.naam }}</h3>
+        <h3>{{ groep.naam | tl }}</h3>
         <table class="ratio-tabel">
           <thead>
             <tr>
-              <th>Ratio</th>
-              <th class="num">Waarde</th>
-              <th class="num">Sector Q1 · Q2 · Q3</th>
-              <th class="pos">Positie</th>
+              <th>{{ tl('Ratio') }}</th>
+              <th class="num">{{ tl('Waarde') }}</th>
+              <th class="num">{{ tl('Sector Q1 · Q2 · Q3') }}</th>
+              <th class="pos">{{ tl('Positie') }}</th>
             </tr>
           </thead>
           <tbody>
@@ -381,10 +389,10 @@
               <tr class="{{ 'na' if not r.berekenbaar }}">
                 <td>
                   <div class="r-naam">
-                    {{ r.naam }}
-                    {% if r.methode == 'benadering' %}<span class="tag benadering">benadering</span>{% endif %}
+                    {{ r.naam | tl }}
+                    {% if r.methode == 'benadering' %}<span class="tag benadering">{{ tl('benadering') }}</span>{% endif %}
                   </div>
-                  <div class="r-formule">{{ r.formule }}{% if not r.berekenbaar and r.reden %} — <em>{{ r.reden }}</em>{% endif %}</div>
+                  <div class="r-formule">{{ r.formule | tl }}{% if not r.berekenbaar and r.reden %} — <em>{{ r.reden | tl }}</em>{% endif %}</div>
                 </td>
                 <td class="num waarde">
                   {% if r.berekenbaar %}{{ r.waarde | ratiowaarde(r.eenheid, analyse.munt) }}{% else %}—{% endif %}
@@ -394,9 +402,9 @@
                 </td>
                 <td class="pos">
                   {% if r.sector %}
-                    <span class="badge {{ r.sector.kleur }}">{{ r.sector.positie }} · {{ r.sector.oordeel }}</span>
+                    <span class="badge {{ r.sector.kleur }}">{{ r.sector.positie }} · {{ r.sector.oordeel | tl }}</span>
                   {% elif r.berekenbaar %}
-                    <span class="badge neutral">geen benchmark</span>
+                    <span class="badge neutral">{{ tl('geen benchmark') }}</span>
                   {% else %}
                     <span class="dash">—</span>
                   {% endif %}
@@ -414,21 +422,21 @@
     {% set risico = analyse.risico %}
     {% if risico.barometer %}
       <div class="card panel" style="margin-bottom:1.3rem">
-        <h3>Gezondheidsbarometer &amp; kredietrichtlijn</h3>
+        <h3>{{ t('@baro_krediet_titel')|safe }}</h3>
         <div class="barometer">
           <div class="score {{ risico.barometer.kleur }}">{{ risico.barometer.score }}<span>/100</span></div>
           <div style="flex:1">
-            <span class="badge {{ risico.barometer.kleur }}">{{ risico.barometer.label }}</span>
+            <span class="badge {{ risico.barometer.kleur }}">{{ risico.barometer.label | tl }}</span>
             <div class="meter"><div class="meter-fill {{ risico.barometer.kleur }}" style="width: {{ risico.barometer.score }}%"></div></div>
             {% if risico.kredietlimiet %}
-              <div class="krediet">Indicatieve kredietrichtlijn: <strong>{{ risico.kredietlimiet | bedrag }}&nbsp;{{ analyse.munt }}</strong>
-                <br><span class="hint">Ruwe indicatie op basis van eigen vermogen en gezondheidsscore — geen kredietadvies.</span></div>
+              <div class="krediet">{{ tl('Indicatieve kredietrichtlijn') }}: <strong>{{ risico.kredietlimiet | bedrag }}&nbsp;{{ analyse.munt }}</strong>
+                <br><span class="hint">{{ tl('Ruwe indicatie op basis van eigen vermogen en gezondheidsscore — geen kredietadvies.') }}</span></div>
             {% endif %}
           </div>
         </div>
         {% if risico.signalen %}
           <div class="signalen">
-            {% for s in risico.signalen %}<span class="badge {{ s.kleur }}">{{ s.tekst }}</span>{% endfor %}
+            {% for s in risico.signalen %}<span class="badge {{ s.kleur }}">{{ s.tekst | tl }}</span>{% endfor %}
           </div>
         {% endif %}
       </div>
@@ -438,9 +446,9 @@
         <div class="evenwicht {{ 'ok' if risico.gunstig else 'err' }}">
           <div>
             <div class="big">
-              {% if risico.gunstig %}&checkmark; Globaal beeld: eerder gunstig{% else %}&#9888; Globaal beeld: aandachtspunten qua financieel risico{% endif %}
+              {% if risico.gunstig %}&checkmark; {{ tl('Globaal beeld: eerder gunstig') }}{% else %}&#9888; {{ tl('Globaal beeld: aandachtspunten qua financieel risico') }}{% endif %}
             </div>
-            <div class="nums">Indicatieve inschatting op basis van balans en resultatenrekening — geen volwaardige kredietbeoordeling.</div>
+            <div class="nums">{{ tl('Indicatieve inschatting op basis van balans en resultatenrekening — geen volwaardige kredietbeoordeling.') }}</div>
           </div>
         </div>
       {% endif %}
@@ -450,48 +458,48 @@
           {% if risico.altman %}
             <div class="kpi" style="margin-bottom:1rem">
               <div class="val">{{ risico.altman.score }}</div>
-              <div class="lab"><span class="badge {{ risico.altman.kleur }}">{{ risico.altman.zone }}</span></div>
-              <div class="hint">{{ risico.altman.interpretatie }}</div>
+              <div class="lab"><span class="badge {{ risico.altman.kleur }}">{{ risico.altman.zone | tl }}</span></div>
+              <div class="hint">{{ risico.altman.interpretatie | tl }}</div>
             </div>
             <table class="ratio-tabel">
               <tbody>
                 {% for c in risico.altman.componenten %}
-                  <tr><td>{{ c.naam }}</td><td class="num waarde">{{ c.waarde }}</td></tr>
+                  <tr><td>{{ c.naam | tl }}</td><td class="num waarde">{{ c.waarde }}</td></tr>
                 {% endfor %}
               </tbody>
             </table>
-            <p class="r-formule" style="margin-top:.6rem">Z'' = 3,25 + 6,56·X1 + 3,26·X2 + 6,72·X3 + 1,05·X4 — variant voor niet-beursgenoteerde ondernemingen. Zones: &gt; 2,6 veilig · 1,1–2,6 grijs · &lt; 1,1 nood.</p>
+            <p class="r-formule" style="margin-top:.6rem">{{ t('@altman_uitleg')|safe }}</p>
           {% else %}
-            <p style="color:var(--muted)">Onvoldoende gegevens om de Altman Z''-score te berekenen.</p>
+            <p style="color:var(--muted)">{{ tl("Onvoldoende gegevens om de Altman Z''-score te berekenen.") }}</p>
           {% endif %}
         </div>
         <div class="card panel">
-          <h3>Gezondheidskwadrant</h3>
+          <h3>{{ tl('Gezondheidskwadrant') }}</h3>
           {% if risico.kwadrant %}
             <div class="kpi" style="margin-bottom:1rem">
-              <div class="val" style="font-size:1.3rem"><span class="badge {{ risico.kwadrant.kleur }}">{{ risico.kwadrant.naam }}</span></div>
-              <div class="hint">{{ risico.kwadrant.interpretatie }}</div>
+              <div class="val" style="font-size:1.3rem"><span class="badge {{ risico.kwadrant.kleur }}">{{ risico.kwadrant.naam | tl }}</span></div>
+              <div class="hint">{{ risico.kwadrant.interpretatie | tl }}</div>
             </div>
             <dl class="kv">
-              <dt>Rendabiliteit</dt><dd>{{ risico.kwadrant.rendabiliteit }}</dd>
-              <dt>Liquiditeit</dt><dd>{{ risico.kwadrant.liquiditeit }}</dd>
+              <dt>{{ tl('Rendabiliteit') }}</dt><dd>{{ risico.kwadrant.rendabiliteit | tl }}</dd>
+              <dt>{{ tl('Liquiditeit') }}</dt><dd>{{ risico.kwadrant.liquiditeit | tl }}</dd>
               <dt>Current ratio</dt><dd>{{ risico.kwadrant.current_ratio }}</dd>
             </dl>
-            <p class="r-formule" style="margin-top:.6rem">Kruising rendabiliteit × liquiditeit (cursus FAO, Tabel 16.1): gezond · tijdelijk ziek · chronisch ziek · stervend.</p>
+            <p class="r-formule" style="margin-top:.6rem">{{ t('@kwadrant_uitleg') }}</p>
           {% else %}
-            <p style="color:var(--muted)">Onvoldoende gegevens voor het gezondheidskwadrant.</p>
+            <p style="color:var(--muted)">{{ tl('Onvoldoende gegevens voor het gezondheidskwadrant.') }}</p>
           {% endif %}
         </div>
       </div>
     {% else %}
-      <div class="card panel"><p style="color:var(--muted)">Onvoldoende gegevens om het financieel risico in te schatten.</p></div>
+      <div class="card panel"><p style="color:var(--muted)">{{ tl('Onvoldoende gegevens om het financieel risico in te schatten.') }}</p></div>
     {% endif %}
 
     {% set fm = analyse.falingsmodellen %}
     <div class="card panel" style="margin-top:1.3rem">
-      <h3>Faalvoorspellingsmodellen</h3>
+      <h3>{{ tl('Faalvoorspellingsmodellen') }}</h3>
       <p style="color:var(--muted); margin:0 0 1rem">
-        Academische modellen uit de cursus. Indicatief — geen kredietbeoordeling.
+        {{ tl('Academische modellen uit de cursus. Indicatief — geen kredietbeoordeling.') }}
       </p>
       <div class="grid-2">
         <div>
@@ -499,33 +507,33 @@
           {% if fm.ov82 %}
             <div class="kpi" style="margin-bottom:.7rem">
               <div class="val {{ fm.ov82.kleur }}" style="color:var(--{{ fm.ov82.kleur }})">{{ fm.ov82.score }}</div>
-              <div class="lab"><span class="badge {{ fm.ov82.kleur }}">{{ fm.ov82.oordeel }}</span></div>
-              <div class="hint">Lineaire discriminantscore · afkapgrens ≈ {{ fm.ov82.afkapgrens }} (hoger = gezonder)</div>
+              <div class="lab"><span class="badge {{ fm.ov82.kleur }}">{{ fm.ov82.oordeel | tl }}</span></div>
+              <div class="hint">{{ t('@ov82_hint', a=fm.ov82.afkapgrens) }}</div>
             </div>
             <table class="ratio-tabel"><tbody>
-              {% for c in fm.ov82.componenten %}<tr><td>{{ c.naam }}</td><td class="num waarde">{{ c.waarde }}</td></tr>{% endfor %}
+              {% for c in fm.ov82.componenten %}<tr><td>{{ c.naam | tl }}</td><td class="num waarde">{{ c.waarde }}</td></tr>{% endfor %}
             </tbody></table>
-          {% else %}<p style="color:var(--muted)">Onvoldoende gegevens.</p>{% endif %}
+          {% else %}<p style="color:var(--muted)">{{ tl('Onvoldoende gegevens.') }}</p>{% endif %}
         </div>
         <div>
-          <h4 style="margin:.2rem 0 .5rem">SIM05 — FiTo-score (simpel-intuïtief)</h4>
+          <h4 style="margin:.2rem 0 .5rem">{{ t('@fito_titel') }}</h4>
           {% if fm.fito %}
             <div class="kpi" style="margin-bottom:.7rem">
               <div class="val {{ fm.fito.kleur }}" style="color:var(--{{ fm.fito.kleur }})">{{ fm.fito.score }}</div>
-              <div class="lab"><span class="badge {{ fm.fito.kleur }}">{{ fm.fito.oordeel }}</span></div>
-              <div class="hint">Gemiddelde van 5 logit-herschaalde ratio's (0–1, hoger = gezonder)</div>
+              <div class="lab"><span class="badge {{ fm.fito.kleur }}">{{ fm.fito.oordeel | tl }}</span></div>
+              <div class="hint">{{ tl("Gemiddelde van 5 logit-herschaalde ratio's (0–1, hoger = gezonder)") }}</div>
             </div>
             <table class="ratio-tabel"><tbody>
-              {% for c in fm.fito.componenten %}<tr><td>{{ c.naam }}</td><td class="num waarde">{{ c.logit }}</td></tr>{% endfor %}
+              {% for c in fm.fito.componenten %}<tr><td>{{ c.naam | tl }}</td><td class="num waarde">{{ c.logit }}</td></tr>{% endfor %}
             </tbody></table>
-          {% else %}<p style="color:var(--muted)">Onvoldoende gegevens.</p>{% endif %}
+          {% else %}<p style="color:var(--muted)">{{ tl('Onvoldoende gegevens.') }}</p>{% endif %}
         </div>
       </div>
       <div style="margin-top:1.2rem">
         <h4 style="margin:.2rem 0 .5rem">OJD91 — Ooghe-Joos-De Vos (1991)</h4>
-        <p style="color:var(--muted); margin:0 0 .5rem">{{ fm.ojd91.reden }}</p>
+        <p style="color:var(--muted); margin:0 0 .5rem">{{ fm.ojd91.reden | tl }}</p>
         <div class="signalen">
-          {% for v in fm.ojd91.variabelen %}<span class="badge neutral" style="font-weight:500">{{ v }}</span>{% endfor %}
+          {% for v in fm.ojd91.variabelen %}<span class="badge neutral" style="font-weight:500">{{ v | tl }}</span>{% endfor %}
         </div>
       </div>
     </div>
@@ -537,60 +545,60 @@
     <div class="evenwicht {{ 'ok' if bt.kleur == 'ok' else ('err' if bt.kleur == 'err' else 'ok') }}"
          style="{% if bt.kleur == 'warn' %}background:var(--warn-bg);border:1px solid #f0dca8{% endif %}">
       <div>
-        <div class="big">{{ bt.oordeel }}</div>
-        <div class="nums">Indicatieve beoordeling — geen audit of forensisch onderzoek.</div>
+        <div class="big">{{ bt.oordeel | tl }}</div>
+        <div class="nums">{{ tl('Indicatieve beoordeling — geen audit of forensisch onderzoek.') }}</div>
       </div>
     </div>
 
     <div class="grid-2">
       <div class="card panel">
-        <h3>Commissaris / auditoroordeel</h3>
+        <h3>{{ tl('Commissaris / auditoroordeel') }}</h3>
         {% if bt.auditor and bt.auditor.oordeel %}
           <div class="kpi" style="margin-bottom:.8rem">
-            <div class="lab"><span class="badge {{ bt.auditor.kleur }}">{{ bt.auditor.oordeel }}</span></div>
-            <div class="hint">Automatisch gelezen uit het commissarisverslag in de PDF.</div>
+            <div class="lab"><span class="badge {{ bt.auditor.kleur }}">{{ bt.auditor.oordeel | tl }}</span></div>
+            <div class="hint">{{ tl('Automatisch gelezen uit het commissarisverslag in de PDF.') }}</div>
           </div>
           <div class="signalen">
-            {% if bt.auditor.emphasis %}<span class="badge warn">Toelichtende paragraaf (aandacht gevestigd)</span>{% endif %}
-            {% if bt.auditor.going_concern %}<span class="badge err">Onzekerheid over de continuïteit (going concern)</span>{% endif %}
-            {% if not bt.auditor.emphasis and not bt.auditor.going_concern %}<span class="badge ok">Geen bijzondere paragrafen gedetecteerd</span>{% endif %}
+            {% if bt.auditor.emphasis %}<span class="badge warn">{{ tl('Toelichtende paragraaf (aandacht gevestigd)') }}</span>{% endif %}
+            {% if bt.auditor.going_concern %}<span class="badge err">{{ tl('Onzekerheid over de continuïteit (going concern)') }}</span>{% endif %}
+            {% if not bt.auditor.emphasis and not bt.auditor.going_concern %}<span class="badge ok">{{ tl('Geen bijzondere paragrafen gedetecteerd') }}</span>{% endif %}
           </div>
         {% elif bt.heeft_commissaris %}
-          <p style="color:var(--muted)">Er is een commissaris, maar het verslag kon niet automatisch uit deze bron gelezen worden.</p>
+          <p style="color:var(--muted)">{{ tl('Er is een commissaris, maar het verslag kon niet automatisch uit deze bron gelezen worden.') }}</p>
         {% else %}
-          <p style="color:var(--muted)">Geen commissarisverslag gevonden. Dit is normaal voor kleine vennootschappen zonder wettelijke controleplicht, of wanneer de bron (CSV/JSON/XBRL) de tekst niet bevat.</p>
+          <p style="color:var(--muted)">{{ tl('Geen commissarisverslag gevonden. Dit is normaal voor kleine vennootschappen zonder wettelijke controleplicht, of wanneer de bron (CSV/JSON/XBRL) de tekst niet bevat.') }}</p>
         {% endif %}
       </div>
 
       <div class="card panel">
-        <h3>Beneish M-score <span class="count">— winstmanipulatie</span></h3>
+        <h3>Beneish M-score <span class="count">{{ tl('— winstmanipulatie') }}</span></h3>
         {% if bt.beneish %}
           <div class="kpi" style="margin-bottom:.7rem">
             <div class="val {{ bt.beneish.kleur }}" style="color:var(--{{ bt.beneish.kleur }})">{{ bt.beneish.score }}</div>
-            <div class="lab"><span class="badge {{ bt.beneish.kleur }}">{{ bt.beneish.oordeel }}</span></div>
-            <div class="hint">Drempel: M &gt; −1,78 wijst op verhoogde kans (benadering, 2 boekjaren).</div>
+            <div class="lab"><span class="badge {{ bt.beneish.kleur }}">{{ bt.beneish.oordeel | tl }}</span></div>
+            <div class="hint">{{ t('@beneish_hint')|safe }}</div>
           </div>
           <table class="ratio-tabel"><tbody>
-            {% for c in bt.beneish.componenten %}<tr><td>{{ c.naam }}</td><td class="num waarde">{{ c.waarde }}</td></tr>{% endfor %}
+            {% for c in bt.beneish.componenten %}<tr><td>{{ c.naam | tl }}</td><td class="num waarde">{{ c.waarde }}</td></tr>{% endfor %}
           </tbody></table>
         {% else %}
-          <p style="color:var(--muted)">Niet berekenbaar (vereist twee boekjaren en de omzet).</p>
+          <p style="color:var(--muted)">{{ tl('Niet berekenbaar (vereist twee boekjaren en de omzet).') }}</p>
         {% endif %}
       </div>
     </div>
 
     <div class="card panel" style="margin-top:1.3rem">
-      <h3>Indicatoren voor resultaatsturing</h3>
+      <h3>{{ tl('Indicatoren voor resultaatsturing') }}</h3>
       {% for i in bt.indicatoren %}
         <div class="check-row">
           <div class="check-icon {{ 'ok' if i.kleur=='ok' else ('fout' if i.kleur=='err' else 'overgeslagen') }}">
             {% if i.kleur=='ok' %}&checkmark;{% elif i.kleur=='err' %}&#9888;{% else %}!{% endif %}
           </div>
           <div>
-            <div class="check-naam">{{ i.tekst }}</div>
-            {% if i.uitleg %}<div class="check-detail">{{ i.uitleg }}</div>{% endif %}
+            <div class="check-naam">{{ i.tekst | tl }}</div>
+            {% if i.uitleg %}<div class="check-detail">{{ i.uitleg | tl }}</div>{% endif %}
           </div>
-          <div class="check-status"><span class="badge {{ i.kleur }}">{{ 'ok' if i.kleur=='ok' else ('aandacht' if i.kleur=='warn' else 'let op') }}</span></div>
+          <div class="check-status"><span class="badge {{ i.kleur }}">{{ 'ok' if i.kleur=='ok' else (tl('aandacht') if i.kleur=='warn' else tl('let op')) }}</span></div>
         </div>
       {% endfor %}
     </div>
@@ -599,11 +607,11 @@
   <!-- BESTUURDERS -->
   <section class="tab-panel" id="tab-bestuurders">
     <div class="card panel">
-      <h3>Bestuurders, zaakvoerders &amp; commissarissen <span class="count">— {{ analyse.bestuurders|length }}</span></h3>
+      <h3>{{ t('@bestuurders_titel')|safe }} <span class="count">— {{ analyse.bestuurders|length }}</span></h3>
       {% if analyse.bestuurders %}
         <table class="ratio-tabel">
           <thead>
-            <tr><th>Naam</th><th>Functie</th><th>Adres</th><th class="num">Mandaat</th></tr>
+            <tr><th>{{ tl('Naam') }}</th><th>{{ tl('Functie') }}</th><th>{{ tl('Adres') }}</th><th class="num">{{ tl('Mandaat') }}</th></tr>
           </thead>
           <tbody>
             {% for b in analyse.bestuurders %}
@@ -611,10 +619,10 @@
                 <td>
                   <div class="r-naam">
                     {% if b.vlag %}<span class="vlag" title="{{ b.land }}">{{ b.vlag }}</span>{% endif %}{{ b.naam }}
-                    {% if not b.actief %}<span class="badge err" style="margin-left:.4rem; font-size:.68rem">niet meer actief</span>{% endif %}
+                    {% if not b.actief %}<span class="badge err" style="margin-left:.4rem; font-size:.68rem">{{ tl('niet meer actief') }}</span>{% endif %}
                   </div>
                 </td>
-                <td>{{ b.functie }}</td>
+                <td>{{ b.functie | tl }}</td>
                 <td class="r-formule" style="font-size:.85rem">{{ b.adres }}</td>
                 <td class="num" style="white-space:nowrap">{{ b.mandaat_start }}{% if b.mandaat_einde %} → {{ b.mandaat_einde }}{% endif %}</td>
               </tr>
@@ -623,8 +631,7 @@
         </table>
       {% else %}
         <p style="color:var(--muted)">
-          Geen bestuurdersgegevens beschikbaar voor deze bron. Bestuurders worden gehaald uit
-          een PDF, JSON (jsonxbrl) of via het KBO-nummer; een CSV met enkel rubriekcodes bevat ze niet.
+          {{ tl('Geen bestuurdersgegevens beschikbaar voor deze bron. Bestuurders worden gehaald uit een PDF, JSON (jsonxbrl) of via het KBO-nummer; een CSV met enkel rubriekcodes bevat ze niet.') }}
         </p>
       {% endif %}
     </div>
@@ -633,11 +640,11 @@
   <!-- CONTROLE -->
   <section class="tab-panel" id="tab-controle">
     <div class="card panel" style="margin-bottom:1.3rem">
-      <h3>Balans</h3>
+      <h3>{{ tl('Balans') }}</h3>
       {% for c in analyse.controle.balans_checks %}{{ check_row(c) }}{% endfor %}
     </div>
     <div class="card panel">
-      <h3>Resultatenrekening</h3>
+      <h3>{{ tl('Resultatenrekening') }}</h3>
       {% for c in analyse.controle.rr_checks %}{{ check_row(c) }}{% endfor %}
     </div>
   </section>
@@ -646,9 +653,9 @@
 {% macro statement(rijen) %}
   <table class="statement">
     {% for r in rijen %}
-      <tr class="lvl-{{ r.niveau }}{% if r.is_sectie %} sectie{% endif %}{% if r.is_totaal %} totaal{% endif %}{% if r.is_leeg %} leeg{% endif %}">
+      <tr data-niveau="{{ r.niveau }}" class="lvl-{{ r.niveau }}{% if r.is_sectie %} sectie{% endif %}{% if r.is_totaal %} totaal{% endif %}{% if r.is_leeg %} leeg{% endif %}">
         <td class="code">{{ r.code }}</td>
-        <td class="rubriek" style="padding-left: {{ r.niveau * 18 + 8 }}px">{{ r.rubriek }}</td>
+        <td class="rubriek" style="padding-left: {{ r.niveau * 18 + 8 }}px"><span class="caret"></span>{{ r.rubriek | tl }}</td>
         <td class="toel">{{ r.toelichting }}</td>
         <td class="waarde{% if r.waarde is not none and r.waarde < 0 %} neg{% endif %}">
           {% if r.waarde is not none %}{{ r.waarde | bedrag }}{% endif %}
@@ -664,22 +671,22 @@
       {% if c.status == 'ok' %}&checkmark;{% elif c.status == 'fout' %}&#10007;{% else %}?{% endif %}
     </div>
     <div>
-      <div class="check-naam">{{ c.naam }}</div>
+      <div class="check-naam">{{ c.naam | tl }}</div>
       <div class="check-detail">
         {% if c.status == 'overgeslagen' %}
-          Niet te controleren — niet alle rubrieken zijn aanwezig in de CSV.
+          {{ tl('Niet te controleren — niet alle rubrieken zijn aanwezig in de CSV.') }}
         {% else %}
-          Aangegeven ({{ c.totaalcode }}): {{ c.verwacht | bedrag }} · berekend: {{ c.berekend | bedrag }}
+          {{ tl('Aangegeven') }} ({{ c.totaalcode }}): {{ c.verwacht | bedrag }} · {{ tl('berekend') }}: {{ c.berekend | bedrag }}
         {% endif %}
       </div>
     </div>
     <div class="check-status">
       {% if c.status == 'ok' %}
-        <span class="badge ok">Klopt</span>
+        <span class="badge ok">{{ tl('Klopt') }}</span>
       {% elif c.status == 'fout' %}
-        <span class="badge err">verschil {{ c.verschil | bedrag }}</span>
+        <span class="badge err">{{ tl('verschil') }} {{ c.verschil | bedrag }}</span>
       {% else %}
-        <span class="badge neutral">Overgeslagen</span>
+        <span class="badge neutral">{{ tl('Overgeslagen') }}</span>
       {% endif %}
     </div>
   </div>
@@ -695,5 +702,61 @@
     document.getElementById('tab-' + b.dataset.tab).classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }));
+
+  // Inklapbare rubrieken in balans / resultatenrekening
+  function initStatement(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    const tabel = panel.querySelector('table.statement');
+    if (!tabel) return;
+    const rijen = Array.from(tabel.rows);
+    const niveaus = rijen.map(tr => parseInt(tr.dataset.niveau, 10) || 0);
+
+    // Markeer rijen met onderliggende rubrieken (eerstvolgende rij heeft hoger niveau)
+    rijen.forEach((tr, i) => {
+      const kinderen = i + 1 < rijen.length && niveaus[i + 1] > niveaus[i];
+      if (kinderen) {
+        tr.classList.add('heeft-kinderen');
+        const cel = tr.querySelector('td.rubriek');
+        tr.addEventListener('click', (e) => {
+          if (e.target.tagName === 'A' || e.target.tagName === 'INPUT') return;
+          tr.classList.toggle('is-collapsed');
+          herbereken();
+        });
+      }
+    });
+
+    function herbereken() {
+      // Enkelvoudige walk: een collaps op niveau L verbergt alle volgende rijen met niveau > L
+      let actiefNiveau = Infinity;
+      rijen.forEach((tr, i) => {
+        const L = niveaus[i];
+        if (L > actiefNiveau) {
+          tr.classList.add('ingeklapt');
+        } else {
+          actiefNiveau = Infinity;
+          tr.classList.remove('ingeklapt');
+          if (tr.classList.contains('heeft-kinderen') && tr.classList.contains('is-collapsed')) {
+            actiefNiveau = L;
+          }
+        }
+      });
+    }
+
+    panel.querySelectorAll('[data-inklap]').forEach(btn => btn.addEventListener('click', () => {
+      // Klap alle rubrieken in, maar houd de wortel (niveau 0) open zodat de
+      // hoofdsecties zichtbaar blijven i.p.v. de hele tabel te verbergen.
+      rijen.forEach((tr, i) => { if (tr.classList.contains('heeft-kinderen') && niveaus[i] >= 1) tr.classList.add('is-collapsed'); });
+      herbereken();
+    }));
+    panel.querySelectorAll('[data-uitklap]').forEach(btn => btn.addEventListener('click', () => {
+      rijen.forEach(tr => tr.classList.remove('is-collapsed'));
+      herbereken();
+    }));
+
+    herbereken();
+  }
+  initStatement('balans-panel');
+  initStatement('rr-panel');
 </script>
 {% endblock %}
