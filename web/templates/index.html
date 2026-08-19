@@ -1,137 +1,248 @@
 {% extends "base.html" %}
-{% block title %}FAO — Upload je jaarrekening{% endblock %}
+{% block title %}Financiële Analyse van de Onderneming{% endblock %}
 
 {% block styles %}
+    /* ===== Hero ===== */
     .hero {
-      display: grid;
-      grid-template-columns: 1.15fr 1fr;
-      gap: 2rem;
-      align-items: stretch;
-      margin-bottom: 2rem;
+      position: relative; overflow: hidden;
+      border-radius: 26px;
+      padding: 3rem 2.4rem 2.6rem;
+      margin-bottom: 2.4rem;
+      color: #eafffd;
+      background:
+        radial-gradient(900px 420px at 88% -20%, rgba(44,204,196,.55), transparent 60%),
+        radial-gradient(700px 380px at -10% 120%, rgba(20,160,150,.45), transparent 60%),
+        linear-gradient(135deg, #0a5f5b 0%, #0c3f3d 55%, #08312f 100%);
+      box-shadow: 0 30px 70px rgba(8, 49, 47, .35);
     }
-    @media (max-width: 880px) { .hero { grid-template-columns: 1fr; } }
+    .hero::after {
+      content: ""; position: absolute; inset: 0;
+      background-image: radial-gradient(rgba(255,255,255,.06) 1px, transparent 1px);
+      background-size: 22px 22px; opacity: .5; pointer-events: none;
+    }
+    .hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: 1.05fr .95fr; gap: 2.2rem; align-items: center; }
+    @media (max-width: 920px) { .hero-grid { grid-template-columns: 1fr; } }
 
-    .hero-copy h1 {
-      font-size: 2.4rem;
-      line-height: 1.12;
-      margin: 0 0 0.8rem;
-      letter-spacing: -0.02em;
+    .hero .eyebrow {
+      display: inline-flex; align-items: center; gap: .5rem;
+      padding: .35rem .8rem; border-radius: 999px;
+      background: rgba(255,255,255,.12); border: 1px solid rgba(255,255,255,.2);
+      font-size: .8rem; font-weight: 600; letter-spacing: .04em; margin-bottom: 1.1rem;
     }
-    .hero-copy h1 .accent { color: var(--accent-700); }
-    .hero-copy p.lead {
-      font-size: 1.08rem;
-      color: var(--muted);
-      margin: 0 0 1.3rem;
-      max-width: 46ch;
+    .hero h1 { font-size: 2.9rem; line-height: 1.08; margin: 0 0 1rem; letter-spacing: -0.03em; font-weight: 800; }
+    .hero h1 .grad {
+      background: linear-gradient(90deg, #7ff5ee, #d6fffb);
+      -webkit-background-clip: text; background-clip: text; color: transparent;
     }
-    .feature-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 0.6rem; }
-    .feature-list li { display: flex; align-items: flex-start; gap: 0.6rem; }
-    .feature-list .tick {
-      flex: none; width: 22px; height: 22px; border-radius: 999px;
-      background: var(--accent-050); color: var(--accent-700);
-      display: grid; place-items: center; font-weight: 700; font-size: 0.8rem; margin-top: 2px;
+    .hero p.lead { font-size: 1.12rem; color: #c7ece9; max-width: 48ch; margin: 0 0 1.5rem; }
+    .hero-pills { display: flex; flex-wrap: wrap; gap: .5rem; margin-bottom: 1.6rem; }
+    .hero-pills span {
+      font-size: .82rem; font-weight: 600; padding: .34rem .7rem; border-radius: 8px;
+      background: rgba(255,255,255,.1); border: 1px solid rgba(255,255,255,.16); color: #dffdfa;
     }
+    .hero-cta { display: flex; gap: .7rem; flex-wrap: wrap; }
+    .btn-ghost {
+      display: inline-flex; align-items: center; gap: .5rem; padding: .7rem 1.2rem; border-radius: 10px;
+      background: rgba(255,255,255,.12); color: #eafffd; border: 1px solid rgba(255,255,255,.25);
+      font-family: var(--font); font-weight: 600; cursor: pointer; font-size: .95rem;
+    }
+    .btn-ghost:hover { background: rgba(255,255,255,.2); text-decoration: none; }
+    .btn-white { background: #fff; color: var(--accent-800); border: none; }
+    .btn-white:hover { background: #eafffd; }
 
-    /* Upload card */
-    .upload-card { padding: 1.6rem; display: flex; flex-direction: column; }
-    .upload-card h2 { margin: 0 0 0.3rem; font-size: 1.2rem; }
-    .upload-card .sub { color: var(--muted); font-size: 0.92rem; margin: 0 0 1.1rem; }
-
+    /* Action cards inside hero */
+    .action-stack { display: grid; gap: 1rem; }
+    .glass {
+      background: rgba(255,255,255,.97); border-radius: 16px; padding: 1.3rem 1.4rem;
+      box-shadow: 0 18px 40px rgba(6, 40, 38, .3); color: var(--ink);
+    }
+    .glass h2 { margin: 0 0 .25rem; font-size: 1.08rem; }
+    .glass .sub { color: var(--muted); font-size: .88rem; margin: 0 0 .9rem; }
     .dropzone {
-      border: 2px dashed var(--accent-200);
-      border-radius: 14px;
-      background: var(--accent-050);
-      padding: 1.8rem 1.2rem;
-      text-align: center;
-      cursor: pointer;
-      transition: border-color .15s ease, background .15s ease;
+      border: 2px dashed var(--accent-200); border-radius: 12px; background: var(--accent-050);
+      padding: 1.2rem 1rem; text-align: center; cursor: pointer; transition: border-color .15s, background .15s;
     }
-    .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: #ffffff; }
-    .dropzone .icon { font-size: 2rem; }
-    .dropzone .big { font-weight: 600; margin: 0.4rem 0 0.15rem; }
-    .dropzone .small { color: var(--muted); font-size: 0.85rem; }
-    .dropzone .chosen { margin-top: 0.7rem; font-weight: 600; color: var(--accent-700); word-break: break-all; }
+    .dropzone:hover, .dropzone.drag { border-color: var(--accent); background: #fff; }
+    .dropzone .icon { font-size: 1.6rem; }
+    .dropzone .big { font-weight: 600; margin: .35rem 0 .1rem; font-size: .95rem; }
+    .dropzone .small { color: var(--muted); font-size: .8rem; }
+    .dropzone .chosen { margin-top: .6rem; font-weight: 600; color: var(--accent-700); word-break: break-all; font-size: .85rem; }
     input[type="file"] { display: none; }
-
-    .upload-actions { margin-top: 1.1rem; display: flex; justify-content: flex-end; }
-
-    /* KBO fetch */
-    .fetch-card { padding: 1.5rem 1.7rem; margin-bottom: 2rem; }
-    .fetch-card h2 { margin: 0 0 0.3rem; font-size: 1.25rem; }
-    .fetch-card .sub { color: var(--muted); margin: 0 0 1.1rem; max-width: 70ch; }
-    .fetch-row { display: flex; gap: 0.7rem; flex-wrap: wrap; }
+    .row-actions { margin-top: .9rem; display: flex; justify-content: flex-end; }
+    .fetch-row { display: flex; gap: .6rem; flex-wrap: wrap; }
     .fetch-row input[type="text"] {
-      flex: 1 1 260px; padding: 0.75rem 1rem; border-radius: 999px;
-      border: 1px solid var(--accent-200); font-family: var(--font); font-size: 1rem;
-      background: var(--accent-050); color: var(--ink);
+      flex: 1 1 200px; padding: .7rem .9rem; border-radius: 10px;
+      border: 1px solid var(--line-strong); font-family: var(--font); font-size: .95rem; background: var(--bg-soft); color: var(--ink);
     }
     .fetch-row input[type="text"]:focus { outline: none; border-color: var(--accent); background: #fff; }
-    .fetch-note { color: var(--muted); font-size: 0.82rem; margin-top: 0.7rem; }
+    .mini-note { color: var(--muted); font-size: .76rem; margin: .7rem 0 0; }
 
-    .flash {
-      margin-bottom: 1.5rem; padding: 0.9rem 1.1rem; border-radius: 12px;
-      background: var(--err-bg); color: var(--err); font-weight: 500;
-      border: 1px solid #f3c4c9;
+    /* ===== Section heading ===== */
+    .sec-head { text-align: center; max-width: 62ch; margin: 0 auto 1.6rem; }
+    .sec-head .kicker { color: var(--accent-700); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; font-size: .78rem; }
+    .sec-head h2 { font-size: 1.9rem; margin: .35rem 0 .5rem; letter-spacing: -0.02em; }
+    .sec-head p { color: var(--muted); margin: 0; }
+
+    /* ===== Feature grid ===== */
+    .features { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.1rem; margin-bottom: 3rem; }
+    @media (max-width: 900px) { .features { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 620px) { .features { grid-template-columns: 1fr; } }
+    .feature {
+      padding: 1.4rem; border-radius: 16px; background: var(--card); border: 1px solid var(--line);
+      box-shadow: var(--shadow-sm); transition: transform .12s ease, box-shadow .12s ease, border-color .12s;
     }
+    .feature:hover { transform: translateY(-4px); box-shadow: var(--shadow); border-color: var(--accent-200); }
+    .feature .ic {
+      width: 46px; height: 46px; border-radius: 12px; display: grid; place-items: center; font-size: 1.35rem;
+      background: linear-gradient(140deg, var(--accent-050), var(--accent-100)); margin-bottom: .9rem;
+      border: 1px solid var(--accent-100);
+    }
+    .feature h3 { margin: 0 0 .35rem; font-size: 1.08rem; }
+    .feature p { margin: 0; color: var(--muted); font-size: .92rem; line-height: 1.5; }
+
+    /* ===== Steps ===== */
+    .steps-wrap { background: var(--bg-soft); border: 1px solid var(--line); border-radius: 20px; padding: 2rem; margin-bottom: 3rem; }
+    .steps { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.4rem; }
+    @media (max-width: 760px) { .steps { grid-template-columns: 1fr; } }
+    .step { display: flex; gap: .9rem; }
+    .step .num {
+      flex: none; width: 38px; height: 38px; border-radius: 10px; display: grid; place-items: center;
+      font-weight: 800; color: #fff; background: linear-gradient(140deg, var(--accent), var(--accent-800));
+    }
+    .step h4 { margin: .15rem 0 .25rem; font-size: 1.02rem; }
+    .step p { margin: 0; color: var(--muted); font-size: .9rem; }
+
+    /* ===== Formats strip ===== */
+    .formats { display: flex; flex-wrap: wrap; gap: .6rem; justify-content: center; margin-bottom: 2.5rem; }
+    .formats .chip {
+      display: inline-flex; align-items: center; gap: .45rem; padding: .5rem .9rem; border-radius: 999px;
+      background: var(--card); border: 1px solid var(--line); font-weight: 600; font-size: .9rem; color: var(--ink-soft);
+    }
+    .formats .chip b { color: var(--accent-700); }
+
+    /* ===== Bottom CTA ===== */
+    .cta {
+      text-align: center; border-radius: 22px; padding: 2.4rem 1.5rem;
+      background: linear-gradient(135deg, var(--accent-700), var(--accent-800)); color: #eafffd;
+      box-shadow: 0 22px 50px rgba(8,49,47,.3);
+    }
+    .cta h2 { font-size: 1.7rem; margin: 0 0 .5rem; }
+    .cta p { color: #c7ece9; margin: 0 0 1.3rem; }
+
+    .flash { margin-bottom: 1.5rem; padding: .9rem 1.1rem; border-radius: 12px; background: var(--err-bg); color: var(--err); font-weight: 500; border: 1px solid #f3c4c9; }
+
+    /* entrance animation */
+    .reveal { opacity: 0; transform: translateY(14px); animation: rise .6s ease forwards; }
+    .reveal.d1 { animation-delay: .05s; } .reveal.d2 { animation-delay: .12s; } .reveal.d3 { animation-delay: .2s; }
+    @keyframes rise { to { opacity: 1; transform: none; } }
+    @media (prefers-reduced-motion: reduce) { .reveal { animation: none; opacity: 1; transform: none; } }
 {% endblock %}
 
 {% block content %}
   {% with messages = get_flashed_messages() %}
-    {% if messages %}
-      {% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}
-    {% endif %}
+    {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
   {% endwith %}
 
-  <section class="hero">
-    <div class="hero-copy">
-      <h1>Van ruwe CSV naar een <span class="accent">leesbare jaarrekening</span>.</h1>
-      <p class="lead">
-        Upload de CSV van een Belgische jaarrekening en FAO maakt automatisch de
-        balans en de resultatenrekening op — volledig volgens de wettelijke structuur —
-        en controleert meteen of alles klopt.
-      </p>
-      <ul class="feature-list">
-        <li><span class="tick">&checkmark;</span> Balans &amp; resultatenrekening netjes gestructureerd</li>
-        <li><span class="tick">&checkmark;</span> Automatische conformiteitscontrole (o.a. balans in evenwicht)</li>
-        <li><span class="tick">&checkmark;</span> Ratio's met sectorvergelijking en kerncijfers</li>
-      </ul>
-    </div>
-
-    <form class="card upload-card" id="uploaden" method="post"
-          action="{{ url_for('analyse') }}" enctype="multipart/form-data">
-      <h2>Upload een jaarrekening</h2>
-      <p class="sub">CSV, JSON (jsonxbrl) of PDF van de Nationale Bank van België.</p>
-
-      <label class="dropzone" id="dropzone" for="bestand">
-        <div class="icon">&#128228;</div>
-        <p class="big">Sleep je bestand hierheen of klik om te kiezen</p>
-        <p class="small">.csv · .json · .pdf — max. 5&nbsp;MB</p>
-        <p class="chosen" id="chosen" hidden></p>
-      </label>
-      <input type="file" id="bestand" name="bestand" accept=".csv,.json,.pdf,.xbrl,.xml">
-
-      <div class="upload-actions">
-        <button type="submit" class="btn">Analyseer &rarr;</button>
+  <!-- HERO -->
+  <section class="hero reveal">
+    <div class="hero-grid">
+      <div>
+        <span class="eyebrow">&#9889; NBB-jaarrekeningen, meteen leesbaar</span>
+        <h1>Doorgrond elke <span class="grad">Belgische jaarrekening</span> in seconden.</h1>
+        <p class="lead">
+          Upload een CSV, JSON of PDF — of vul gewoon een KBO-nummer in. Je krijgt de balans en
+          resultatenrekening volgens de wettelijke structuur, ratio's met sectorvergelijking,
+          een gezondheidsbarometer, bestuurders en vergelijkingen over de jaren.
+        </p>
+        <div class="hero-pills">
+          <span>Balans &amp; resultatenrekening</span>
+          <span>Ratio's + sector</span>
+          <span>Gezondheidsbarometer</span>
+          <span>Bestuurders</span>
+          <span>Vergelijken</span>
+        </div>
+        <div class="hero-cta">
+          <a class="btn-ghost btn-white" href="#uploaden">Upload een jaarrekening</a>
+          <a class="btn-ghost" href="#kbo">Zoek op KBO-nummer</a>
+          <a class="btn-ghost" href="{{ url_for('vergelijk') }}">Vergelijk bedrijven</a>
+        </div>
       </div>
-    </form>
+
+      <div class="action-stack">
+        <form class="glass" id="uploaden" method="post" action="{{ url_for('analyse') }}" enctype="multipart/form-data">
+          <h2>Upload een jaarrekening</h2>
+          <p class="sub">CSV, JSON (jsonxbrl) of PDF van de NBB.</p>
+          <label class="dropzone" id="dropzone" for="bestand">
+            <div class="icon">&#128228;</div>
+            <p class="big">Sleep hierheen of klik om te kiezen</p>
+            <p class="small">.csv · .json · .pdf — max. 5&nbsp;MB</p>
+            <p class="chosen" id="chosen" hidden></p>
+          </label>
+          <input type="file" id="bestand" name="bestand" accept=".csv,.json,.pdf,.xbrl,.xml">
+          <div class="row-actions"><button type="submit" class="btn">Analyseer &rarr;</button></div>
+        </form>
+
+        <form class="glass" id="kbo" method="post" action="{{ url_for('fetch') }}">
+          <h2>Of via KBO-/BTW-nummer</h2>
+          <p class="sub">Recentste neerlegging rechtstreeks van de NBB Balanscentrale.</p>
+          <div class="fetch-row">
+            <input type="text" name="kbo" placeholder="bv. 0403.101.811" autocomplete="off">
+            <button type="submit" class="btn">Ophalen &rarr;</button>
+          </div>
+          <p class="mini-note">Gratis NBB-webservice; vereist eenmalig een sleutel (<code>NBB_CBSO_SUBSCRIPTION_KEY</code>).</p>
+        </form>
+      </div>
+    </div>
   </section>
 
-  <section class="card fetch-card">
-    <h2>Of haal automatisch op via KBO-/BTW-nummer</h2>
-    <p class="sub">
-      Vul een ondernemingsnummer in en FAO haalt de recentste neergelegde jaarrekening
-      rechtstreeks op bij de Balanscentrale van de Nationale Bank van België.
-    </p>
-    <form class="fetch-row" method="post" action="{{ url_for('fetch') }}">
-      <input type="text" name="kbo" placeholder="bv. 0403.101.811 of BE0403101811" autocomplete="off">
-      <button type="submit" class="btn">Ophalen &amp; analyseren &rarr;</button>
-    </form>
-    <p class="fetch-note">
-      Maakt gebruik van de gratis NBB-webservice "Authentic Data Query". Dit vereist eenmalig
-      een gratis abonnementssleutel (registratie op developer.cbso.nbb.be), in te stellen als
-      omgevingsvariabele <code>NBB_CBSO_SUBSCRIPTION_KEY</code>. Enkel publiceerbare jaarrekeningen
-      (XBRL-neerleggingen vanaf 2022) zijn zo beschikbaar.
-    </p>
+  <!-- FEATURES -->
+  <div class="sec-head reveal d1">
+    <div class="kicker">Alles-in-één</div>
+    <h2>Wat je met de tool kan doen</h2>
+    <p>Van ruwe neerlegging tot een volledig financieel beeld — automatisch en volgens de wettelijke structuur.</p>
+  </div>
+
+  <section class="features reveal d1">
+    <div class="feature"><div class="ic">&#128202;</div><h3>Balans &amp; resultatenrekening</h3><p>Automatisch opgemaakt volgens de wettelijke NBB-structuur, met codes, toelichtingen en nette bedragen.</p></div>
+    <div class="feature"><div class="ic">&#9878;&#65039;</div><h3>Conformiteitscontrole</h3><p>Controleert het balansevenwicht en de belangrijkste wettelijke optelsommen, en flagt afwijkingen.</p></div>
+    <div class="feature"><div class="ic">&#128200;</div><h3>Ratio's &amp; sectorvergelijking</h3><p>Toegevoegde waarde, rendabiliteit, solvabiliteit en liquiditeit, afgezet tegen NBB-sectorkwartielen.</p></div>
+    <div class="feature"><div class="ic">&#129658;</div><h3>Gezondheidsbarometer</h3><p>Score /100, Altman Z''-score en gezondheidskwadrant, met signalen en een indicatieve kredietrichtlijn.</p></div>
+    <div class="feature"><div class="ic">&#128101;</div><h3>Bestuurders</h3><p>Namen, functies, adres en mandaat — mét landvlag en inactieve mandaten duidelijk gemarkeerd.</p></div>
+    <div class="feature"><div class="ic">&#128260;</div><h3>Vergelijken &amp; trends</h3><p>Meerdere boekjaren of ondernemingen naast elkaar, met grafieken en een gunstig/ongunstig-oordeel.</p></div>
+    <div class="feature"><div class="ic">&#128228;</div><h3>Meerdere bronnen</h3><p>CSV, JSON (jsonxbrl) en PDF (NL &amp; FR), of automatisch ophalen via het KBO-/BTW-nummer.</p></div>
+    <div class="feature"><div class="ic">&#128269;</div><h3>Identificatie &amp; kerncijfers</h3><p>Bedrijfsfiche met KBO-nummer, rechtsvorm, boekjaar en personeel, plus de kerncijfers in één oogopslag.</p></div>
+    <div class="feature"><div class="ic">&#9888;&#65039;</div><h3>Signalen</h3><p>Duidelijke waarschuwingen zoals verlies, negatief eigen vermogen of zwakke liquiditeit.</p></div>
+  </section>
+
+  <!-- HOW IT WORKS -->
+  <div class="steps-wrap reveal d2">
+    <div class="sec-head" style="margin-bottom:1.4rem">
+      <div class="kicker">Zo werkt het</div>
+      <h2>In drie stappen naar inzicht</h2>
+    </div>
+    <div class="steps">
+      <div class="step"><div class="num">1</div><div><h4>Kies je bron</h4><p>Upload een CSV/JSON/PDF of vul een KBO-nummer in.</p></div></div>
+      <div class="step"><div class="num">2</div><div><h4>FAO analyseert</h4><p>De jaarrekening wordt opgemaakt, gecontroleerd en doorgerekend.</p></div></div>
+      <div class="step"><div class="num">3</div><div><h4>Bekijk het inzicht</h4><p>Balans, ratio's, risico, bestuurders en vergelijkingen — meteen.</p></div></div>
+    </div>
+  </div>
+
+  <!-- FORMATS -->
+  <div class="formats reveal d2">
+    <span class="chip"><b>CSV</b> NBB-export</span>
+    <span class="chip"><b>JSON</b> jsonxbrl</span>
+    <span class="chip"><b>PDF</b> NL &amp; FR</span>
+    <span class="chip"><b>KBO/BTW</b> automatisch ophalen</span>
+  </div>
+
+  <!-- BOTTOM CTA -->
+  <section class="cta reveal d3">
+    <h2>Klaar om een jaarrekening te doorgronden?</h2>
+    <p>Sleep je bestand hierboven, of vergelijk meteen meerdere boekjaren en bedrijven.</p>
+    <div style="display:flex; gap:.7rem; justify-content:center; flex-wrap:wrap">
+      <a class="btn-ghost btn-white" href="#uploaden">Start een analyse</a>
+      <a class="btn-ghost" href="{{ url_for('vergelijk') }}">Naar vergelijken</a>
+    </div>
   </section>
 {% endblock %}
 
@@ -140,22 +251,13 @@
   const input = document.getElementById('bestand');
   const zone = document.getElementById('dropzone');
   const chosen = document.getElementById('chosen');
-
   function toon(naam) {
     if (naam) { chosen.textContent = 'Gekozen: ' + naam; chosen.hidden = false; }
     else { chosen.hidden = true; }
   }
   input.addEventListener('change', () => toon(input.files.length ? input.files[0].name : ''));
-
-  ['dragenter', 'dragover'].forEach(ev =>
-    zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('drag'); }));
-  ['dragleave', 'drop'].forEach(ev =>
-    zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('drag'); }));
-  zone.addEventListener('drop', e => {
-    if (e.dataTransfer.files.length) {
-      input.files = e.dataTransfer.files;
-      toon(input.files[0].name);
-    }
-  });
+  ['dragenter', 'dragover'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.add('drag'); }));
+  ['dragleave', 'drop'].forEach(ev => zone.addEventListener(ev, e => { e.preventDefault(); zone.classList.remove('drag'); }));
+  zone.addEventListener('drop', e => { if (e.dataTransfer.files.length) { input.files = e.dataTransfer.files; toon(input.files[0].name); } });
 </script>
 {% endblock %}
