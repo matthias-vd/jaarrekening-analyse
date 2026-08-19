@@ -95,4 +95,57 @@ def bereken_risico(data):
     if altman is not None or kwadrant is not None:
         gunstig = (altman is None or altman["kleur"] == "ok") and (kwadrant is None or kwadrant["kleur"] == "ok")
 
-    return {"altman": altman, "kwadrant": kwadrant, "gunstig": gunstig}
+    # --- Gezondheidsbarometer (0–100) ----------------------------------
+    solvabiliteit = _deel(ev, tp)  # EV/TV
+    rendabiliteit = _deel(res_na_bel, ev) if (ev and ev > 0) else None  # netto rend. EV
+    barometer = None
+    if solvabiliteit is not None and current_ratio is not None:
+        solv_pt = max(0.0, min(40.0, solvabiliteit * 100))            # 40% EV -> 40 pt
+        liq_pt = max(0.0, min(30.0, current_ratio * 15))              # current ratio 2 -> 30 pt
+        if rendabiliteit is None:
+            rend_pt = 0.0
+        else:
+            rend_pt = max(0.0, min(30.0, (rendabiliteit * 100) / 15 * 30))  # 15% rend. EV -> 30 pt
+        score = round(solv_pt + liq_pt + rend_pt)
+        if score >= 70:
+            kleur, label = "ok", "Financieel gezond (laag risico)"
+        elif score >= 45:
+            kleur, label = "warn", "Aandacht (matig risico)"
+        else:
+            kleur, label = "err", "Verhoogd risico"
+        barometer = {"score": score, "kleur": kleur, "label": label}
+
+    # --- Signalen ------------------------------------------------------
+    signalen = []
+    activa = lees_waarde(data, "20/58")
+    passiva = lees_waarde(data, "10/49")
+    overgedragen = lees_waarde(data, "14")
+    if activa is not None and passiva is not None and abs(activa - passiva) > 1:
+        signalen.append({"tekst": "Balans niet in evenwicht", "kleur": "err"})
+    if ev is not None and ev < 0:
+        signalen.append({"tekst": "Negatief eigen vermogen", "kleur": "err"})
+    if res_na_bel is not None and res_na_bel < 0:
+        signalen.append({"tekst": "Verlies van het boekjaar", "kleur": "warn"})
+    if overgedragen is not None and overgedragen < 0:
+        signalen.append({"tekst": "Overgedragen verlies", "kleur": "warn"})
+    if current_ratio is not None and current_ratio < 1:
+        signalen.append({"tekst": "Zwakke liquiditeit (current ratio < 1)", "kleur": "warn"})
+    if solvabiliteit is not None and solvabiliteit < 0.20:
+        signalen.append({"tekst": "Lage solvabiliteit (eigen vermogen < 20%)", "kleur": "warn"})
+    if not signalen:
+        signalen.append({"tekst": "Geen bijzondere signalen gedetecteerd", "kleur": "ok"})
+
+    # --- Indicatieve kredietrichtlijn ----------------------------------
+    kredietlimiet = None
+    if ev is not None and ev > 0 and barometer is not None:
+        ruw = 0.30 * ev * (barometer["score"] / 100.0)
+        kredietlimiet = max(0, round(ruw / 1000.0) * 1000)
+
+    return {
+        "altman": altman,
+        "kwadrant": kwadrant,
+        "gunstig": gunstig,
+        "barometer": barometer,
+        "signalen": signalen,
+        "kredietlimiet": kredietlimiet,
+    }
