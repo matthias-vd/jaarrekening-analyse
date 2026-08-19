@@ -140,6 +140,7 @@
     <button class="tab-btn active" data-tab="overzicht">Overzicht</button>
     <button class="tab-btn" data-tab="balans">Balans</button>
     <button class="tab-btn" data-tab="rr">Resultatenrekening</button>
+    {% if analyse.kasstroom %}<button class="tab-btn" data-tab="kasstromen">Kasstromen</button>{% endif %}
     <button class="tab-btn" data-tab="ratios">Ratio's</button>
     <button class="tab-btn" data-tab="risico">Risico</button>
     <button class="tab-btn" data-tab="bestuurders">Bestuurders</button>
@@ -270,8 +271,64 @@
     </div>
   </section>
 
+  <!-- KASSTROMEN -->
+  {% if analyse.kasstroom %}
+  <section class="tab-panel" id="tab-kasstromen">
+    <div class="card panel">
+      <h3>Kasstromenoverzicht <span class="count">— {{ analyse.boekjaar }}</span></h3>
+      <p style="color:var(--muted); margin:0 0 1rem">
+        Vereenvoudigd herwerkt kasstromenoverzicht, afgeleid uit het huidige en vorige boekjaar.
+        <strong>Benadering</strong>: de exacte niet-kaskosten en enkele financieringslijnen vergen
+        toelichtingsdata die niet altijd beschikbaar is.
+      </p>
+      <table class="statement">
+        {% for l in analyse.kasstroom.lijnen %}
+          <tr class="{{ 'totaal' if l.subtotaal }}">
+            <td class="rubriek">{{ l.label }}</td>
+            <td class="waarde{% if l.waarde < 0 %} neg{% endif %}">{{ l.waarde | bedrag }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+      <div class="evenwicht {{ 'ok' if analyse.kasstroom.reconcilieert else 'warn' }}" style="margin-top:1rem">
+        <div>
+          <div class="big">
+            {% if analyse.kasstroom.reconcilieert %}&checkmark; Sluit aan op de werkelijke kasmutatie{% else %}&#9888; Benadering — sluit niet exact aan{% endif %}
+          </div>
+          <div class="nums">
+            Werkelijke mutatie liquide middelen + geldbeleggingen: {{ analyse.kasstroom.controle | bedrag }} {{ analyse.munt }}
+            · verschil met berekening: {{ analyse.kasstroom.verschil | bedrag }}
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+  {% endif %}
+
   <!-- RATIO'S -->
   <section class="tab-panel" id="tab-ratios">
+    {% if analyse.evolutie %}
+    <div class="card panel" style="margin-bottom:1.3rem">
+      <h3>Evolutie t.o.v. vorig boekjaar
+        <span class="count">— {{ analyse.evolutie.aantal_gunstig }} gunstig · {{ analyse.evolutie.aantal_ongunstig }} ongunstig</span>
+      </h3>
+      {% for groep in analyse.evolutie.groepen %}
+        <h4 style="margin:.9rem 0 .3rem">{{ groep.naam }}</h4>
+        <table class="ratio-tabel">
+          <thead><tr><th>Ratio</th><th class="num">Huidig</th><th class="num">Vorig</th><th class="pos">Evolutie</th></tr></thead>
+          <tbody>
+            {% for r in groep.ratios %}
+              <tr>
+                <td>{{ r.naam }}</td>
+                <td class="num waarde">{% if r.huidig is not none %}{{ r.huidig | ratiowaarde(r.eenheid, analyse.munt) }}{% else %}—{% endif %}</td>
+                <td class="num sector">{% if r.vorig is not none %}{{ r.vorig | ratiowaarde(r.eenheid, analyse.munt) }}{% else %}—{% endif %}</td>
+                <td class="pos"><span class="badge {{ r.oordeel.kleur }}">{{ r.oordeel.tekst }}</span></td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% endfor %}
+    </div>
+    {% endif %}
     <div class="card panel sector-uitleg" style="margin-bottom:1.3rem">
       <h3>Ratioanalyse &amp; sectorvergelijking</h3>
       <p style="margin:0 0 .6rem; color:var(--muted)">
