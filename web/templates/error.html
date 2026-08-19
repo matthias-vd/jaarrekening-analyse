@@ -1,5 +1,7 @@
 {% extends "base.html" %}
 {% block title %}{{ t('@title_error') }}{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block canonical %}{% endblock %}
 
 {% block styles %}
     .error-wrap { display: grid; place-items: center; padding: 3rem 0; text-align: center; }

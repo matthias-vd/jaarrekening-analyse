@@ -76,6 +76,19 @@ def t(sleutel, taal="nl", **kw):
 # Nederlandse brontekst voor synthetische (@-)sleutels: gebruikt bij taal == nl
 # en als terugval. HTML/opmaak wordt hier bewust behouden.
 SYNTH_NL = {
+    "@meta_home": (
+        "Analyseer gratis elke Belgische jaarrekening (NBB): balans en resultatenrekening volgens de "
+        "wettelijke structuur, ratio's met sectorvergelijking, gezondheidsbarometer, bestuurders en "
+        "meerjarenvergelijking. Upload CSV, JSON of PDF, of zoek op KBO-/BTW-nummer."
+    ),
+    "@meta_vergelijk": (
+        "Vergelijk meerdere Belgische jaarrekeningen naast elkaar of over de jaren heen: kerncijfers, "
+        "ratio's en grafieken met een gunstig/ongunstig-oordeel."
+    ),
+    "@meta_result": (
+        "Financiële analyse van de jaarrekening: balans, resultatenrekening, ratio's, "
+        "risico en betrouwbaarheid."
+    ),
     "@title_default": "FAO — Financiële Analyse van de Onderneming",
     "@title_vergelijk": "Vergelijken — Financiële Analyse van de Onderneming",
     "@title_error": "Pagina niet gevonden — FAO",
@@ -174,6 +187,24 @@ VERT = {
     "Zonsondergang": ("Coucher de soleil", "Sunset"),
     "Koninklijk": ("Royal", "Royal"),
     "Analyse": ("Analyse", "Analysis"),
+    "@meta_home": (
+        "Analysez gratuitement tout compte annuel belge (BNB) : bilan et compte de résultats selon la "
+        "structure légale, ratios avec comparaison sectorielle, baromètre de santé, administrateurs et "
+        "comparaison pluriannuelle. Importez CSV, JSON ou PDF, ou recherchez par numéro BCE/TVA.",
+        "Freely analyse any Belgian annual account (NBB): balance sheet and income statement in the legal "
+        "structure, ratios with sector comparison, health barometer, directors and multi-year comparison. "
+        "Upload CSV, JSON or PDF, or search by CBE/VAT number.",
+    ),
+    "@meta_vergelijk": (
+        "Comparez plusieurs comptes annuels belges côte à côte ou dans le temps : chiffres clés, ratios "
+        "et graphiques avec un verdict favorable/défavorable.",
+        "Compare multiple Belgian annual accounts side by side or over time: key figures, ratios and "
+        "charts with a favourable/unfavourable verdict.",
+    ),
+    "@meta_result": (
+        "Analyse financière des comptes annuels : bilan, compte de résultats, ratios, risque et fiabilité.",
+        "Financial analysis of the annual accounts: balance sheet, income statement, ratios, risk and reliability.",
+    ),
     "@title_default": ("FAO — Analyse financière de l'entreprise", "FAO — Financial Analysis of the Company"),
     "@title_vergelijk": ("Comparer — Analyse financière de l'entreprise", "Compare — Financial Analysis of the Company"),
     "@title_error": ("Page introuvable — FAO", "Page not found — FAO"),

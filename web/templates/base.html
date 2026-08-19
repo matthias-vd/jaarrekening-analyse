@@ -5,6 +5,32 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>{% block title %}{{ t('@title_default') }}{% endblock %}</title>
 
+  <meta name="description" content="{% block meta_description %}{{ t('@meta_home') }}{% endblock %}">
+  <meta name="robots" content="{% block robots %}index, follow{% endblock %}">
+  <meta name="author" content="Winter van den Bulck &amp; Matthias Van Duysen">
+  <meta name="theme-color" content="#2CCCC4">
+  <link rel="icon" type="image/svg+xml" href="{{ url_for('favicon') }}">
+  {% block canonical %}
+  <link rel="canonical" href="{{ seo.canonical }}">
+  {% for code, href in seo.alternates.items() %}<link rel="alternate" hreflang="{{ code }}" href="{{ href }}">
+  {% endfor %}<link rel="alternate" hreflang="x-default" href="{{ seo.x_default }}">
+  {% endblock %}
+
+  <!-- Open Graph / Twitter -->
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="FAO">
+  <meta property="og:title" content="{{ self.title() }}">
+  <meta property="og:description" content="{{ self.meta_description() }}">
+  <meta property="og:url" content="{{ seo.canonical }}">
+  <meta property="og:locale" content="{{ seo.og_locale }}">
+  {% for loc in seo.og_locale_alt %}<meta property="og:locale:alternate" content="{{ loc }}">
+  {% endfor %}<meta property="og:image" content="{{ seo.image }}">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="{{ self.title() }}">
+  <meta name="twitter:description" content="{{ self.meta_description() }}">
+  <meta name="twitter:image" content="{{ seo.image }}">
+  {% if structured_data %}<script type="application/ld+json">{{ structured_data | tojson }}</script>{% endif %}
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">

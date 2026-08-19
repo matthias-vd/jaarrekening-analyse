@@ -1,5 +1,8 @@
 {% extends "base.html" %}
 {% block title %}{{ analyse.bedrijfsnaam | tl }} — {{ tl('Analyse') }}{% endblock %}
+{% block meta_description %}{{ t('@meta_result') }}{% endblock %}
+{% block robots %}noindex, follow{% endblock %}
+{% block canonical %}{% endblock %}
 
 {% block styles %}
     .result-head {

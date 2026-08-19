@@ -2,6 +2,7 @@ import os
 
 from flask import (
     Flask,
+    Response,
     flash,
     g,
     redirect,
@@ -24,12 +25,71 @@ app.secret_key = os.environ.get("FAO_SECRET_KEY", "fao-jaarrekening-analyse-dev"
 app.config["MAX_CONTENT_LENGTH"] = 5 * 1024 * 1024  # 5 MB
 
 
+# Open Graph-locales per taal (voor social sharing / SEO).
+OG_LOCALE = {"nl": "nl_BE", "fr": "fr_BE", "en": "en_GB"}
+# Pagina's die geïndexeerd mogen worden, met hun meta-description-sleutel.
+INDEXEERBAAR = {"index": "@meta_home", "vergelijk": "@meta_vergelijk"}
+
+
 @app.before_request
 def _bepaal_taal():
-    """Kies de UI-taal uit de cookie, met Accept-Language als terugval."""
-    g.lang = i18n.taal_uit_verzoek(
-        request.cookies.get(TAAL_COOKIE), request.headers.get("Accept-Language")
-    )
+    """Kies de UI-taal uit ?lang=, dan de cookie, dan Accept-Language."""
+    query = request.args.get("lang")
+    if query and query in i18n.TALEN:
+        g.lang = query
+    else:
+        g.lang = i18n.taal_uit_verzoek(
+            request.cookies.get(TAAL_COOKIE), request.headers.get("Accept-Language")
+        )
+
+
+@app.after_request
+def _bewaar_taal(response):
+    """Bewaar een via ?lang= gekozen taal in de cookie (deelbare, crawlbare URL's)."""
+    query = request.args.get("lang")
+    if query and query in i18n.TALEN and request.cookies.get(TAAL_COOKIE) != query:
+        response.set_cookie(TAAL_COOKIE, query, max_age=31536000, samesite="Lax")
+    return response
+
+
+def _seo(lang):
+    """Bouw de SEO-context (canonical, hreflang-alternatieven, OG-locales)."""
+    root = request.url_root.rstrip("/")
+    path = request.path
+
+    def url(code):
+        return f"{root}{path}?lang={code}"
+
+    return {
+        "canonical": url(lang),
+        "alternates": {code: url(code) for code in i18n.TALEN},
+        "x_default": url(i18n.STANDAARD),
+        "og_locale": OG_LOCALE.get(lang, "nl_BE"),
+        "og_locale_alt": [v for k, v in OG_LOCALE.items() if k != lang],
+        "site_root": root + "/",
+        "image": f"{root}/og-image.svg",
+    }
+
+
+def _structured_data(lang):
+    """JSON-LD (schema.org) voor de indexeerbare pagina's, of None."""
+    if request.endpoint not in INDEXEERBAAR:
+        return None
+    root = request.url_root.rstrip("/")
+    return {
+        "@context": "https://schema.org",
+        "@type": "WebApplication",
+        "name": "FAO — " + i18n.tl("Financiële Analyse van de Onderneming", lang),
+        "url": root + "/",
+        "applicationCategory": "FinanceApplication",
+        "operatingSystem": "Web",
+        "inLanguage": list(i18n.TALEN.keys()),
+        "isAccessibleForFree": True,
+        "offers": {"@type": "Offer", "price": "0", "priceCurrency": "EUR"},
+        "description": i18n.t(INDEXEERBAAR[request.endpoint], lang),
+        "author": {"@type": "Organization",
+                   "name": "FAO — Winter van den Bulck & Matthias Van Duysen"},
+    }
 
 
 @app.context_processor
@@ -40,6 +100,8 @@ def _injecteer_i18n():
         "talen": i18n.TALEN,
         "t": lambda sleutel, **kw: i18n.t(sleutel, lang, **kw),
         "tl": lambda tekst: i18n.tl(tekst, lang),
+        "seo": _seo(lang),
+        "structured_data": _structured_data(lang),
     }
 
 
@@ -180,6 +242,81 @@ def _vertaal_grafiek(grafiek, lang):
             basis, _, rest = naam.partition(" (")
             vert = i18n.tl(basis, lang) + " (" + rest
         reeks["naam"] = vert
+
+
+_FAVICON_SVG = (
+    "<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'>"
+    "<rect width='64' height='64' rx='14' fill='#2CCCC4'/>"
+    "<text x='32' y='43' font-family='Arial,Helvetica,sans-serif' font-size='23' "
+    "font-weight='bold' fill='#ffffff' text-anchor='middle'>FAO</text></svg>"
+)
+
+_OG_IMAGE_SVG = (
+    "<svg xmlns='http://www.w3.org/2000/svg' width='1200' height='630' viewBox='0 0 1200 630'>"
+    "<defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>"
+    "<stop offset='0' stop-color='#0c7d77'/><stop offset='1' stop-color='#0a5f5b'/>"
+    "</linearGradient></defs><rect width='1200' height='630' fill='url(#g)'/>"
+    "<rect x='72' y='72' width='96' height='96' rx='22' fill='#2CCCC4'/>"
+    "<text x='120' y='138' font-family='Arial,Helvetica,sans-serif' font-size='44' "
+    "font-weight='bold' fill='#ffffff' text-anchor='middle'>FAO</text>"
+    "<text x='72' y='330' font-family='Arial,Helvetica,sans-serif' font-size='72' "
+    "font-weight='bold' fill='#ffffff'>Financiële Analyse</text>"
+    "<text x='72' y='412' font-family='Arial,Helvetica,sans-serif' font-size='72' "
+    "font-weight='bold' fill='#dffdfa'>van de Onderneming</text>"
+    "<text x='72' y='500' font-family='Arial,Helvetica,sans-serif' font-size='34' "
+    "fill='#b6e8e4'>Balans · resultatenrekening · ratio's · risico — NL / FR / EN</text></svg>"
+)
+
+
+@app.route("/favicon.svg")
+def favicon():
+    return Response(_FAVICON_SVG, mimetype="image/svg+xml")
+
+
+@app.route("/og-image.svg")
+def og_image():
+    return Response(_OG_IMAGE_SVG, mimetype="image/svg+xml")
+
+
+@app.route("/robots.txt")
+def robots():
+    root = request.url_root.rstrip("/")
+    regels = [
+        "User-agent: *",
+        "Allow: /",
+        "Disallow: /analyse",
+        "Disallow: /fetch",
+        f"Sitemap: {root}/sitemap.xml",
+        "",
+    ]
+    return Response("\n".join(regels), mimetype="text/plain")
+
+
+@app.route("/sitemap.xml")
+def sitemap():
+    root = request.url_root.rstrip("/")
+    paden = ["/", "/vergelijk"]
+    regels = [
+        "<?xml version=\"1.0\" encoding=\"UTF-8\"?>",
+        "<urlset xmlns=\"http://www.sitemaps.org/schemas/sitemap/0.9\" "
+        "xmlns:xhtml=\"http://www.w3.org/1999/xhtml\">",
+    ]
+    for pad in paden:
+        loc = f"{root}{pad}?lang={i18n.STANDAARD}"
+        regels.append("  <url>")
+        regels.append(f"    <loc>{loc}</loc>")
+        for code in i18n.TALEN:
+            regels.append(
+                f"    <xhtml:link rel=\"alternate\" hreflang=\"{code}\" "
+                f"href=\"{root}{pad}?lang={code}\"/>"
+            )
+        regels.append(
+            f"    <xhtml:link rel=\"alternate\" hreflang=\"x-default\" "
+            f"href=\"{root}{pad}?lang={i18n.STANDAARD}\"/>"
+        )
+        regels.append("  </url>")
+    regels.append("</urlset>")
+    return Response("\n".join(regels), mimetype="application/xml")
 
 
 @app.errorhandler(404)
