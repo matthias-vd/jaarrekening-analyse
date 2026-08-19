@@ -753,7 +753,9 @@
     }
 
     panel.querySelectorAll('[data-inklap]').forEach(btn => btn.addEventListener('click', () => {
-      rijen.forEach(tr => { if (tr.classList.contains('heeft-kinderen')) tr.classList.add('is-collapsed'); });
+      // Klap alle rubrieken in, maar houd de wortel (niveau 0) open zodat de
+      // hoofdsecties zichtbaar blijven i.p.v. de hele tabel te verbergen.
+      rijen.forEach((tr, i) => { if (tr.classList.contains('heeft-kinderen') && niveaus[i] >= 1) tr.classList.add('is-collapsed'); });
       herbereken();
     }));
     panel.querySelectorAll('[data-uitklap]').forEach(btn => btn.addEventListener('click', () => {
