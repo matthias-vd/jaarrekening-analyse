@@ -81,6 +81,21 @@
     .evenwicht .nums { color: var(--muted); font-variant-numeric: tabular-nums; }
     .neg { color: var(--err); }
 
+    /* Barometer + signalen */
+    .barometer { display: flex; align-items: center; gap: 1.2rem; }
+    .barometer .score { font-size: 2.6rem; font-weight: 800; line-height: 1; letter-spacing: -0.02em; }
+    .barometer .score span { font-size: 1rem; font-weight: 600; color: var(--muted); }
+    .barometer .score.ok { color: var(--ok); } .barometer .score.warn { color: var(--warn); } .barometer .score.err { color: var(--err); }
+    .meter { height: 8px; border-radius: 999px; background: var(--bg-soft); margin: .6rem 0; overflow: hidden; }
+    .meter-fill { height: 100%; border-radius: 999px; }
+    .meter-fill.ok { background: var(--ok); } .meter-fill.warn { background: var(--warn); } .meter-fill.err { background: var(--err); }
+    .krediet { font-size: .9rem; color: var(--ink-soft); }
+    .krediet .hint { color: var(--muted); font-size: .78rem; }
+    .signalen { display: flex; flex-wrap: wrap; gap: .45rem; margin-top: 1rem; }
+    .vlag { font-size: 1.15rem; margin-right: .15rem; }
+    table.ratio-tabel tr.inactief td { color: var(--err); }
+    table.ratio-tabel tr.inactief .r-formule { color: #e08a92; }
+
     /* Ratio's tab */
     .sector-uitleg details { border-top: 1px solid var(--line); padding-top: .8rem; margin-top: .4rem; }
     .sector-uitleg summary { cursor: pointer; color: var(--accent-700); }
@@ -151,6 +166,45 @@
         </div>
       </div>
     {% endif %}
+
+    <div class="grid-2" style="margin-bottom:1.3rem">
+      <div class="card panel">
+        <h3>Bedrijfsfiche</h3>
+        <dl class="kv">
+          <dt>Onderneming</dt><dd>{{ analyse.fiche.naam }}</dd>
+          {% if analyse.fiche.kbo %}<dt>KBO-nummer</dt><dd>{{ analyse.fiche.kbo }}</dd>{% endif %}
+          {% if analyse.fiche.rechtsvorm %}<dt>Rechtsvorm</dt><dd>{{ analyse.fiche.rechtsvorm }}</dd>{% endif %}
+          {% if analyse.fiche.adres %}<dt>Adres</dt><dd>{{ analyse.fiche.adres }}</dd>{% endif %}
+          <dt>Boekjaar</dt><dd>{{ analyse.fiche.boekjaar or '—' }}</dd>
+          {% if analyse.fiche.werknemers is not none %}<dt>Personeel (VTE)</dt><dd>{{ analyse.fiche.werknemers }}</dd>{% endif %}
+          <dt>Munt</dt><dd>{{ analyse.fiche.munt }}</dd>
+        </dl>
+      </div>
+      <div class="card panel">
+        <h3>Gezondheidsbarometer</h3>
+        {% set b = analyse.risico.barometer %}
+        {% if b %}
+          <div class="barometer">
+            <div class="score {{ b.kleur }}">{{ b.score }}<span>/100</span></div>
+            <div style="flex:1">
+              <span class="badge {{ b.kleur }}">{{ b.label }}</span>
+              <div class="meter"><div class="meter-fill {{ b.kleur }}" style="width: {{ b.score }}%"></div></div>
+              {% if analyse.risico.kredietlimiet %}
+                <div class="krediet">Indicatieve kredietrichtlijn: <strong>{{ analyse.risico.kredietlimiet | bedrag }}&nbsp;{{ analyse.munt }}</strong>
+                  <br><span class="hint">Ruwe indicatie op basis van eigen vermogen en score — geen advies.</span></div>
+              {% endif %}
+            </div>
+          </div>
+        {% else %}
+          <p style="color:var(--muted); margin:0">Onvoldoende gegevens voor een gezondheidsscore.</p>
+        {% endif %}
+        {% if analyse.risico.signalen %}
+          <div class="signalen">
+            {% for s in analyse.risico.signalen %}<span class="badge {{ s.kleur }}">{{ s.tekst }}</span>{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    </div>
 
     {% if analyse.kerncijfers %}
     <div class="card panel" style="margin-bottom:1.3rem">
@@ -300,6 +354,27 @@
   <!-- RISICO -->
   <section class="tab-panel" id="tab-risico">
     {% set risico = analyse.risico %}
+    {% if risico.barometer %}
+      <div class="card panel" style="margin-bottom:1.3rem">
+        <h3>Gezondheidsbarometer &amp; kredietrichtlijn</h3>
+        <div class="barometer">
+          <div class="score {{ risico.barometer.kleur }}">{{ risico.barometer.score }}<span>/100</span></div>
+          <div style="flex:1">
+            <span class="badge {{ risico.barometer.kleur }}">{{ risico.barometer.label }}</span>
+            <div class="meter"><div class="meter-fill {{ risico.barometer.kleur }}" style="width: {{ risico.barometer.score }}%"></div></div>
+            {% if risico.kredietlimiet %}
+              <div class="krediet">Indicatieve kredietrichtlijn: <strong>{{ risico.kredietlimiet | bedrag }}&nbsp;{{ analyse.munt }}</strong>
+                <br><span class="hint">Ruwe indicatie op basis van eigen vermogen en gezondheidsscore — geen kredietadvies.</span></div>
+            {% endif %}
+          </div>
+        </div>
+        {% if risico.signalen %}
+          <div class="signalen">
+            {% for s in risico.signalen %}<span class="badge {{ s.kleur }}">{{ s.tekst }}</span>{% endfor %}
+          </div>
+        {% endif %}
+      </div>
+    {% endif %}
     {% if risico.altman or risico.kwadrant %}
       {% if risico.gunstig is not none %}
         <div class="evenwicht {{ 'ok' if risico.gunstig else 'err' }}">
@@ -366,8 +441,13 @@
           </thead>
           <tbody>
             {% for b in analyse.bestuurders %}
-              <tr>
-                <td><div class="r-naam">{{ b.naam }}</div></td>
+              <tr class="{{ '' if b.actief else 'inactief' }}">
+                <td>
+                  <div class="r-naam">
+                    {% if b.vlag %}<span class="vlag" title="{{ b.land }}">{{ b.vlag }}</span>{% endif %}{{ b.naam }}
+                    {% if not b.actief %}<span class="badge err" style="margin-left:.4rem; font-size:.68rem">niet meer actief</span>{% endif %}
+                  </div>
+                </td>
                 <td>{{ b.functie }}</td>
                 <td class="r-formule" style="font-size:.85rem">{{ b.adres }}</td>
                 <td class="num" style="white-space:nowrap">{{ b.mandaat_start }}{% if b.mandaat_einde %} → {{ b.mandaat_einde }}{% endif %}</td>
