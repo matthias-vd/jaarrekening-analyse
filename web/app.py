@@ -100,6 +100,36 @@ def fetch():
     return render_template("resultaat.html", analyse=resultaat, bron=f"KBO {nummer}")
 
 
+@app.route("/vergelijk", methods=["GET", "POST"])
+def vergelijk():
+    if request.method == "GET":
+        return render_template("vergelijk.html")
+    bestanden = [f for f in request.files.getlist("bestanden") if f and f.filename]
+    if len(bestanden) < 2:
+        flash("Kies minstens twee jaarrekeningen om te vergelijken.")
+        return redirect(url_for("vergelijk"))
+    datasets, fouten = [], []
+    for f in bestanden:
+        if not f.filename.lower().endswith(ONDERSTEUNDE_TYPES):
+            fouten.append(f"{f.filename}: niet-ondersteund bestandstype")
+            continue
+        try:
+            datasets.append(laad_bron(f.filename, f.stream))
+        except BronFout as fout:
+            fouten.append(f"{f.filename}: {fout}")
+        except Exception:  # noqa: BLE001
+            fouten.append(f"{f.filename}: kon niet gelezen worden")
+    if len(datasets) < 2:
+        melding = "Kon niet minstens twee geldige jaarrekeningen inlezen."
+        if fouten:
+            melding += " " + " · ".join(fouten)
+        flash(melding)
+        return redirect(url_for("vergelijk"))
+    from core.vergelijk import bouw_vergelijking
+    vergelijking = bouw_vergelijking(datasets)
+    return render_template("vergelijk.html", vergelijking=vergelijking, fouten=fouten)
+
+
 @app.errorhandler(404)
 def niet_gevonden(_e):
     return render_template("error.html", error="Deze pagina bestaat niet.", redir=""), 404
