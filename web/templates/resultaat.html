@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}{{ analyse.bedrijfsnaam }} — {{ tl('Analyse') }}{% endblock %}
+{% block title %}{{ analyse.bedrijfsnaam | tl }} — {{ tl('Analyse') }}{% endblock %}
 
 {% block styles %}
     .result-head {
@@ -127,7 +127,7 @@
 {% block content %}
   <div class="card result-head">
     <div class="titel">
-      <h1>{{ analyse.bedrijfsnaam }}</h1>
+      <h1>{{ analyse.bedrijfsnaam | tl }}</h1>
       <div class="meta">
         {{ tl('Boekjaar') }} {{ analyse.boekjaar or '—' }} · {{ tl('munt') }} {{ analyse.munt }} ·
         {{ t('@codes_herkend', h=analyse.aantal_herkend, tot=analyse.aantal_codes) }}
