@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Pagina niet gevonden — FAO{% endblock %}
+{% block title %}{{ t('@title_error') }}{% endblock %}
 
 {% block styles %}
     .error-wrap { display: grid; place-items: center; padding: 3rem 0; text-align: center; }
@@ -11,8 +11,8 @@
 {% block content %}
   <div class="error-wrap">
     <div class="code">:(</div>
-    <h1>Er ging iets mis</h1>
-    <p>{{ error or "De pagina die je zoekt bestaat niet." }}</p>
-    <a class="btn" href="{{ url_for('index') }}">Terug naar start</a>
+    <h1>{{ tl('Er ging iets mis') }}</h1>
+    <p>{{ error or tl("De pagina die je zoekt bestaat niet.") }}</p>
+    <a class="btn" href="{{ url_for('index') }}">{{ tl('Terug naar start') }}</a>
   </div>
 {% endblock %}

@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="nl">
+<html lang="{{ lang }}">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>{% block title %}FAO — Financiële Analyse van de Onderneming{% endblock %}</title>
+  <title>{% block title %}{{ t('@title_default') }}{% endblock %}</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -119,6 +119,15 @@
       background: var(--topbar-bg);
       border-bottom: 1px solid var(--line);
     }
+    /* Taalkiezer */
+    .lang-picker { display: inline-flex; gap: .15rem; margin-left: .3rem; }
+    .lang-btn {
+      font-family: var(--font); font-size: .8rem; font-weight: 700; cursor: pointer;
+      color: var(--muted); background: transparent; border: 1px solid transparent;
+      border-radius: 7px; padding: .3rem .5rem; letter-spacing: .02em;
+    }
+    .lang-btn:hover { color: var(--accent-700); background: var(--bg-soft); }
+    .lang-btn.active { color: #fff; background: var(--accent-700); }
     /* Thema-kiezer */
     .theme-picker { display: inline-flex; align-items: center; gap: .4rem; margin-left: .3rem; }
     .theme-picker select {
@@ -207,24 +216,30 @@
       <a class="brand" href="{{ url_for('index') }}">
         <span class="brand-mark">FAO</span>
         <span class="brand-text">
-          Financiële Analyse van de Onderneming
-          <small>Indicatieve tool, gebruik op eigen risico</small>
+          {{ tl('Financiële Analyse van de Onderneming') }}
+          <small>{{ tl('Indicatieve tool, gebruik op eigen risico') }}</small>
         </span>
       </a>
       <nav>
-        <a href="{{ url_for('index') }}">Start</a>
-        <a href="{{ url_for('index') }}#uploaden">Uploaden</a>
-        <a href="{{ url_for('vergelijk') }}">Vergelijken</a>
+        <a href="{{ url_for('index') }}">{{ tl('Start') }}</a>
+        <a href="{{ url_for('index') }}#uploaden">{{ tl('Uploaden') }}</a>
+        <a href="{{ url_for('vergelijk') }}">{{ tl('Vergelijken') }}</a>
       </nav>
+      <div class="lang-picker" role="group" aria-label="{{ tl('Taal') }}">
+        {% for code, naam in talen.items() %}
+          <button type="button" class="lang-btn{% if code == lang %} active{% endif %}"
+                  data-lang="{{ code }}" title="{{ naam }}">{{ code|upper }}</button>
+        {% endfor %}
+      </div>
       <div class="theme-picker">
-        <label for="theme-select" title="Thema" aria-label="Thema" style="font-size:1.05rem">&#127912;</label>
-        <select id="theme-select" aria-label="Kies een thema">
-          <option value="licht">&#9728;&#65039; Licht</option>
-          <option value="donker">&#127769; Donker</option>
-          <option value="oceaan">&#127754; Oceaan</option>
-          <option value="bos">&#127794; Bos</option>
-          <option value="zonsondergang">&#127749; Zonsondergang</option>
-          <option value="koninklijk">&#128142; Koninklijk</option>
+        <label for="theme-select" title="{{ tl('Thema') }}" aria-label="{{ tl('Thema') }}" style="font-size:1.05rem">&#127912;</label>
+        <select id="theme-select" aria-label="{{ tl('Kies een thema') }}">
+          <option value="licht">&#9728;&#65039; {{ tl('Licht') }}</option>
+          <option value="donker">&#127769; {{ tl('Donker') }}</option>
+          <option value="oceaan">&#127754; {{ tl('Oceaan') }}</option>
+          <option value="bos">&#127794; {{ tl('Bos') }}</option>
+          <option value="zonsondergang">&#127749; {{ tl('Zonsondergang') }}</option>
+          <option value="koninklijk">&#128142; {{ tl('Koninklijk') }}</option>
         </select>
       </div>
     </div>
@@ -235,10 +250,19 @@
   </main>
 
   <footer class="site">
-    FAO — een project van Winter van den Bulck &amp; Matthias Van Duysen ·
-    Analyse conform de wettelijke structuur van de Belgische jaarrekening.
+    {{ t('@footer')|safe }}
   </footer>
   <script>
+    // Taalwissel: zet de cookie en herlaad (server rendert in de gekozen taal).
+    (function () {
+      document.querySelectorAll(".lang-btn").forEach(function (b) {
+        b.addEventListener("click", function () {
+          var code = b.getAttribute("data-lang");
+          document.cookie = "fao-taal=" + code + "; path=/; max-age=31536000; SameSite=Lax";
+          location.reload();
+        });
+      });
+    })();
     (function () {
       var sel = document.getElementById("theme-select");
       if (!sel) return;

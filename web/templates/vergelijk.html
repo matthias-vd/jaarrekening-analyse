@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}Vergelijken — Financiële Analyse van de Onderneming{% endblock %}
+{% block title %}{{ t('@title_vergelijk') }}{% endblock %}
 
 {% block styles %}
     .flash { margin-bottom: 1.2rem; padding: .9rem 1.1rem; border-radius: 12px;
@@ -44,57 +44,55 @@
   {% endwith %}
 
   <section class="vgl-hero">
-    <h1>Jaarrekeningen vergelijken</h1>
-    <p>Upload meerdere jaarrekeningen (CSV, JSON of PDF) — meerdere boekjaren van dezelfde onderneming
-       voor de evolutie, of verschillende ondernemingen naast elkaar. FAO zet de kerncijfers en ratio's
-       op een rij, toont de evolutie in grafieken en beoordeelt of ze gunstig of ongunstig is.</p>
+    <h1>{{ tl('Jaarrekeningen vergelijken') }}</h1>
+    <p>{{ t('@vgl_intro') }}</p>
   </section>
 
   <form class="card upload-card" method="post" action="{{ url_for('vergelijk') }}" enctype="multipart/form-data">
-    <h2>Kies minstens twee bestanden</h2>
-    <p class="sub">Tip: selecteer in één keer meerdere bestanden (Ctrl/Cmd + klik). Types: .csv · .json · .pdf</p>
+    <h2>{{ tl('Kies minstens twee bestanden') }}</h2>
+    <p class="sub">{{ tl('Tip: selecteer in één keer meerdere bestanden (Ctrl/Cmd + klik). Types: .csv · .json · .pdf') }}</p>
     <div class="multi-row">
       <input class="multi" type="file" name="bestanden" accept=".csv,.json,.pdf,.xbrl,.xml" multiple required>
-      <button type="submit" class="btn">Vergelijk &rarr;</button>
+      <button type="submit" class="btn">{{ tl('Vergelijk') }} &rarr;</button>
     </div>
   </form>
 
   {% if vergelijking %}
     {% if fouten %}
-      <div class="flash">Enkele bestanden werden overgeslagen: {{ fouten|join(' · ') }}</div>
+      <div class="flash">{{ tl('Enkele bestanden werden overgeslagen:') }} {{ fouten|join(' · ') }}</div>
     {% endif %}
 
     <div class="samenvatting">
-      <span class="badge neutral">{{ vergelijking.aantal }} jaarrekeningen</span>
-      <span class="badge ok">{{ vergelijking.aantal_gunstig }} gunstige evoluties</span>
-      <span class="badge err">{{ vergelijking.aantal_ongunstig }} ongunstige evoluties</span>
-      <span class="badge neutral">{{ 'Meerdere ondernemingen' if vergelijking.meerdere_bedrijven else 'Één onderneming over de tijd' }}</span>
+      <span class="badge neutral">{{ t('@aantal_jaarrekeningen', n=vergelijking.aantal) }}</span>
+      <span class="badge ok">{{ t('@aantal_gunstig', n=vergelijking.aantal_gunstig) }}</span>
+      <span class="badge err">{{ t('@aantal_ongunstig', n=vergelijking.aantal_ongunstig) }}</span>
+      <span class="badge neutral">{{ tl('Meerdere ondernemingen') if vergelijking.meerdere_bedrijven else tl('Één onderneming over de tijd') }}</span>
     </div>
 
     <div class="card chart-card">
-      <h3>Kerncijfers (in {{ '€' }})</h3>
+      <h3>{{ t('@kerncijfers_eur', munt='€') }}</h3>
       <div class="chart-box"><canvas id="chartEur"></canvas></div>
     </div>
     <div class="card chart-card">
-      <h3>Ratio's</h3>
+      <h3>{{ tl("Ratio's") }}</h3>
       <div class="chart-box"><canvas id="chartRatio"></canvas></div>
     </div>
 
     <div class="card chart-card">
-      <h3>Detailvergelijking &amp; evolutie</h3>
+      <h3>{{ t('@detailvgl')|safe }}</h3>
       <div style="overflow-x:auto">
         <table class="vgl">
           <thead>
             <tr>
-              <th>Metriek</th>
+              <th>{{ tl('Metriek') }}</th>
               {% for kol in vergelijking.kolommen %}<th>{{ kol.label }}</th>{% endfor %}
-              <th>Evolutie</th>
+              <th>{{ tl('Evolutie') }}</th>
             </tr>
           </thead>
           <tbody>
             {% for m in vergelijking.metrieken %}
               <tr>
-                <td class="metriek">{{ m.naam }}</td>
+                <td class="metriek">{{ m.naam | tl }}</td>
                 {% for w in m.waarden %}
                   <td>{% if w is not none %}{{ w | ratiowaarde(m.eenheid, '€') }}{% else %}<span class="dash">—</span>{% endif %}</td>
                 {% endfor %}
@@ -103,7 +101,7 @@
                     <span class="badge {{ m.evolutie.kleur }}">
                       {% if m.evolutie.richting == 'stijging' %}&#9650;{% elif m.evolutie.richting == 'daling' %}&#9660;{% else %}&#8212;{% endif %}
                       {% if m.evolutie.pct is not none %}{{ m.evolutie.pct }}%{% endif %}
-                      {% if m.evolutie.gunstig is true %} · gunstig{% elif m.evolutie.gunstig is false %} · ongunstig{% endif %}
+                      {% if m.evolutie.gunstig is true %} · {{ tl('gunstig') }}{% elif m.evolutie.gunstig is false %} · {{ tl('ongunstig') }}{% endif %}
                     </span>
                   {% else %}<span class="dash">—</span>{% endif %}
                 </td>
