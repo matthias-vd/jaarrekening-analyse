@@ -341,10 +341,12 @@ def analyseer_data(data):
     de NBB-webservice.
     """
     from core.ratios import bereken_ratios  # lokale import om circulaire import te vermijden
+    from core.risico import bereken_risico
     from core.sectordata import REFERENTIE_BRON, REFERENTIE_PROFIEL
 
     herkende = _herkende_codes()
-    codes_in_data = set(data.keys())
+    # Gereserveerde sleutels (bv. __bestuurders__) tellen niet mee als rubriekcodes.
+    codes_in_data = {c for c in data.keys() if not c.startswith("__")}
     aantal_herkend = len(codes_in_data & herkende)
 
     return {
@@ -357,6 +359,8 @@ def analyseer_data(data):
         "controle": controleer_conformiteit(data),
         "kerncijfers": kerncijfers(data),
         "ratios": bereken_ratios(data),
+        "risico": bereken_risico(data),
+        "bestuurders": data.get("__bestuurders__", []),
         "sector_bron": REFERENTIE_BRON,
         "sector_profiel": REFERENTIE_PROFIEL,
         "aantal_codes": len(codes_in_data),

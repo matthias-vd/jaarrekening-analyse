@@ -47,6 +47,51 @@ def _tekst(inhoud):
 
 # --- JSON (NBB jsonxbrl / AccountingData) ---------------------------------
 
+def _adres_str(addr):
+    if not isinstance(addr, dict):
+        return ""
+    straat = " ".join(str(addr.get(k, "")).strip() for k in ("Street", "Number", "Box")).strip()
+    stad = " ".join(str(addr.get(k) or addr.get(a, "")).strip()
+                    for k, a in (("OtherPostalCode", "PostalCode"), ("OtherCity", "City"))).strip()
+    land = str(addr.get("OtherCountry") or addr.get("Country") or "").strip()
+    return ", ".join(deel for deel in (straat, stad, land) if deel)
+
+
+def _mandaat_velden(mandaten):
+    functie, start, einde = "", "", ""
+    if isinstance(mandaten, list) and mandaten:
+        m = mandaten[0]
+        functie = str(m.get("FunctionMandate") or m.get("OtherFunctionMandate") or "").strip()
+        datums = m.get("MandateDates") or {}
+        start = str(datums.get("StartDate") or "").strip()
+        einde = str(datums.get("EndDate") or "").strip()
+    return functie, start, einde
+
+
+def _bestuurders_uit_json(acc):
+    admins = acc.get("Administrators") or acc.get("administrators") or {}
+    if not isinstance(admins, dict):
+        return []
+    bestuurders = []
+    for np in admins.get("NaturalPersons", []) or []:
+        persoon = np.get("Person", {}) if isinstance(np, dict) else {}
+        naam = " ".join(str(persoon.get(k, "")).strip() for k in ("FirstName", "LastName")).strip()
+        functie, start, einde = _mandaat_velden(np.get("Mandates"))
+        if not functie:
+            functie = str(np.get("Profession") or "Bestuurder").strip()
+        if naam:
+            bestuurders.append({"naam": naam, "adres": _adres_str(persoon.get("Address")),
+                                "functie": functie or "Bestuurder", "mandaat_start": start, "mandaat_einde": einde})
+    for lp in admins.get("LegalPersons", []) or []:
+        entity = lp.get("Entity", {}) if isinstance(lp, dict) else {}
+        naam = str(entity.get("Name") or entity.get("LegalName") or entity.get("EnterpriseName") or "").strip()
+        functie, start, einde = _mandaat_velden(lp.get("Mandates"))
+        if naam:
+            bestuurders.append({"naam": naam, "adres": _adres_str(entity.get("Address")),
+                                "functie": functie or "Bestuurder (rechtspersoon)", "mandaat_start": start, "mandaat_einde": einde})
+    return bestuurders
+
+
 def parse_jsonxbrl(inhoud, extra_meta=None):
     """Lees de NBB "AccountingData"-JSON in als ``{code: waarde}``-dict.
 
@@ -102,6 +147,10 @@ def parse_jsonxbrl(inhoud, extra_meta=None):
         data["Legal form"] = str(lgf).strip()
     data.setdefault("Currency", "EUR")
 
+    bestuurders = _bestuurders_uit_json(acc)
+    if bestuurders:
+        data["__bestuurders__"] = bestuurders
+
     if extra_meta:
         for sleutel, waarde in extra_meta.items():
             if waarde:
@@ -121,15 +170,21 @@ def _bekende_codes():
     return codes
 
 
-_TOELICHTING = re.compile(r"^\d+(\.\d+)+$")            # bv. 6.3, 6.5.1 (verwijzing)
-_BEDRAG = re.compile(r"^\(?-?\d{1,3}(\.\d{3})+(,\d+)?\)?$|^\(?-?\d+,\d+\)?$|^\(?-?\d{4,}\)?$|^0$")
+# Een bedrag in de NBB-PDF: gehele getallen met punt-duizendtallen (26.435.299),
+# optioneel met komma-decimalen (26.435.298,99), een minteken of haakjes.
+_BEDRAG = re.compile(
+    r"^\(?-?\d{1,3}(\.\d{3})+(,\d+)?\)?$"   # 8.728.131  of  26.435.298,99
+    r"|^\(?-?\d+,\d+\)?$"                    # 1234,56
+    r"|^\(?-?\d{4,}\)?$"                     # 26435299 (zonder scheidingsteken)
+    r"|^-?\d{1,3}\)?$"                        # 158 , 0 , -12
+)
 
 
 def codes_uit_tekst(tekst):
     """Haal ``{code: waarde}`` uit platte PDF-tekst van een NBB-jaarrekening.
 
-    Heuristiek: op elke regel wordt na een gekende rubriekcode het eerste bedrag
-    (kolom 'boekjaar') als waarde genomen. Best-effort — de PDF-lay-out varieert.
+    Lay-out per regel: ``Rubriek [Toel.] Code Boekjaar [Vorig boekjaar]``. Na een
+    gekende rubriekcode wordt het eerste bedrag (kolom 'boekjaar') genomen. Best-effort.
     """
     bekende = _bekende_codes()
     data = {}
@@ -138,14 +193,98 @@ def codes_uit_tekst(tekst):
         for i, token in enumerate(tokens):
             if token in bekende and token not in data:
                 for volgend in tokens[i + 1:]:
-                    if _TOELICHTING.match(volgend):
-                        continue
+                    if volgend in bekende:
+                        break  # volgende rubriek: deze had geen bedrag op de regel
                     if _BEDRAG.match(volgend):
                         waarde = parse_bedrag(volgend)
                         if waarde is not None:
                             data[token] = str(waarde)
                         break
     return data
+
+
+_DATUM_BE = re.compile(r"(\d{2})[-/](\d{2})[-/](\d{4})")
+_MANDAAT = re.compile(
+    r"Begin van het mandaat\s*:\s*(?P<start>\d{4}-\d{2}-\d{2})?.*?"
+    r"Einde van het mandaat\s*:\s*(?P<einde>\d{4}-\d{2}-\d{2})?\s*(?P<rol>[A-Za-zé]+)?",
+    re.IGNORECASE,
+)
+
+
+def metadata_uit_tekst(tekst):
+    """Haal identificatiegegevens uit de PDF-tekst (naam, nummer, rechtsvorm, boekjaar)."""
+    meta = {}
+    for regel in tekst.splitlines():
+        r = regel.strip()
+        low = r.lower()
+        if not meta.get("Entity name") and low.startswith("naam"):
+            waarde = r.split(":", 1)[-1].strip()
+            if waarde:
+                meta["Entity name"] = waarde
+        elif not meta.get("Entity number") and low.startswith("ondernemingsnummer"):
+            cijfers = re.sub(r"\D", "", r)
+            if len(cijfers) >= 9:
+                meta["Entity number"] = cijfers
+        elif not meta.get("Legal form") and low.startswith("rechtsvorm"):
+            waarde = r.split(":", 1)[-1].strip()
+            if waarde:
+                meta["Legal form"] = waarde
+        # Boekjaarperiode: "... boekjaar dat de periode dekt van 01-07-2024 tot 30-06-2025"
+        if ("boekjaar" in low and " van " in low and " tot " in low
+                and "vorig" not in low and "Accounting period end date" not in meta):
+            be = _DATUM_BE.findall(r)
+            if len(be) >= 2:
+                meta["Accounting period start date"] = f"{be[0][2]}-{be[0][1]}-{be[0][0]}"
+                meta["Accounting period end date"] = f"{be[1][2]}-{be[1][1]}-{be[1][0]}"
+    return meta
+
+
+def bestuurders_uit_tekst(tekst):
+    """Best-effort extractie van bestuurders/zaakvoerders/commissarissen uit de PDF-tekst.
+
+    Neemt telkens de laatste regels vóór een 'Begin van het mandaat'-regel als het blok
+    (naam + adres) van één bestuurder, zodat intro-tekst en vertegenwoordigers wegvallen.
+    """
+    regels = [r.strip() for r in tekst.splitlines()]
+    start = None
+    for i, r in enumerate(regels):
+        if "LIJST VAN DE BESTUURDERS" in r.upper():
+            start = i
+            break
+    if start is None:
+        return []
+
+    bestuurders = []
+    buffer = []
+    for r in regels[start + 1:]:
+        m = _MANDAAT.search(r)
+        if m:
+            venster = [b for b in buffer[-5:]
+                       if b and not re.match(r"^\d{9,}$", b)
+                       and "vertegenwoordigd" not in b.lower()]
+            # Verwijder resterende all-caps kopfragmenten (bv. "CORRECTIE") of een
+            # meegesleepte landregel vooraan, zodat de naam bovenaan staat.
+            while venster and venster[0].isupper():
+                venster.pop(0)
+            if venster:
+                bestuurders.append({
+                    "naam": venster[0],
+                    "adres": ", ".join(venster[1:]) if len(venster) > 1 else "",
+                    "functie": (m.group("rol") or "Bestuurder").strip(),
+                    "mandaat_start": m.group("start") or "",
+                    "mandaat_einde": m.group("einde") or "",
+                })
+            buffer = []
+            continue
+        if bestuurders and r.upper().startswith("VERKLARING BETREFFENDE"):
+            break
+        if (not r or r.upper().startswith(("N°", "PAGE"))
+                or r.isdigit() or "vertegenwoordigd" in r.lower()):
+            continue
+        if r.isupper() and len(r.split()) >= 4:
+            continue
+        buffer.append(r)
+    return bestuurders
 
 
 def parse_pdf(fileobj):
@@ -171,6 +310,12 @@ def parse_pdf(fileobj):
             "Geen herkenbare balanscodes in de PDF gevonden. Gebruik bij voorkeur de "
             "JSON-export of het KBO-nummer; niet elke PDF-lay-out kan automatisch gelezen worden."
         )
+    for sleutel, waarde in metadata_uit_tekst(tekst).items():
+        data.setdefault(sleutel, waarde)
+    data.setdefault("Currency", "EUR")
+    bestuurders = bestuurders_uit_tekst(tekst)
+    if bestuurders:
+        data["__bestuurders__"] = bestuurders
     return data
 
 
