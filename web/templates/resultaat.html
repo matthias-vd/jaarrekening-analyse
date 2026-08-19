@@ -143,6 +143,7 @@
     {% if analyse.kasstroom %}<button class="tab-btn" data-tab="kasstromen">Kasstromen</button>{% endif %}
     <button class="tab-btn" data-tab="ratios">Ratio's</button>
     <button class="tab-btn" data-tab="risico">Risico</button>
+    <button class="tab-btn" data-tab="betrouwbaarheid">Betrouwbaarheid</button>
     <button class="tab-btn" data-tab="bestuurders">Bestuurders</button>
     <button class="tab-btn" data-tab="controle">
       Controle
@@ -527,6 +528,71 @@
           {% for v in fm.ojd91.variabelen %}<span class="badge neutral" style="font-weight:500">{{ v }}</span>{% endfor %}
         </div>
       </div>
+    </div>
+  </section>
+
+  <!-- BETROUWBAARHEID -->
+  {% set bt = analyse.betrouwbaarheid %}
+  <section class="tab-panel" id="tab-betrouwbaarheid">
+    <div class="evenwicht {{ 'ok' if bt.kleur == 'ok' else ('err' if bt.kleur == 'err' else 'ok') }}"
+         style="{% if bt.kleur == 'warn' %}background:var(--warn-bg);border:1px solid #f0dca8{% endif %}">
+      <div>
+        <div class="big">{{ bt.oordeel }}</div>
+        <div class="nums">Indicatieve beoordeling — geen audit of forensisch onderzoek.</div>
+      </div>
+    </div>
+
+    <div class="grid-2">
+      <div class="card panel">
+        <h3>Commissaris / auditoroordeel</h3>
+        {% if bt.auditor and bt.auditor.oordeel %}
+          <div class="kpi" style="margin-bottom:.8rem">
+            <div class="lab"><span class="badge {{ bt.auditor.kleur }}">{{ bt.auditor.oordeel }}</span></div>
+            <div class="hint">Automatisch gelezen uit het commissarisverslag in de PDF.</div>
+          </div>
+          <div class="signalen">
+            {% if bt.auditor.emphasis %}<span class="badge warn">Toelichtende paragraaf (aandacht gevestigd)</span>{% endif %}
+            {% if bt.auditor.going_concern %}<span class="badge err">Onzekerheid over de continuïteit (going concern)</span>{% endif %}
+            {% if not bt.auditor.emphasis and not bt.auditor.going_concern %}<span class="badge ok">Geen bijzondere paragrafen gedetecteerd</span>{% endif %}
+          </div>
+        {% elif bt.heeft_commissaris %}
+          <p style="color:var(--muted)">Er is een commissaris, maar het verslag kon niet automatisch uit deze bron gelezen worden.</p>
+        {% else %}
+          <p style="color:var(--muted)">Geen commissarisverslag gevonden. Dit is normaal voor kleine vennootschappen zonder wettelijke controleplicht, of wanneer de bron (CSV/JSON/XBRL) de tekst niet bevat.</p>
+        {% endif %}
+      </div>
+
+      <div class="card panel">
+        <h3>Beneish M-score <span class="count">— winstmanipulatie</span></h3>
+        {% if bt.beneish %}
+          <div class="kpi" style="margin-bottom:.7rem">
+            <div class="val {{ bt.beneish.kleur }}" style="color:var(--{{ bt.beneish.kleur }})">{{ bt.beneish.score }}</div>
+            <div class="lab"><span class="badge {{ bt.beneish.kleur }}">{{ bt.beneish.oordeel }}</span></div>
+            <div class="hint">Drempel: M &gt; −1,78 wijst op verhoogde kans (benadering, 2 boekjaren).</div>
+          </div>
+          <table class="ratio-tabel"><tbody>
+            {% for c in bt.beneish.componenten %}<tr><td>{{ c.naam }}</td><td class="num waarde">{{ c.waarde }}</td></tr>{% endfor %}
+          </tbody></table>
+        {% else %}
+          <p style="color:var(--muted)">Niet berekenbaar (vereist twee boekjaren en de omzet).</p>
+        {% endif %}
+      </div>
+    </div>
+
+    <div class="card panel" style="margin-top:1.3rem">
+      <h3>Indicatoren voor resultaatsturing</h3>
+      {% for i in bt.indicatoren %}
+        <div class="check-row">
+          <div class="check-icon {{ 'ok' if i.kleur=='ok' else ('fout' if i.kleur=='err' else 'overgeslagen') }}">
+            {% if i.kleur=='ok' %}&checkmark;{% elif i.kleur=='err' %}&#9888;{% else %}!{% endif %}
+          </div>
+          <div>
+            <div class="check-naam">{{ i.tekst }}</div>
+            {% if i.uitleg %}<div class="check-detail">{{ i.uitleg }}</div>{% endif %}
+          </div>
+          <div class="check-status"><span class="badge {{ i.kleur }}">{{ 'ok' if i.kleur=='ok' else ('aandacht' if i.kleur=='warn' else 'let op') }}</span></div>
+        </div>
+      {% endfor %}
     </div>
   </section>
 

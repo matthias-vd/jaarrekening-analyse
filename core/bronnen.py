@@ -388,6 +388,11 @@ def parse_pdf(fileobj):
     bestuurders = bestuurders_uit_tekst(tekst)
     if bestuurders:
         data["__bestuurders__"] = bestuurders
+
+    from core.betrouwbaarheid import auditoroordeel_uit_tekst
+    auditor = auditoroordeel_uit_tekst(tekst)
+    if auditor:
+        data["__auditor__"] = auditor
     return data
 
 
