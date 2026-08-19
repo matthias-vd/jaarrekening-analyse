@@ -210,6 +210,21 @@ def codes_uit_tekst(tekst):
     return data
 
 
+def _codes_gericht(tekst, codes):
+    """Haal specifieke codes (bv. personeelscodes uit de sociale balans) gericht op."""
+    doel = set(codes)
+    tokens = tekst.replace("\t", " ").split()
+    out = {}
+    for i, token in enumerate(tokens[:-1]):
+        if token in doel and token not in out:
+            volgend = tokens[i + 1]
+            if _BEDRAG.match(volgend) and not _LEGE_CEL.match(volgend):
+                waarde = parse_bedrag(volgend)
+                if waarde is not None:
+                    out[token] = str(waarde)
+    return out
+
+
 _DATUM_BE = re.compile(r"(\d{2})[-/](\d{2})[-/](\d{4})")
 _MANDAAT = re.compile(
     r"Begin van het mandaat\s*:\s*(?P<start>\d{4}-\d{2}-\d{2})?.*?"
@@ -333,6 +348,14 @@ def parse_pdf(fileobj):
               "RESULTATENREKENING", "COMPTE DE R", "COMPTES DE R")
     overzicht = [p for p in paginas if any(a in p or a in p.upper() for a in ankers)]
     data = codes_uit_tekst("\n".join(overzicht) if overzicht else tekst)
+
+    # Personeelscijfers staan op de sociale balans (buiten de overzichtspagina's en
+    # niet in de balans/RR-structuur); gericht ophalen uit de volledige tekst.
+    personeel = _codes_gericht(tekst, ("9087", "9086", "1003", "1013", "1023"))
+    for code, waarde in personeel.items():
+        data.setdefault(code, waarde)
+    if "9087" not in data and "1003" in data:
+        data["9087"] = data["1003"]  # gemiddeld personeelsbestand benaderen via totaal VTE
     if not data.get("20/58") and not data.get("10/49"):
         raise BronFout(
             "Geen herkenbare balanscodes in de PDF gevonden. Gebruik bij voorkeur de "

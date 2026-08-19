@@ -163,6 +163,35 @@ def _bedrijfsnaam(data):
     return (data.get("Entity name") or "").strip() or "Onbekende vennootschap"
 
 
+def _format_kbo(nummer):
+    cijfers = "".join(ch for ch in str(nummer or "") if ch.isdigit())
+    if len(cijfers) == 10:
+        return f"{cijfers[0:4]}.{cijfers[4:7]}.{cijfers[7:10]}"
+    return nummer or ""
+
+
+def _fiche(data):
+    """Beknopte bedrijfsfiche (identiteit) voor bovenaan het overzicht."""
+    adresdelen = [
+        " ".join(p for p in ((data.get("Entity address street") or "").strip(),
+                             (data.get("Entity address number") or "").strip()) if p),
+        " ".join(p for p in ((data.get("Entity postal code") or "").strip(),
+                             (data.get("Entity city") or "").strip()) if p),
+        (data.get("Entity country") or "").strip(),
+    ]
+    adres = ", ".join(d for d in adresdelen if d)
+    werknemers = lees_waarde(data, "9087")
+    return {
+        "naam": _bedrijfsnaam(data),
+        "kbo": _format_kbo(data.get("Entity number")),
+        "rechtsvorm": (data.get("Legal form") or "").strip(),
+        "adres": adres,
+        "boekjaar": _boekjaar(data),
+        "munt": (data.get("Currency") or "EUR").strip() or "EUR",
+        "werknemers": werknemers,
+    }
+
+
 def _boekjaar(data):
     start = (data.get("Accounting period start date") or "").strip()
     einde = (data.get("Accounting period end date") or "").strip()
@@ -349,6 +378,7 @@ def analyseer_data(data):
     """
     from core.ratios import bereken_ratios  # lokale import om circulaire import te vermijden
     from core.risico import bereken_risico
+    from core.landen import verrijk_bestuurders
     from core.sectordata import REFERENTIE_BRON, REFERENTIE_PROFIEL
 
     herkende = _herkende_codes()
@@ -367,7 +397,8 @@ def analyseer_data(data):
         "kerncijfers": kerncijfers(data),
         "ratios": bereken_ratios(data),
         "risico": bereken_risico(data),
-        "bestuurders": data.get("__bestuurders__", []),
+        "bestuurders": verrijk_bestuurders(data.get("__bestuurders__", [])),
+        "fiche": _fiche(data),
         "sector_bron": REFERENTIE_BRON,
         "sector_profiel": REFERENTIE_PROFIEL,
         "aantal_codes": len(codes_in_data),
