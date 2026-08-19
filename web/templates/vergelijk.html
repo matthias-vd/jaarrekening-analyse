@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}FAO — Jaarrekeningen vergelijken{% endblock %}
+
+{% block styles %}
+    .flash { margin-bottom: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 12px;
+      background: var(--err-bg); color: var(--err); font-weight: 500; border: 1px solid #f3c4c9; }
+    .intro h1 { font-size: 2rem; margin: 0 0 .5rem; letter-spacing: -0.02em; }
+    .intro p { color: var(--muted); max-width: 70ch; }
+    .upload-card { padding: 1.5rem 1.7rem; margin: 1.2rem 0 2rem; }
+    .upload-card h2 { margin: 0 0 .3rem; font-size: 1.2rem; }
+    .upload-card .sub { color: var(--muted); font-size: .92rem; margin: 0 0 1rem; }
+    .multi-row { display: flex; gap: .7rem; flex-wrap: wrap; align-items: center; }
+    input[type="file"].multi { font-family: var(--font); }
+
+    .samenvatting { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
+    .grid-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; margin-bottom: 1.3rem; }
+    @media (max-width: 900px){ .grid-charts { grid-template-columns: 1fr; } }
+    .chart-card { padding: 1.2rem 1.4rem; }
+    .chart-card h3 { margin: 0 0 .8rem; font-size: 1.05rem; }
+
+    table.vgl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
+    table.vgl th, table.vgl td { padding: .55rem .7rem; border-bottom: 1px solid #eef5f4; text-align: right; white-space: nowrap; }
+    table.vgl th:first-child, table.vgl td:first-child { text-align: left; white-space: normal; }
+    table.vgl thead th { font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); border-bottom: 2px solid var(--line); }
+    table.vgl tbody td.metriek { font-weight: 600; }
+{% endblock %}
+
+{% block content %}
+  {% with messages = get_flashed_messages() %}
+    {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
+  {% endwith %}
+
+  <div class="intro">
+    <h1>Jaarrekeningen vergelijken</h1>
+    <p>Upload meerdere jaarrekeningen (CSV, JSON of PDF) — meerdere boekjaren van dezelfde
+       onderneming voor de evolutie, of twee ondernemingen naast elkaar. FAO zet de kerncijfers
+       en ratio's op een rij, toont de evolutie grafisch en beoordeelt of ze gunstig of ongunstig is.</p>
+  </div>
+
+  <form class="card upload-card" method="post" action="{{ url_for('vergelijk') }}" enctype="multipart/form-data">
+    <h2>Kies minstens twee bestanden</h2>
+    <p class="sub">Tip: selecteer in één keer meerdere bestanden (Ctrl/Cmd + klik). Types: .csv · .json · .pdf</p>
+    <div class="multi-row">
+      <input class="multi" type="file" name="bestanden" accept=".csv,.json,.pdf,.xbrl,.xml" multiple required>
+      <button type="submit" class="btn">Vergelijk &rarr;</button>
+    </div>
+  </form>
+
+  {% if vergelijking %}
+    {% if fouten %}
+      <div class="flash">Enkele bestanden werden overgeslagen: {{ fouten|join(' · ') }}</div>
+    {% endif %}
+
+    <div class="samenvatting">
+      <span class="badge neutral">{{ vergelijking.aantal }} jaarrekeningen</span>
+      <span class="badge ok">{{ vergelijking.aantal_gunstig }} gunstige evoluties</span>
+      <span class="badge err">{{ vergelijking.aantal_ongunstig }} ongunstige evoluties</span>
+      <span class="badge neutral">{{ 'Meerdere ondernemingen' if vergelijking.meerdere_bedrijven else 'Één onderneming over de tijd' }}</span>
+    </div>
+
+    <div class="grid-charts">
+      <div class="card chart-card">
+        <h3>Kerncijfers (in {{ '€' }})</h3>
+        <canvas id="chartEur" height="220"></canvas>
+      </div>
+      <div class="card chart-card">
+        <h3>Ratio's</h3>
+        <canvas id="chartRatio" height="220"></canvas>
+      </div>
+    </div>
+
+    <div class="card chart-card">
+      <h3>Detailvergelijking &amp; evolutie</h3>
+      <div style="overflow-x:auto">
+        <table class="vgl">
+          <thead>
+            <tr>
+              <th>Metriek</th>
+              {% for kol in vergelijking.kolommen %}<th>{{ kol.label }}</th>{% endfor %}
+              <th>Evolutie</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for m in vergelijking.metrieken %}
+              <tr>
+                <td class="metriek">{{ m.naam }}</td>
+                {% for w in m.waarden %}
+                  <td>{% if w is not none %}{{ w | ratiowaarde(m.eenheid, '€') }}{% else %}—{% endif %}</td>
+                {% endfor %}
+                <td>
+                  {% if m.evolutie %}
+                    <span class="badge {{ m.evolutie.kleur }}">
+                      {% if m.evolutie.richting == 'stijging' %}&#9650;{% elif m.evolutie.richting == 'daling' %}&#9660;{% else %}&#8212;{% endif %}
+                      {% if m.evolutie.pct is not none %}{{ m.evolutie.pct }}%{% endif %}
+                      {% if m.evolutie.gunstig is true %} · gunstig{% elif m.evolutie.gunstig is false %} · ongunstig{% endif %}
+                    </span>
+                  {% else %}<span class="dash">—</span>{% endif %}
+                </td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  {% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% if vergelijking %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
+<script>
+  const PALET = ['#2CCCC4', '#0f807a', '#f0a92b', '#d83a4b', '#6b7cff', '#12a06a', '#9b59b6'];
+  function maakChart(id, bron, eenheidLabel) {
+    const el = document.getElementById(id);
+    if (!el || !bron.reeksen.length) { if (el) el.parentElement.style.display = 'none'; return; }
+    new Chart(el, {
+      type: 'line',
+      data: {
+        labels: bron.labels,
+        datasets: bron.reeksen.map((r, i) => ({
+          label: r.naam,
+          data: r.waarden,
+          borderColor: PALET[i % PALET.length],
+          backgroundColor: PALET[i % PALET.length] + '33',
+          borderWidth: 2, tension: 0.25, spanGaps: true, pointRadius: 3,
+        })),
+      },
+      options: {
+        responsive: true,
+        plugins: { legend: { labels: { font: { family: 'Outfit' } } } },
+        scales: { x: { ticks: { font: { family: 'Outfit' } } }, y: { ticks: { font: { family: 'Outfit' } } } },
+      },
+    });
+  }
+  maakChart('chartEur', {{ vergelijking.grafiek_eur | tojson }});
+  maakChart('chartRatio', {{ vergelijking.grafiek_ratio | tojson }});
+</script>
+{% endif %}
+{% endblock %}

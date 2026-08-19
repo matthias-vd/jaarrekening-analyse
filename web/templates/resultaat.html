@@ -126,6 +126,8 @@
     <button class="tab-btn" data-tab="balans">Balans</button>
     <button class="tab-btn" data-tab="rr">Resultatenrekening</button>
     <button class="tab-btn" data-tab="ratios">Ratio's</button>
+    <button class="tab-btn" data-tab="risico">Risico</button>
+    <button class="tab-btn" data-tab="bestuurders">Bestuurders</button>
     <button class="tab-btn" data-tab="controle">
       Controle
       {% if analyse.controle.aantal_fout %}<span class="badge err" style="margin-left:.4rem">{{ analyse.controle.aantal_fout }}</span>{% endif %}
@@ -293,6 +295,93 @@
         </table>
       </div>
     {% endfor %}
+  </section>
+
+  <!-- RISICO -->
+  <section class="tab-panel" id="tab-risico">
+    {% set risico = analyse.risico %}
+    {% if risico.altman or risico.kwadrant %}
+      {% if risico.gunstig is not none %}
+        <div class="evenwicht {{ 'ok' if risico.gunstig else 'err' }}">
+          <div>
+            <div class="big">
+              {% if risico.gunstig %}&checkmark; Globaal beeld: eerder gunstig{% else %}&#9888; Globaal beeld: aandachtspunten qua financieel risico{% endif %}
+            </div>
+            <div class="nums">Indicatieve inschatting op basis van balans en resultatenrekening — geen volwaardige kredietbeoordeling.</div>
+          </div>
+        </div>
+      {% endif %}
+      <div class="grid-2">
+        <div class="card panel">
+          <h3>Altman Z''-score</h3>
+          {% if risico.altman %}
+            <div class="kpi" style="margin-bottom:1rem">
+              <div class="val">{{ risico.altman.score }}</div>
+              <div class="lab"><span class="badge {{ risico.altman.kleur }}">{{ risico.altman.zone }}</span></div>
+              <div class="hint">{{ risico.altman.interpretatie }}</div>
+            </div>
+            <table class="ratio-tabel">
+              <tbody>
+                {% for c in risico.altman.componenten %}
+                  <tr><td>{{ c.naam }}</td><td class="num waarde">{{ c.waarde }}</td></tr>
+                {% endfor %}
+              </tbody>
+            </table>
+            <p class="r-formule" style="margin-top:.6rem">Z'' = 3,25 + 6,56·X1 + 3,26·X2 + 6,72·X3 + 1,05·X4 — variant voor niet-beursgenoteerde ondernemingen. Zones: &gt; 2,6 veilig · 1,1–2,6 grijs · &lt; 1,1 nood.</p>
+          {% else %}
+            <p style="color:var(--muted)">Onvoldoende gegevens om de Altman Z''-score te berekenen.</p>
+          {% endif %}
+        </div>
+        <div class="card panel">
+          <h3>Gezondheidskwadrant</h3>
+          {% if risico.kwadrant %}
+            <div class="kpi" style="margin-bottom:1rem">
+              <div class="val" style="font-size:1.3rem"><span class="badge {{ risico.kwadrant.kleur }}">{{ risico.kwadrant.naam }}</span></div>
+              <div class="hint">{{ risico.kwadrant.interpretatie }}</div>
+            </div>
+            <dl class="kv">
+              <dt>Rendabiliteit</dt><dd>{{ risico.kwadrant.rendabiliteit }}</dd>
+              <dt>Liquiditeit</dt><dd>{{ risico.kwadrant.liquiditeit }}</dd>
+              <dt>Current ratio</dt><dd>{{ risico.kwadrant.current_ratio }}</dd>
+            </dl>
+            <p class="r-formule" style="margin-top:.6rem">Kruising rendabiliteit × liquiditeit (cursus FAO, Tabel 16.1): gezond · tijdelijk ziek · chronisch ziek · stervend.</p>
+          {% else %}
+            <p style="color:var(--muted)">Onvoldoende gegevens voor het gezondheidskwadrant.</p>
+          {% endif %}
+        </div>
+      </div>
+    {% else %}
+      <div class="card panel"><p style="color:var(--muted)">Onvoldoende gegevens om het financieel risico in te schatten.</p></div>
+    {% endif %}
+  </section>
+
+  <!-- BESTUURDERS -->
+  <section class="tab-panel" id="tab-bestuurders">
+    <div class="card panel">
+      <h3>Bestuurders, zaakvoerders &amp; commissarissen <span class="count">— {{ analyse.bestuurders|length }}</span></h3>
+      {% if analyse.bestuurders %}
+        <table class="ratio-tabel">
+          <thead>
+            <tr><th>Naam</th><th>Functie</th><th>Adres</th><th class="num">Mandaat</th></tr>
+          </thead>
+          <tbody>
+            {% for b in analyse.bestuurders %}
+              <tr>
+                <td><div class="r-naam">{{ b.naam }}</div></td>
+                <td>{{ b.functie }}</td>
+                <td class="r-formule" style="font-size:.85rem">{{ b.adres }}</td>
+                <td class="num" style="white-space:nowrap">{{ b.mandaat_start }}{% if b.mandaat_einde %} → {{ b.mandaat_einde }}{% endif %}</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      {% else %}
+        <p style="color:var(--muted)">
+          Geen bestuurdersgegevens beschikbaar voor deze bron. Bestuurders worden gehaald uit
+          een PDF, JSON (jsonxbrl) of via het KBO-nummer; een CSV met enkel rubriekcodes bevat ze niet.
+        </p>
+      {% endif %}
+    </div>
   </section>
 
   <!-- CONTROLE -->

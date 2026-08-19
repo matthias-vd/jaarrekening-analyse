@@ -17,6 +17,13 @@ FAO kan de recentste jaarrekening rechtstreeks ophalen bij de Balanscentrale van
 abonnementssleutel: registreer op https://developer.cbso.nbb.be en zet de sleutel als
 omgevingsvariabele `NBB_CBSO_SUBSCRIPTION_KEY` (bv. via de Secrets van de omgeving / Vercel).
 
+### Functies
+- Balans en resultatenrekening volgens de wettelijke structuur, met conformiteitscontrole.
+- Ratio's (toegevoegde waarde, rendabiliteit, solvabiliteit, liquiditeit) met sectorvergelijking.
+- Tab **Bestuurders** (naam, functie, adres, mandaat) uit PDF/JSON/KBO.
+- Tab **Risico**: Altman Z''-score en gezondheidskwadrant (indicatief krediet-/faillissementsrisico).
+- **Vergelijken**: meerdere jaarrekeningen (over de jaren of tussen ondernemingen) met grafieken en een gunstig/ongunstig-oordeel over de evolutie.
+
 ## Getting Started
 ### Online, gemakkelijkst, "it just works"
 Er is altijd een instance beschikbaar op https://fao.vuma.be.
