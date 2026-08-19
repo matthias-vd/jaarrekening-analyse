@@ -180,26 +180,33 @@ _BEDRAG = re.compile(
 )
 
 
+_LEGE_CEL = re.compile(r"^\.{2,}$")  # puntjeslijn = lege cel (bv. ".............")
+
+
 def codes_uit_tekst(tekst):
     """Haal ``{code: waarde}`` uit platte PDF-tekst van een NBB-jaarrekening.
 
-    Lay-out per regel: ``Rubriek [Toel.] Code Boekjaar [Vorig boekjaar]``. Na een
-    gekende rubriekcode wordt het eerste bedrag (kolom 'boekjaar') genomen. Best-effort.
+    Werkt voor twee lay-outs:
+    - alles op één regel (``Rubriek [Toel.] Code Boekjaar Vorig``), en
+    - code en bedragen elk op een aparte regel (verkort/Frans model).
+
+    De tekst wordt tot één tokenreeks herleid; na een gekende rubriekcode wordt het
+    eerste bedrag (kolom 'boekjaar') genomen. Het zoeken stopt bij een lege cel
+    (puntjes) of bij de volgende gekende code, zodat geen waarde van een andere
+    rubriek wordt overgenomen.
     """
     bekende = _bekende_codes()
+    tokens = tekst.replace("\t", " ").split()
     data = {}
-    for regel in tekst.splitlines():
-        tokens = regel.replace("\t", " ").split()
-        for i, token in enumerate(tokens):
-            if token in bekende and token not in data:
-                for volgend in tokens[i + 1:]:
-                    if volgend in bekende:
-                        break  # volgende rubriek: deze had geen bedrag op de regel
-                    if _BEDRAG.match(volgend):
-                        waarde = parse_bedrag(volgend)
-                        if waarde is not None:
-                            data[token] = str(waarde)
-                        break
+    for i, token in enumerate(tokens[:-1]):
+        if token in bekende and token not in data:
+            # In beide lay-outs staat het bedrag (kolom 'boekjaar') onmiddellijk na de
+            # code. Enkel dat token aanvaarden vermijdt valse treffers (bv. paginanummers).
+            volgend = tokens[i + 1]
+            if _BEDRAG.match(volgend) and not _LEGE_CEL.match(volgend):
+                waarde = parse_bedrag(volgend)
+                if waarde is not None:
+                    data[token] = str(waarde)
     return data
 
 
@@ -211,31 +218,45 @@ _MANDAAT = re.compile(
 )
 
 
+def _waarde_na_dubbelpunt(regel):
+    waarde = regel.split(":", 1)[-1].strip(" .\t") if ":" in regel else ""
+    return waarde if waarde and not set(waarde) <= {"."} else ""
+
+
 def metadata_uit_tekst(tekst):
-    """Haal identificatiegegevens uit de PDF-tekst (naam, nummer, rechtsvorm, boekjaar)."""
+    """Haal identificatiegegevens uit de PDF-tekst (NL en FR), best-effort."""
     meta = {}
     for regel in tekst.splitlines():
         r = regel.strip()
         low = r.lower()
-        if not meta.get("Entity name") and low.startswith("naam"):
-            waarde = r.split(":", 1)[-1].strip()
+        if not meta.get("Entity name") and (low.startswith("naam") or low.startswith("dénomination") or low.startswith("denomination")):
+            waarde = _waarde_na_dubbelpunt(r)
             if waarde:
                 meta["Entity name"] = waarde
-        elif not meta.get("Entity number") and low.startswith("ondernemingsnummer"):
+        elif not meta.get("Entity number") and (low.startswith("ondernemingsnummer") or low.startswith("numéro d") or low.startswith("numero d")):
             cijfers = re.sub(r"\D", "", r)
             if len(cijfers) >= 9:
                 meta["Entity number"] = cijfers
-        elif not meta.get("Legal form") and low.startswith("rechtsvorm"):
-            waarde = r.split(":", 1)[-1].strip()
+        elif not meta.get("Legal form") and (low.startswith("rechtsvorm") or low.startswith("forme jurid")):
+            waarde = _waarde_na_dubbelpunt(r)
             if waarde:
                 meta["Legal form"] = waarde
-        # Boekjaarperiode: "... boekjaar dat de periode dekt van 01-07-2024 tot 30-06-2025"
-        if ("boekjaar" in low and " van " in low and " tot " in low
-                and "vorig" not in low and "Accounting period end date" not in meta):
+        # Boekjaarperiode (NL: "van 01-07-2024 tot 30-06-2025"; FR: "du 01/07/2024 au 30/06/2025")
+        heeft_periode = ("boekjaar" in low and " van " in low and " tot " in low and "vorig" not in low) \
+            or ("exercice" in low and " du " in low and " au " in low and "précédent" not in low and "precedent" not in low)
+        if heeft_periode and "Accounting period end date" not in meta:
             be = _DATUM_BE.findall(r)
             if len(be) >= 2:
                 meta["Accounting period start date"] = f"{be[0][2]}-{be[0][1]}-{be[0][0]}"
                 meta["Accounting period end date"] = f"{be[1][2]}-{be[1][1]}-{be[1][0]}"
+
+    # Ondernemingsnummer valt vaak alleen betrouwbaar af te leiden uit de paginavoettekst;
+    # neem het vaakst voorkomende nummer (het eigen nummer staat op elke pagina).
+    if not meta.get("Entity number"):
+        nummers = re.findall(r"\b0\d{3}\.\d{3}\.\d{3}\b|\b0\d{9}\b", tekst)
+        if nummers:
+            import collections
+            meta["Entity number"] = collections.Counter(re.sub(r"\D", "", n) for n in nummers).most_common(1)[0][0]
     return meta
 
 
@@ -300,11 +321,18 @@ def parse_pdf(fileobj):
         bron = fileobj
     try:
         reader = PdfReader(bron)
-        tekst = "\n".join((pagina.extract_text() or "") for pagina in reader.pages)
+        paginas = [(pagina.extract_text() or "") for pagina in reader.pages]
     except Exception as exc:  # noqa: BLE001
         raise BronFout("De PDF kon niet gelezen worden.") from exc
 
-    data = codes_uit_tekst(tekst)
+    tekst = "\n".join(paginas)
+    # Beperk de code-extractie tot de eigenlijke overzichtspagina's (balans/RR),
+    # zodat rubriekcodes niet per ongeluk matchen met paginanummers of toelichtingen.
+    ankers = ("20/58", "10/49", "9901", "9903", "9904", "9905",
+              "BALANS", "BILAN", "ACTIVA", "ACTIF", "PASSIVA", "PASSIF",
+              "RESULTATENREKENING", "COMPTE DE R", "COMPTES DE R")
+    overzicht = [p for p in paginas if any(a in p or a in p.upper() for a in ankers)]
+    data = codes_uit_tekst("\n".join(overzicht) if overzicht else tekst)
     if not data.get("20/58") and not data.get("10/49"):
         raise BronFout(
             "Geen herkenbare balanscodes in de PDF gevonden. Gebruik bij voorkeur de "
