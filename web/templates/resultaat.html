@@ -37,7 +37,7 @@
     .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px,1fr)); gap: 1rem; }
     .kpi {
       padding: 1.1rem 1.2rem; border-radius: 14px; border: 1px solid var(--line);
-      background: linear-gradient(180deg, var(--accent-050), #fff);
+      background: linear-gradient(180deg, var(--accent-050), var(--card));
     }
     .kpi .val { font-size: 1.7rem; font-weight: 800; color: var(--accent-700); letter-spacing: -0.01em; }
     .kpi .lab { font-weight: 600; margin-top: 0.2rem; }
@@ -47,20 +47,20 @@
     .toolbar label { display: inline-flex; align-items: center; gap: 0.5rem; color: var(--muted); font-size: 0.9rem; cursor: pointer; }
 
     table.statement { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-    table.statement td { padding: 0.4rem 0.6rem; border-bottom: 1px solid #eef5f4; vertical-align: top; }
+    table.statement td { padding: 0.4rem 0.6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
     table.statement td.code { color: var(--muted); font-size: 0.82rem; white-space: nowrap; width: 70px; }
     table.statement td.toel { color: var(--muted); font-size: 0.78rem; white-space: nowrap; width: 60px; text-align: right; }
     table.statement td.waarde { text-align: right; white-space: nowrap; font-weight: 600; width: 150px; }
     table.statement td.waarde.neg { color: var(--err); }
     table.statement tr.sectie td { background: var(--accent-050); font-weight: 800; text-transform: uppercase; letter-spacing: 0.03em; font-size: 0.85rem; color: var(--accent-700); border-bottom: 1px solid var(--accent-100); }
-    table.statement tr.totaal td { font-weight: 800; border-top: 2px solid var(--accent-200); background: #f6fdfc; }
-    table.statement tr.leeg td { color: #9fb6b7; }
+    table.statement tr.totaal td { font-weight: 800; border-top: 2px solid var(--accent-200); background: var(--bg-soft); }
+    table.statement tr.leeg td { color: var(--muted); }
     table.statement tr.leeg td.rubriek { font-weight: 400; }
     .hide-empty table.statement tr.leeg { display: none; }
 
     .check-row {
       display: grid; grid-template-columns: 28px 1fr auto; gap: 0.8rem; align-items: start;
-      padding: 0.8rem 0; border-bottom: 1px solid #eef5f4;
+      padding: 0.8rem 0; border-bottom: 1px solid var(--line);
     }
     .check-row:last-child { border-bottom: none; }
     .check-icon { width: 26px; height: 26px; border-radius: 999px; display: grid; place-items: center; font-weight: 700; font-size: 0.85rem; }
@@ -107,13 +107,13 @@
            color: var(--muted); padding: .3rem .6rem .5rem; border-bottom: 2px solid var(--line); }
     table.ratio-tabel th.num, table.ratio-tabel td.num { text-align: right; white-space: nowrap; }
     table.ratio-tabel th.pos, table.ratio-tabel td.pos { text-align: right; white-space: nowrap; }
-    table.ratio-tabel td { padding: .55rem .6rem; border-bottom: 1px solid #eef5f4; vertical-align: top; }
+    table.ratio-tabel td { padding: .55rem .6rem; border-bottom: 1px solid var(--line); vertical-align: top; }
     table.ratio-tabel .r-naam { font-weight: 600; }
     table.ratio-tabel .r-formule { color: var(--muted); font-size: .78rem; margin-top: .15rem; }
     table.ratio-tabel td.waarde { font-weight: 700; font-size: 1.02rem; }
     table.ratio-tabel td.sector { color: var(--muted); font-size: .85rem; }
     table.ratio-tabel tr.na { opacity: .6; }
-    table.ratio-tabel .dash { color: #b7c9c9; }
+    table.ratio-tabel .dash { color: var(--muted); }
 {% endblock %}
 
 {% block content %}
