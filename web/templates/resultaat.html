@@ -57,6 +57,14 @@
     table.statement tr.leeg td { color: var(--muted); }
     table.statement tr.leeg td.rubriek { font-weight: 400; }
     .hide-empty table.statement tr.leeg { display: none; }
+    table.statement td.rubriek .caret { display: inline-block; width: 1.1em; color: var(--muted); font-size: 0.7rem; }
+    table.statement tr.heeft-kinderen { cursor: pointer; }
+    table.statement tr.heeft-kinderen .caret::before { content: '\25BE'; }
+    table.statement tr.heeft-kinderen.is-collapsed .caret::before { content: '\25B8'; }
+    table.statement tr.ingeklapt { display: none; }
+    .toolbar .toolbar-acties { display: inline-flex; gap: 0.4rem; align-items: center; }
+    .btn-mini { border: 1px solid var(--line); background: var(--card); color: var(--muted); border-radius: 8px; padding: 0.25rem 0.6rem; font-size: 0.8rem; font-weight: 600; cursor: pointer; }
+    .btn-mini:hover { color: var(--accent-700); border-color: var(--accent-200); }
 
     .check-row {
       display: grid; grid-template-columns: 28px 1fr auto; gap: 0.8rem; align-items: start;
@@ -255,7 +263,11 @@
     <div class="card panel hide-empty" id="balans-panel">
       <div class="toolbar">
         <h3 style="margin:0">Balans na winstverdeling</h3>
-        <label><input type="checkbox" checked onchange="document.getElementById('balans-panel').classList.toggle('hide-empty', this.checked)"> Verberg lege rubrieken</label>
+        <div class="toolbar-acties">
+          <button type="button" class="btn-mini" data-inklap="balans-panel">Alles inklappen</button>
+          <button type="button" class="btn-mini" data-uitklap="balans-panel">Alles uitklappen</button>
+          <label><input type="checkbox" checked onchange="document.getElementById('balans-panel').classList.toggle('hide-empty', this.checked)"> Verberg lege rubrieken</label>
+        </div>
       </div>
       {{ statement(analyse.balans) }}
     </div>
@@ -266,7 +278,11 @@
     <div class="card panel hide-empty" id="rr-panel">
       <div class="toolbar">
         <h3 style="margin:0">Resultatenrekening</h3>
-        <label><input type="checkbox" checked onchange="document.getElementById('rr-panel').classList.toggle('hide-empty', this.checked)"> Verberg lege rubrieken</label>
+        <div class="toolbar-acties">
+          <button type="button" class="btn-mini" data-inklap="rr-panel">Alles inklappen</button>
+          <button type="button" class="btn-mini" data-uitklap="rr-panel">Alles uitklappen</button>
+          <label><input type="checkbox" checked onchange="document.getElementById('rr-panel').classList.toggle('hide-empty', this.checked)"> Verberg lege rubrieken</label>
+        </div>
       </div>
       {{ statement(analyse.resultatenrekening) }}
     </div>
@@ -646,9 +662,9 @@
 {% macro statement(rijen) %}
   <table class="statement">
     {% for r in rijen %}
-      <tr class="lvl-{{ r.niveau }}{% if r.is_sectie %} sectie{% endif %}{% if r.is_totaal %} totaal{% endif %}{% if r.is_leeg %} leeg{% endif %}">
+      <tr data-niveau="{{ r.niveau }}" class="lvl-{{ r.niveau }}{% if r.is_sectie %} sectie{% endif %}{% if r.is_totaal %} totaal{% endif %}{% if r.is_leeg %} leeg{% endif %}">
         <td class="code">{{ r.code }}</td>
-        <td class="rubriek" style="padding-left: {{ r.niveau * 18 + 8 }}px">{{ r.rubriek }}</td>
+        <td class="rubriek" style="padding-left: {{ r.niveau * 18 + 8 }}px"><span class="caret"></span>{{ r.rubriek }}</td>
         <td class="toel">{{ r.toelichting }}</td>
         <td class="waarde{% if r.waarde is not none and r.waarde < 0 %} neg{% endif %}">
           {% if r.waarde is not none %}{{ r.waarde | bedrag }}{% endif %}
@@ -695,5 +711,59 @@
     document.getElementById('tab-' + b.dataset.tab).classList.add('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
   }));
+
+  // Inklapbare rubrieken in balans / resultatenrekening
+  function initStatement(panelId) {
+    const panel = document.getElementById(panelId);
+    if (!panel) return;
+    const tabel = panel.querySelector('table.statement');
+    if (!tabel) return;
+    const rijen = Array.from(tabel.rows);
+    const niveaus = rijen.map(tr => parseInt(tr.dataset.niveau, 10) || 0);
+
+    // Markeer rijen met onderliggende rubrieken (eerstvolgende rij heeft hoger niveau)
+    rijen.forEach((tr, i) => {
+      const kinderen = i + 1 < rijen.length && niveaus[i + 1] > niveaus[i];
+      if (kinderen) {
+        tr.classList.add('heeft-kinderen');
+        const cel = tr.querySelector('td.rubriek');
+        tr.addEventListener('click', (e) => {
+          if (e.target.tagName === 'A' || e.target.tagName === 'INPUT') return;
+          tr.classList.toggle('is-collapsed');
+          herbereken();
+        });
+      }
+    });
+
+    function herbereken() {
+      // Enkelvoudige walk: een collaps op niveau L verbergt alle volgende rijen met niveau > L
+      let actiefNiveau = Infinity;
+      rijen.forEach((tr, i) => {
+        const L = niveaus[i];
+        if (L > actiefNiveau) {
+          tr.classList.add('ingeklapt');
+        } else {
+          actiefNiveau = Infinity;
+          tr.classList.remove('ingeklapt');
+          if (tr.classList.contains('heeft-kinderen') && tr.classList.contains('is-collapsed')) {
+            actiefNiveau = L;
+          }
+        }
+      });
+    }
+
+    panel.querySelectorAll('[data-inklap]').forEach(btn => btn.addEventListener('click', () => {
+      rijen.forEach(tr => { if (tr.classList.contains('heeft-kinderen')) tr.classList.add('is-collapsed'); });
+      herbereken();
+    }));
+    panel.querySelectorAll('[data-uitklap]').forEach(btn => btn.addEventListener('click', () => {
+      rijen.forEach(tr => tr.classList.remove('is-collapsed'));
+      herbereken();
+    }));
+
+    herbereken();
+  }
+  initStatement('balans-panel');
+  initStatement('rr-panel');
 </script>
 {% endblock %}
