@@ -378,6 +378,7 @@ def analyseer_data(data):
     """
     from core.ratios import bereken_ratios  # lokale import om circulaire import te vermijden
     from core.risico import bereken_risico
+    from core.falingsmodellen import bereken_falingsmodellen as _falingsmodellen
     from core.landen import verrijk_bestuurders
     from core.sectordata import REFERENTIE_BRON, REFERENTIE_PROFIEL
 
@@ -397,6 +398,7 @@ def analyseer_data(data):
         "kerncijfers": kerncijfers(data),
         "ratios": bereken_ratios(data),
         "risico": bereken_risico(data),
+        "falingsmodellen": _falingsmodellen(data),
         "bestuurders": verrijk_bestuurders(data.get("__bestuurders__", [])),
         "fiche": _fiche(data),
         "sector_bron": REFERENTIE_BRON,

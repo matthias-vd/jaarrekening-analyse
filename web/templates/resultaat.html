@@ -428,6 +428,49 @@
     {% else %}
       <div class="card panel"><p style="color:var(--muted)">Onvoldoende gegevens om het financieel risico in te schatten.</p></div>
     {% endif %}
+
+    {% set fm = analyse.falingsmodellen %}
+    <div class="card panel" style="margin-top:1.3rem">
+      <h3>Faalvoorspellingsmodellen</h3>
+      <p style="color:var(--muted); margin:0 0 1rem">
+        Academische modellen uit de cursus. Indicatief — geen kredietbeoordeling.
+      </p>
+      <div class="grid-2">
+        <div>
+          <h4 style="margin:.2rem 0 .5rem">OV82 — Ooghe-Verbaere (1982)</h4>
+          {% if fm.ov82 %}
+            <div class="kpi" style="margin-bottom:.7rem">
+              <div class="val {{ fm.ov82.kleur }}" style="color:var(--{{ fm.ov82.kleur }})">{{ fm.ov82.score }}</div>
+              <div class="lab"><span class="badge {{ fm.ov82.kleur }}">{{ fm.ov82.oordeel }}</span></div>
+              <div class="hint">Lineaire discriminantscore · afkapgrens ≈ {{ fm.ov82.afkapgrens }} (hoger = gezonder)</div>
+            </div>
+            <table class="ratio-tabel"><tbody>
+              {% for c in fm.ov82.componenten %}<tr><td>{{ c.naam }}</td><td class="num waarde">{{ c.waarde }}</td></tr>{% endfor %}
+            </tbody></table>
+          {% else %}<p style="color:var(--muted)">Onvoldoende gegevens.</p>{% endif %}
+        </div>
+        <div>
+          <h4 style="margin:.2rem 0 .5rem">SIM05 — FiTo-score (simpel-intuïtief)</h4>
+          {% if fm.fito %}
+            <div class="kpi" style="margin-bottom:.7rem">
+              <div class="val {{ fm.fito.kleur }}" style="color:var(--{{ fm.fito.kleur }})">{{ fm.fito.score }}</div>
+              <div class="lab"><span class="badge {{ fm.fito.kleur }}">{{ fm.fito.oordeel }}</span></div>
+              <div class="hint">Gemiddelde van 5 logit-herschaalde ratio's (0–1, hoger = gezonder)</div>
+            </div>
+            <table class="ratio-tabel"><tbody>
+              {% for c in fm.fito.componenten %}<tr><td>{{ c.naam }}</td><td class="num waarde">{{ c.logit }}</td></tr>{% endfor %}
+            </tbody></table>
+          {% else %}<p style="color:var(--muted)">Onvoldoende gegevens.</p>{% endif %}
+        </div>
+      </div>
+      <div style="margin-top:1.2rem">
+        <h4 style="margin:.2rem 0 .5rem">OJD91 — Ooghe-Joos-De Vos (1991)</h4>
+        <p style="color:var(--muted); margin:0 0 .5rem">{{ fm.ojd91.reden }}</p>
+        <div class="signalen">
+          {% for v in fm.ojd91.variabelen %}<span class="badge neutral" style="font-weight:500">{{ v }}</span>{% endfor %}
+        </div>
+      </div>
+    </div>
   </section>
 
   <!-- BESTUURDERS -->
