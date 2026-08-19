@@ -232,6 +232,7 @@ def _voer_controle_uit(naam, totaalcode, componenten, data):
     if totaal is None:
         return None  # niets om tegen te controleren
     berekend = 0.0
+    aanwezig = 0
     for code, teken, verplicht in componenten:
         waarde = lees_waarde(data, code)
         if waarde is None:
@@ -239,7 +240,13 @@ def _voer_controle_uit(naam, totaalcode, componenten, data):
                 return {"naam": naam, "status": "overgeslagen", "totaalcode": totaalcode,
                         "verwacht": totaal, "berekend": None, "verschil": None}
             waarde = 0.0
+        else:
+            aanwezig += 1
         berekend += teken * waarde
+    # Geen enkele component aanwezig (bv. verkort model): niet te controleren.
+    if aanwezig == 0:
+        return {"naam": naam, "status": "overgeslagen", "totaalcode": totaalcode,
+                "verwacht": totaal, "berekend": None, "verschil": None}
     verschil = totaal - berekend
     status = "ok" if abs(verschil) <= _EPS else "fout"
     return {"naam": naam, "status": status, "totaalcode": totaalcode,
