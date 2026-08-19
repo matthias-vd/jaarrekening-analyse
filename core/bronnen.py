@@ -122,6 +122,7 @@ def parse_jsonxbrl(inhoud, extra_meta=None):
         raise BronFout("Geen rubrieken (Rubrics) gevonden in het JSON-bestand.")
 
     data = {}
+    vorig = {}
     for rubriek in rubrieken:
         if not isinstance(rubriek, dict):
             continue
@@ -132,6 +133,10 @@ def parse_jsonxbrl(inhoud, extra_meta=None):
             continue
         if periode in (None, "", "N"):
             data[str(code).strip()] = str(waarde).strip()
+        elif periode == "NM1":
+            vorig[str(code).strip()] = str(waarde).strip()
+    if vorig:
+        data["__vorig__"] = vorig
 
     # Identificatiegegevens omzetten naar dezelfde sleutels als de CSV-export.
     naam = acc.get("EnterpriseName") or acc.get("enterpriseName")
@@ -200,17 +205,23 @@ def codes_uit_tekst(tekst):
     bekende = _bekende_codes()
     # '!' is een kolomscheider in zeer oude jaarrekeningen (ASCII-tabellen) -> als spatie.
     tokens = tekst.replace("\t", " ").replace("!", " ").split()
-    data = {}
-    for i, token in enumerate(tokens[:-1]):
-        if token in bekende and token not in data:
-            # In beide lay-outs staat het bedrag (kolom 'boekjaar') onmiddellijk na de
-            # code. Enkel dat token aanvaarden vermijdt valse treffers (bv. paginanummers).
-            volgend = tokens[i + 1]
-            if _BEDRAG.match(volgend) and not _LEGE_CEL.match(volgend):
-                waarde = parse_bedrag(volgend)
-                if waarde is not None:
-                    data[token] = str(waarde)
-    return data
+    huidig, vorig = {}, {}
+    n = len(tokens)
+    for i, token in enumerate(tokens):
+        if token in bekende and token not in huidig and i + 1 < n:
+            # Kolom 'boekjaar' staat onmiddellijk na de code; 'vorig boekjaar' erna.
+            v1 = tokens[i + 1]
+            if _BEDRAG.match(v1) and not _LEGE_CEL.match(v1):
+                w1 = parse_bedrag(v1)
+                if w1 is not None:
+                    huidig[token] = str(w1)
+                    if i + 2 < n:
+                        v2 = tokens[i + 2]
+                        if _BEDRAG.match(v2) and not _LEGE_CEL.match(v2):
+                            w2 = parse_bedrag(v2)
+                            if w2 is not None:
+                                vorig[token] = str(w2)
+    return huidig, vorig
 
 
 def _codes_gericht(tekst, codes):
@@ -355,7 +366,7 @@ def parse_pdf(fileobj):
               "BALANS", "BILAN", "ACTIVA", "ACTIF", "PASSIVA", "PASSIF",
               "RESULTATENREKENING", "COMPTE DE R", "COMPTES DE R")
     overzicht = [p for p in paginas if any(a in p or a in p.upper() for a in ankers)]
-    data = codes_uit_tekst("\n".join(overzicht) if overzicht else tekst)
+    data, vorig = codes_uit_tekst("\n".join(overzicht) if overzicht else tekst)
 
     # Personeelscijfers staan op de sociale balans (buiten de overzichtspagina's en
     # niet in de balans/RR-structuur); gericht ophalen uit de volledige tekst.
@@ -364,6 +375,8 @@ def parse_pdf(fileobj):
         data.setdefault(code, waarde)
     if "9087" not in data and "1003" in data:
         data["9087"] = data["1003"]  # gemiddeld personeelsbestand benaderen via totaal VTE
+    if vorig:
+        data["__vorig__"] = vorig  # 'vorig boekjaar'-kolom voor evolutie en kasstromen
     if not data.get("20/58") and not data.get("10/49"):
         raise BronFout(
             "Geen herkenbare balanscodes in de PDF gevonden. Gebruik bij voorkeur de "

@@ -380,8 +380,12 @@ def analyseer_data(data):
     from core.ratios import bereken_ratios  # lokale import om circulaire import te vermijden
     from core.risico import bereken_risico
     from core.falingsmodellen import bereken_falingsmodellen as _falingsmodellen
+    from core.evolutie import bereken_evolutie
+    from core.kasstroom import bereken_kasstroom
     from core.landen import verrijk_bestuurders
     from core.sectordata import REFERENTIE_BRON, REFERENTIE_PROFIEL
+
+    vorig = data.get("__vorig__")
 
     herkende = _herkende_codes()
     # Gereserveerde sleutels (bv. __bestuurders__) tellen niet mee als rubriekcodes.
@@ -400,6 +404,9 @@ def analyseer_data(data):
         "ratios": bereken_ratios(data),
         "risico": bereken_risico(data),
         "falingsmodellen": _falingsmodellen(data),
+        "evolutie": bereken_evolutie(data, vorig),
+        "kasstroom": bereken_kasstroom(data, vorig),
+        "heeft_vorig": bool(vorig),
         "bestuurders": verrijk_bestuurders(data.get("__bestuurders__", [])),
         "fiche": _fiche(data),
         "sector_bron": REFERENTIE_BRON,
