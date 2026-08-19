@@ -1,28 +1,41 @@
 {% extends "base.html" %}
-{% block title %}FAO — Jaarrekeningen vergelijken{% endblock %}
+{% block title %}Vergelijken — Financiële Analyse van de Onderneming{% endblock %}
 
 {% block styles %}
-    .flash { margin-bottom: 1.2rem; padding: 0.9rem 1.1rem; border-radius: 12px;
+    .flash { margin-bottom: 1.2rem; padding: .9rem 1.1rem; border-radius: 12px;
       background: var(--err-bg); color: var(--err); font-weight: 500; border: 1px solid #f3c4c9; }
-    .intro h1 { font-size: 2rem; margin: 0 0 .5rem; letter-spacing: -0.02em; }
-    .intro p { color: var(--muted); max-width: 70ch; }
-    .upload-card { padding: 1.5rem 1.7rem; margin: 1.2rem 0 2rem; }
-    .upload-card h2 { margin: 0 0 .3rem; font-size: 1.2rem; }
-    .upload-card .sub { color: var(--muted); font-size: .92rem; margin: 0 0 1rem; }
-    .multi-row { display: flex; gap: .7rem; flex-wrap: wrap; align-items: center; }
-    input[type="file"].multi { font-family: var(--font); }
 
-    .samenvatting { display: flex; gap: .6rem; flex-wrap: wrap; margin-bottom: 1.2rem; }
-    .grid-charts { display: grid; grid-template-columns: 1fr 1fr; gap: 1.3rem; margin-bottom: 1.3rem; }
-    @media (max-width: 900px){ .grid-charts { grid-template-columns: 1fr; } }
-    .chart-card { padding: 1.2rem 1.4rem; }
-    .chart-card h3 { margin: 0 0 .8rem; font-size: 1.05rem; }
+    /* Intro / upload */
+    .vgl-hero {
+      border-radius: 22px; padding: 2rem 2.2rem; margin-bottom: 1.6rem; color: #eafffd;
+      background:
+        radial-gradient(700px 320px at 92% -30%, rgba(44,204,196,.5), transparent 60%),
+        linear-gradient(135deg, #0a5f5b, #0b3937);
+      box-shadow: 0 24px 56px rgba(8,49,47,.3);
+    }
+    .vgl-hero h1 { margin: 0 0 .5rem; font-size: 1.9rem; letter-spacing: -0.02em; }
+    .vgl-hero p { margin: 0; color: #c7ece9; max-width: 74ch; }
+
+    .upload-card { padding: 1.4rem 1.6rem; margin-bottom: 2rem; }
+    .upload-card h2 { margin: 0 0 .3rem; font-size: 1.15rem; }
+    .upload-card .sub { color: var(--muted); margin: 0 0 1rem; font-size: .92rem; }
+    .multi-row { display: flex; gap: .7rem; flex-wrap: wrap; align-items: center; }
+    input[type="file"].multi { font-family: var(--font); font-size: .92rem; }
+
+    .samenvatting { display: flex; gap: .5rem; flex-wrap: wrap; margin-bottom: 1.3rem; }
+
+    /* Charts: full width, fixed height so long labels don't squeeze the plot */
+    .chart-card { padding: 1.3rem 1.5rem; margin-bottom: 1.3rem; }
+    .chart-card h3 { margin: 0 0 .9rem; font-size: 1.08rem; }
+    .chart-box { position: relative; height: 340px; }
+    @media (max-width: 640px) { .chart-box { height: 300px; } }
 
     table.vgl { width: 100%; border-collapse: collapse; font-variant-numeric: tabular-nums; }
-    table.vgl th, table.vgl td { padding: .55rem .7rem; border-bottom: 1px solid #eef5f4; text-align: right; white-space: nowrap; }
-    table.vgl th:first-child, table.vgl td:first-child { text-align: left; white-space: normal; }
-    table.vgl thead th { font-size: .82rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); border-bottom: 2px solid var(--line); }
+    table.vgl th, table.vgl td { padding: .55rem .7rem; border-bottom: 1px solid var(--line); text-align: right; white-space: nowrap; }
+    table.vgl th:first-child, table.vgl td:first-child { text-align: left; white-space: normal; min-width: 190px; }
+    table.vgl thead th { font-size: .8rem; text-transform: uppercase; letter-spacing: .03em; color: var(--muted); border-bottom: 2px solid var(--line-strong); }
     table.vgl tbody td.metriek { font-weight: 600; }
+    .dash { color: #b7c9c9; }
 {% endblock %}
 
 {% block content %}
@@ -30,12 +43,12 @@
     {% if messages %}{% for m in messages %}<div class="flash">{{ m }}</div>{% endfor %}{% endif %}
   {% endwith %}
 
-  <div class="intro">
+  <section class="vgl-hero">
     <h1>Jaarrekeningen vergelijken</h1>
-    <p>Upload meerdere jaarrekeningen (CSV, JSON of PDF) — meerdere boekjaren van dezelfde
-       onderneming voor de evolutie, of twee ondernemingen naast elkaar. FAO zet de kerncijfers
-       en ratio's op een rij, toont de evolutie grafisch en beoordeelt of ze gunstig of ongunstig is.</p>
-  </div>
+    <p>Upload meerdere jaarrekeningen (CSV, JSON of PDF) — meerdere boekjaren van dezelfde onderneming
+       voor de evolutie, of verschillende ondernemingen naast elkaar. FAO zet de kerncijfers en ratio's
+       op een rij, toont de evolutie in grafieken en beoordeelt of ze gunstig of ongunstig is.</p>
+  </section>
 
   <form class="card upload-card" method="post" action="{{ url_for('vergelijk') }}" enctype="multipart/form-data">
     <h2>Kies minstens twee bestanden</h2>
@@ -58,15 +71,13 @@
       <span class="badge neutral">{{ 'Meerdere ondernemingen' if vergelijking.meerdere_bedrijven else 'Één onderneming over de tijd' }}</span>
     </div>
 
-    <div class="grid-charts">
-      <div class="card chart-card">
-        <h3>Kerncijfers (in {{ '€' }})</h3>
-        <canvas id="chartEur" height="220"></canvas>
-      </div>
-      <div class="card chart-card">
-        <h3>Ratio's</h3>
-        <canvas id="chartRatio" height="220"></canvas>
-      </div>
+    <div class="card chart-card">
+      <h3>Kerncijfers (in {{ '€' }})</h3>
+      <div class="chart-box"><canvas id="chartEur"></canvas></div>
+    </div>
+    <div class="card chart-card">
+      <h3>Ratio's</h3>
+      <div class="chart-box"><canvas id="chartRatio"></canvas></div>
     </div>
 
     <div class="card chart-card">
@@ -85,7 +96,7 @@
               <tr>
                 <td class="metriek">{{ m.naam }}</td>
                 {% for w in m.waarden %}
-                  <td>{% if w is not none %}{{ w | ratiowaarde(m.eenheid, '€') }}{% else %}—{% endif %}</td>
+                  <td>{% if w is not none %}{{ w | ratiowaarde(m.eenheid, '€') }}{% else %}<span class="dash">—</span>{% endif %}</td>
                 {% endfor %}
                 <td>
                   {% if m.evolutie %}
@@ -109,10 +120,13 @@
 {% if vergelijking %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4"></script>
 <script>
-  const PALET = ['#2CCCC4', '#0f807a', '#f0a92b', '#d83a4b', '#6b7cff', '#12a06a', '#9b59b6'];
-  function maakChart(id, bron, eenheidLabel) {
+  const PALET = ['#0f807a', '#2CCCC4', '#e0a12b', '#d13c4b', '#5b6cf0', '#0f9d63', '#9b59b6'];
+
+  function kort(label) { return label && label.length > 16 ? label.slice(0, 15) + '…' : label; }
+
+  function maakChart(id, bron) {
     const el = document.getElementById(id);
-    if (!el || !bron.reeksen.length) { if (el) el.parentElement.style.display = 'none'; return; }
+    if (!el || !bron.reeksen.length) { if (el) el.closest('.chart-card').style.display = 'none'; return; }
     new Chart(el, {
       type: 'line',
       data: {
@@ -121,14 +135,40 @@
           label: r.naam,
           data: r.waarden,
           borderColor: PALET[i % PALET.length],
-          backgroundColor: PALET[i % PALET.length] + '33',
-          borderWidth: 2, tension: 0.25, spanGaps: true, pointRadius: 3,
+          backgroundColor: PALET[i % PALET.length] + '22',
+          borderWidth: 2.5, tension: 0.25, spanGaps: true,
+          pointRadius: 4, pointHoverRadius: 6, pointBackgroundColor: PALET[i % PALET.length],
         })),
       },
       options: {
         responsive: true,
-        plugins: { legend: { labels: { font: { family: 'Outfit' } } } },
-        scales: { x: { ticks: { font: { family: 'Outfit' } } }, y: { ticks: { font: { family: 'Outfit' } } } },
+        maintainAspectRatio: false,
+        interaction: { mode: 'index', intersect: false },
+        layout: { padding: { top: 4, right: 8, bottom: 4, left: 4 } },
+        plugins: {
+          legend: { position: 'top', align: 'start', labels: { font: { family: 'Outfit' }, usePointStyle: true, boxWidth: 8, padding: 14 } },
+          tooltip: {
+            titleFont: { family: 'Outfit' }, bodyFont: { family: 'Outfit' },
+            callbacks: {
+              // Volledige (niet-afgekapte) naam in de tooltip-titel.
+              title: (items) => items.length ? bron.labels[items[0].dataIndex] : '',
+            },
+          },
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: {
+              font: { family: 'Outfit' }, autoSkip: false, maxRotation: 0, minRotation: 0,
+              callback: function (value) { return kort(this.getLabelForValue(value)); },
+            },
+          },
+          y: {
+            beginAtZero: false,
+            grid: { color: 'rgba(16,42,48,.06)' },
+            ticks: { font: { family: 'Outfit' } },
+          },
+        },
       },
     });
   }
