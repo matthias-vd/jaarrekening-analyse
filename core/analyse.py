@@ -382,10 +382,13 @@ def analyseer_data(data):
     from core.falingsmodellen import bereken_falingsmodellen as _falingsmodellen
     from core.evolutie import bereken_evolutie
     from core.kasstroom import bereken_kasstroom
+    from core.betrouwbaarheid import evalueer_betrouwbaarheid
     from core.landen import verrijk_bestuurders
     from core.sectordata import REFERENTIE_BRON, REFERENTIE_PROFIEL
 
     vorig = data.get("__vorig__")
+    _controle = controleer_conformiteit(data)
+    _bestuurders = verrijk_bestuurders(data.get("__bestuurders__", []))
 
     herkende = _herkende_codes()
     # Gereserveerde sleutels (bv. __bestuurders__) tellen niet mee als rubriekcodes.
@@ -399,7 +402,7 @@ def analyseer_data(data):
         "metadata": build_metadata(data),
         "balans": build_statement(structuurBalans, data),
         "resultatenrekening": build_statement(structuurResultatenRekening, data),
-        "controle": controleer_conformiteit(data),
+        "controle": _controle,
         "kerncijfers": kerncijfers(data),
         "ratios": bereken_ratios(data),
         "risico": bereken_risico(data),
@@ -407,7 +410,8 @@ def analyseer_data(data):
         "evolutie": bereken_evolutie(data, vorig),
         "kasstroom": bereken_kasstroom(data, vorig),
         "heeft_vorig": bool(vorig),
-        "bestuurders": verrijk_bestuurders(data.get("__bestuurders__", [])),
+        "betrouwbaarheid": evalueer_betrouwbaarheid(data, vorig, _controle, _bestuurders),
+        "bestuurders": _bestuurders,
         "fiche": _fiche(data),
         "sector_bron": REFERENTIE_BRON,
         "sector_profiel": REFERENTIE_PROFIEL,
